@@ -1,0 +1,13 @@
+{
+  "name": "Santa María Distribuidora",
+  "short_name": "Santa María",
+  "description": "Fiambres, quesos y embutidos al mejor precio en Los Polvorines.",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "logo-512.png",         "sizes": "512x512",  "type": "image/png", "purpose": "any maskable" }
+  ],
+  "theme_color": "#5a1515",
+  "background_color": "#F5EDE0",
+  "display": "standalone",
+  "start_url": "/"
+}

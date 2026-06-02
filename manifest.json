@@ -1,0 +1,22 @@
+{
+  "name": "Santa María Distribuidora",
+  "short_name": "Santa María",
+  "description": "Fiambres, quesos y embutidos al mejor precio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#5a1515",
+  "theme_color": "#7A1E1E",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
