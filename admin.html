@@ -984,16 +984,6 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             </label>
           </div>
         </div>
-        <div class="form-field full">
-          <label>Zoom de la foto</label>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <span style="font-size:.75rem;color:var(--muted);">–</span>
-            <input type="range" id="ep-zoom" min="0.5" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--rojo);">
-            <span style="font-size:.75rem;color:var(--muted);">+</span>
-            <span id="ep-zoom-val" style="font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;color:var(--vino);min-width:36px;">1×</span>
-          </div>
-          <small style="font-style:italic;color:var(--muted);font-size:.72rem;margin-top:4px;">Ajustá si el producto queda muy chico o muy grande en la card.</small>
-        </div>
       </div>
       <div class="modal-actions" style="margin-top:20px;">
         <button class="btn btn-vino" id="btn-ep-guardar">💾 Guardar cambios</button>
@@ -1130,7 +1120,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch }
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
@@ -1603,16 +1593,19 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
   const btn = document.getElementById('btn-save-precios');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
-    const batch = writeBatch(db);
-    productos.forEach(p => batch.set(doc(db,'productos',p.id), {
-      nombre:p.nombre, cat:p.cat, desc:p.desc||'',
-      min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'', enOferta:p.enOferta||false,
-      stock: p.stock !== false, orden: p.orden || 0,
-      fotoPosX: p.fotoPosX !== undefined ? p.fotoPosX : 50,
-      fotoPosY: p.fotoPosY !== undefined ? p.fotoPosY : 50
-    }));
-    await batch.commit();
-    cambios = false; document.getElementById('cambios-txt').textContent = '✅ Guardado';
+    let guardados = 0;
+    for (const p of productos) {
+      await setDoc(doc(db,'productos',p.id), {
+        nombre:p.nombre, cat:p.cat, desc:p.desc||'',
+        min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'',
+        enOferta:p.enOferta||false, stock: p.stock !== false,
+        orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
+      });
+      guardados++;
+      btn.innerHTML = `<span class="spinner"></span> ${guardados}/${productos.length}`;
+    }
+    cambios = false;
+    document.getElementById('cambios-txt').textContent = '✅ Guardado';
     toast('✅ Catálogo guardado');
   } catch(e) { toast('Error: '+e.message, true); }
   btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
@@ -1788,8 +1781,6 @@ function _openEditModal(i) {
   document.getElementById('ep-may').value     = p.may || '';
   document.getElementById('ep-orden').value   = p.orden || 0;
   document.getElementById('ep-stock').checked = p.stock !== false;
-  document.getElementById('ep-zoom').value    = p.fotoZoom || 1;
-  document.getElementById('ep-zoom-val').textContent = (p.fotoZoom || 1) + '×';
   document.getElementById('inp-foto-ep').value = '';
   epPosX = p.fotoPosX !== undefined ? +p.fotoPosX : 50;
   epPosY = p.fotoPosY !== undefined ? +p.fotoPosY : 50;
@@ -1832,15 +1823,10 @@ function _updateEditPreview() {
 }
 
 // Live preview al tipear
-['ep-nombre','ep-cat','ep-desc','ep-min','ep-stock','ep-zoom'].forEach(id => {
+['ep-nombre','ep-cat','ep-desc','ep-min','ep-stock'].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener('input', _updateEditPreview);
   el.addEventListener('change', _updateEditPreview);
-});
-
-// Zoom label update
-document.getElementById('ep-zoom').addEventListener('input', e => {
-  document.getElementById('ep-zoom-val').textContent = parseFloat(e.target.value).toFixed(2) + '×';
 });
 
 // Foto en el modal de edición
@@ -1897,8 +1883,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       may:     +document.getElementById('ep-may').value || 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
-      fotoZoom: parseFloat(document.getElementById('ep-zoom').value) || 1,
       fotoUrl,
+      fotoPosX: epPosX, fotoPosY: epPosY,
     };
 
     // Guardar directo en Firestore
@@ -1906,8 +1892,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     await setDoc(doc(db,'productos',p.id), {
       nombre:p.nombre, cat:p.cat, desc:p.desc, min:p.min,
       may:p.may, orden:p.orden, stock:p.stock, fotoUrl:p.fotoUrl,
-      fotoZoom: p.fotoZoom || 1,
       enOferta: p.enOferta||false,
+      fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY
     });
 
     document.getElementById('modal-edit-prod').classList.remove('open');
