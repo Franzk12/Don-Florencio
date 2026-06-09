@@ -9,6 +9,33 @@
 <meta property="og:type" content="website">
 <meta property="og:image" content="/logo-512.png">
 <meta name="theme-color" content="#5a1515">
+<!-- SEO: datos estructurados para Google (negocio local) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "GroceryStore",
+  "name": "Santa María Distribuidora",
+  "description": "Fiambres, quesos y embutidos al mejor precio. Venta mayorista y minorista en Los Polvorines.",
+  "image": "/logo-512.png",
+  "telephone": "+5491162263206",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Av. Perón 965",
+    "addressLocality": "Los Polvorines",
+    "addressRegion": "Buenos Aires",
+    "addressCountry": "AR"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": -34.497455,
+    "longitude": -58.7081671
+  },
+  "hasMap": "https://maps.app.goo.gl/LtphovQhGUpeZD4dA",
+  "priceRange": "$$",
+  "currenciesAccepted": "ARS",
+  "paymentAccepted": "Efectivo, Tarjetas, Mercado Pago"
+}
+</script>
 <title>Santa María Distribuidora — Fiambres & Quesos</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -446,6 +473,7 @@ nav::after {
 .mayorista-toggle {
   margin-left: auto; display: flex; align-items: center; gap: 10px;
   cursor: pointer; user-select: none;
+  background: none; border: none; padding: 0;
   font-family: 'Cinzel', serif; font-size: .6rem;
   font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
   color: var(--gris);
@@ -1176,10 +1204,10 @@ footer {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="search-inp" placeholder="Buscar producto...">
       </div>
-      <label class="mayorista-toggle" id="toggle-may">
+      <button type="button" class="mayorista-toggle" id="toggle-may" role="switch" aria-checked="false">
         <span>Ver precio mayorista</span>
-        <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
-      </label>
+        <span class="toggle-track" id="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+      </button>
     </div>
   </div>
 
@@ -1324,7 +1352,7 @@ footer {
           </div>
         </div>
       </div>
-      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="btn-mapa" id="ft-maps">
+      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="btn-mapa lnk-maps">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Cómo llegar
       </a>
@@ -1385,7 +1413,7 @@ footer {
     <div class="footer-col">
       <h4>Sucursal</h4>
       <p id="ft-dir">Av. Perón 965<br>Los Polvorines<br>Buenos Aires</p>
-      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="footer-highlight" id="ft-maps">Ver en Google Maps →</a>
+      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="footer-highlight lnk-maps">Ver en Google Maps →</a>
       <br>
       <a href="https://wa.me/5491162263206" target="_blank" class="footer-highlight" style="margin-top:10px;" id="ft-wa">+54 9 11 6226-3206</a>
     </div>
@@ -1631,6 +1659,7 @@ document.querySelectorAll('.nav-link').forEach(a => {
 document.getElementById('toggle-may').addEventListener('click', () => {
   mostrarMay = !mostrarMay;
   document.getElementById('toggle-track').classList.toggle('on', mostrarMay);
+  document.getElementById('toggle-may').setAttribute('aria-checked', mostrarMay);
   renderCatRows();
 });
 
@@ -1791,7 +1820,7 @@ onSnapshot(
     if (d.exists()) {
       const data = d.data();
       if (data.dir) { document.querySelectorAll('#ft-dir, #ft-dir-mapa').forEach(el => el.innerHTML = data.dir.replace(/\n/g,'<br>')); }
-      if (data.maps) document.querySelectorAll('#ft-maps').forEach(el => el.href = data.maps);
+      if (data.maps) document.querySelectorAll('.lnk-maps').forEach(el => el.href = data.maps);
       if (data.tel) document.querySelectorAll('#ft-wa, #ft-wa-mapa').forEach(el => el.textContent = data.tel);
       if (data.wa) {
         const m = data.wa.match(/wa\.me\/(\d+)/);
