@@ -1634,6 +1634,15 @@ document.getElementById('toggle-may').addEventListener('click', () => {
   renderCatRows();
 });
 
+// Filtro por categoría (pills) — closest() para captar clicks sobre el SVG interno
+document.getElementById('filter-pills').addEventListener('click', e => {
+  const btn = e.target.closest('.pill');
+  if (!btn) return;
+  catActiva = btn.dataset.cat;
+  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b === btn));
+  renderCatRows();
+});
+
 document.getElementById('search-inp').addEventListener('input', debounce(e => {
   busqueda = e.target.value.trim();
   // Al buscar, volver a "todos"
