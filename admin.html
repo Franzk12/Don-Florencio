@@ -971,7 +971,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
         <div class="form-field full">
           <label>Foto</label>
           <div class="upload-area" id="upload-area-ep" style="padding:18px;">
-            <p>📷 <strong>Clic para cambiar foto</strong></p>
+            <p>📷 <strong>Clic para subir</strong> · arrastrá · o <strong>Ctrl+V</strong> para pegar</p>
             <p style="font-size:.72rem;margin-top:3px;color:var(--grisc);">JPG, PNG — máx. 5MB</p>
             <input type="file" id="inp-foto-ep" accept="image/*" style="display:none">
           </div>
@@ -1102,7 +1102,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <div class="form-field full">
         <label>Foto (opcional)</label>
         <div class="upload-area" id="upload-area-np" style="padding:18px;">
-          <p>📷 <strong>Clic para subir foto</strong> o arrastrá acá</p>
+          <p>📷 <strong>Clic para subir</strong> · arrastrá · o <strong>Ctrl+V</strong> para pegar</p>
           <p style="font-size:.72rem;color:var(--grisc);margin-top:3px;">JPG, PNG — máx. 5MB</p>
           <input type="file" id="inp-foto-np" accept="image/*" style="display:none">
         </div>
@@ -1895,6 +1895,22 @@ function _setEditFoto(file) {
   document.getElementById('ep-foto-ajuste').style.display = 'block';
   document.getElementById('ep-prev-foto').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;">`;
 }
+
+// ── PEGAR IMAGEN CON CTRL+V ──
+document.addEventListener('paste', e => {
+  const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+  if (!items) return;
+  let imageFile = null;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) { imageFile = item.getAsFile(); break; }
+  }
+  if (!imageFile) return;
+
+  const editOpen  = document.getElementById('modal-edit-prod').classList.contains('open');
+  const nuevoOpen = document.getElementById('modal-nuevo-prod').classList.contains('open');
+  if (editOpen)  { _setEditFoto(imageFile);  toast('📋 Imagen pegada'); }
+  if (nuevoOpen) { _setFotoNP(imageFile);    toast('📋 Imagen pegada'); }
+});
 
 document.getElementById('ep-pos-x').addEventListener('input', e => {
   epPosX = +e.target.value;
