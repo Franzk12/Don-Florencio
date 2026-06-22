@@ -1468,7 +1468,7 @@ let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 let modalProdIdx = -1, fotoProdFile = null;
 
 function imgSearchUrl(nombre) {
-  // Limpia el nombre: saca prefijos como *(OFERTA)
+  if (!nombre) return '#';
   const limpio = nombre.replace(/\*?\(OFERTA\)\*?/gi, '').trim();
   const prompt = `${limpio} producto Argentina Buenos Aires supermercado mayorista fondo blanco`;
   return 'https://www.google.com/search?udm=2&q=' + encodeURIComponent(prompt);
@@ -1921,8 +1921,8 @@ document.addEventListener('paste', e => {
 
   const editOpen  = document.getElementById('modal-edit-prod').classList.contains('open');
   const nuevoOpen = document.getElementById('modal-nuevo-prod').classList.contains('open');
-  if (editOpen)  { _setEditFoto(imageFile);  toast('📋 Imagen pegada'); }
-  if (nuevoOpen) { _setFotoNP(imageFile);    toast('📋 Imagen pegada'); }
+  if (editOpen)       { _setEditFoto(imageFile); toast('📋 Imagen pegada'); }
+  else if (nuevoOpen) { _setFotoNP(imageFile);  toast('📋 Imagen pegada'); }
 });
 
 document.getElementById('ep-pos-x').addEventListener('input', e => {
