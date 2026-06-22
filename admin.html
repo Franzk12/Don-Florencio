@@ -1585,14 +1585,27 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales', aderezo:'aderezos', dulce:'dulces' };
     const normalize = s => (s+'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
-    const nuevos = rows.map(row => {
-      const nombre = row['nombre'] || row['Nombre'] || row['NOMBRE'] || '';
-      const catRaw = normalize(row['categoria'] || row['Categoría'] || row['cat'] || 'fiambres');
-      const cat = catMap[catRaw] || CATS.find(c => catRaw.includes(c.replace(/s$/,''))) || 'fiambres';
-      const min = parseFloat(String(row['minorista'] || row['Minorista'] || row['precio'] || row['min'] || 0).replace(/[^0-9.]/g,'')) || 0;
+    // Normalizar claves del row (quitar espacios de nombres de columna)
+    const normRows = rows.map(row => {
+      const r = {};
+      Object.keys(row).forEach(k => { r[k.trim()] = row[k]; });
+      return r;
+    });
+    // Categoría por defecto según nombre de archivo
+    const filenameCat = (() => {
+      const n = normalize(file.name.replace(/\.xlsx?$/i,''));
+      return catMap[n] || CATS.find(c => n.includes(c.replace(/s$/,''))) || null;
+    })();
+
+    const nuevos = normRows.map(row => {
+      const nombre = row['nombre'] || row['Nombre'] || row['NOMBRE'] || row['descrip_arti'] || row['DESCRIP_ARTI'] || '';
+      const catRaw = normalize(row['categoria'] || row['Categoría'] || row['cat'] || '');
+      const cat = catRaw ? (catMap[catRaw] || CATS.find(c => catRaw.includes(c.replace(/s$/,''))) || filenameCat || 'fiambres') : (filenameCat || 'fiambres');
+      const min = parseFloat(String(row['minorista'] || row['Minorista'] || row['precio'] || row['min'] || row['precio_uni'] || row['PRECIO_UNI'] || 0).replace(/[^0-9.]/g,'')) || 0;
       const may = parseFloat(String(row['mayorista'] || row['Mayorista'] || row['may'] || 0).replace(/[^0-9.]/g,'')) || 0;
-      const desc = row['descripcion'] || row['Descripción'] || row['desc'] || '';
-      return { id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min, may, fotoUrl: '', stock: true };
+      const desc = row['descripcion'] || row['Descripción'] || row['desc'] || row['desc_adicional'] || '';
+      const stockVal = row['cant_stock'] !== undefined ? Number(row['cant_stock']) > 0 : true;
+      return { id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min, may, fotoUrl: '', stock: stockVal };
     }).filter(p => p.nombre);
 
     if (!nuevos.length) { toast('No se encontraron productos válidos', true); return; }
