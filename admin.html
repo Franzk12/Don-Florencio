@@ -711,6 +711,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <button class="cat-pill" data-cat="congelados">🧊 Congelados</button>
       <button class="cat-pill" data-cat="encurtidos">🫙 Encurtidos</button>
       <button class="cat-pill" data-cat="regionales">🌾 Regionales</button>
+      <button class="cat-pill" data-cat="aderezos">🧴 Aderezos</button>
+      <button class="cat-pill" data-cat="dulces">🍬 Dulces</button>
     </div>
     <div class="admin-search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -946,6 +948,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <option value="congelados">🧊 Congelados</option>
             <option value="encurtidos">🫙 Encurtidos</option>
             <option value="regionales">🌾 Regionales</option>
+            <option value="aderezos">🧴 Aderezos</option>
+            <option value="dulces">🍬 Dulces</option>
           </select>
         </div>
         <div class="form-field">
@@ -1067,6 +1071,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <option value="congelados">Congelados</option>
           <option value="encurtidos">Encurtidos</option>
           <option value="regionales">Regionales</option>
+          <option value="aderezos">Aderezos</option>
+          <option value="dulces">Dulces</option>
         </select>
       </div>
       <div class="form-field full">
@@ -1443,8 +1449,8 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
 // ══════════════════════
 // PRODUCTOS / CATÁLOGO
 // ══════════════════════
-const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','regionales'];
-const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Encurtidos',regionales:'Regionales'};
+const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','regionales','aderezos','dulces'];
+const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Encurtidos',regionales:'Regionales',aderezos:'Aderezos',dulces:'Dulces'};
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 let modalProdIdx = -1, fotoProdFile = null;
 
@@ -1576,7 +1582,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     if (!rows.length) { toast('El archivo está vacío', true); return; }
 
     // Mapear columnas flexibles
-    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales' };
+    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales', aderezo:'aderezos', dulce:'dulces' };
     const normalize = s => (s+'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
     const nuevos = rows.map(row => {
