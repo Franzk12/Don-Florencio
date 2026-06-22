@@ -1007,7 +1007,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <div class="modal-actions" style="margin-top:20px;">
         <button class="btn btn-vino" id="btn-ep-guardar">💾 Guardar cambios</button>
         <button class="btn btn-ghost" id="btn-ep-cancelar">Cancelar</button>
-        <a class="btn btn-ghost btn-sm" id="btn-ep-buscar-img" href="#" target="_blank" title="Buscar imagen en Google Images">🔍 Buscar imagen</a>
+        <a class="btn btn-ghost btn-sm" id="btn-ep-buscar-img" href="#" target="_blank" title="Buscar imagen con IA">🤖 Buscar imagen</a>
         <button class="btn btn-danger btn-sm" id="btn-ep-borrar" style="margin-left:auto;">🗑 Eliminar</button>
       </div>
     </div>
@@ -1455,6 +1455,13 @@ const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',la
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 let modalProdIdx = -1, fotoProdFile = null;
 
+function imgSearchUrl(nombre) {
+  // Limpia el nombre: saca prefijos como *(OFERTA)
+  const limpio = nombre.replace(/\*?\(OFERTA\)\*?/gi, '').trim();
+  const prompt = `${limpio} producto Argentina Buenos Aires supermercado mayorista fondo blanco`;
+  return 'https://www.google.com/search?udm=2&q=' + encodeURIComponent(prompt);
+}
+
 async function loadPrecios() {
   const snap = await getDocs(collection(db,'productos'));
   productos = [];
@@ -1500,7 +1507,7 @@ function renderTabla() {
       </td>
       <td style="white-space:nowrap;">
         <button class="btn btn-ghost btn-sm" data-action="edit-modal" data-idx="${i}" title="Editar producto">✏️ Editar</button>
-        <a class="btn btn-ghost btn-sm" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.nombre)}" target="_blank" title="Buscar imagen en Google">🔍 Imagen</a>
+        <a class="btn btn-ghost btn-sm" href="${imgSearchUrl(p.nombre)}" target="_blank" title="Buscar imagen con IA">🤖 Imagen</a>
         <button class="btn btn-ghost btn-sm" data-action="dup" data-idx="${i}" title="Duplicar">⎘</button>
         <button class="btn btn-danger btn-sm" data-action="del" data-idx="${i}">🗑</button>
       </td>
@@ -1812,7 +1819,7 @@ function _openEditModal(i) {
   // Rellenar campos
   document.getElementById('ep-nombre').value  = p.nombre || '';
   document.getElementById('ep-cat').value     = p.cat || 'fiambres';
-  document.getElementById('btn-ep-buscar-img').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(p.nombre || '');
+  document.getElementById('btn-ep-buscar-img').href = imgSearchUrl(p.nombre || '');
   document.getElementById('ep-desc').value    = p.desc || '';
   document.getElementById('ep-min').value     = p.min || 0;
   document.getElementById('ep-may').value     = p.may || '';
