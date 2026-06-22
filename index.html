@@ -793,6 +793,8 @@ footer {
 .stripe-bebidas   { background: #4a8fa8; }
 .stripe-congelados { background: #5b9ec9; }
 .stripe-encurtidos { background: #8fa85b; }
+.stripe-aderezos   { background: #d4a017; }
+.stripe-dulces     { background: #c06090; }
 
 /* ── CÓMO COMPRAR ── */
 .como-section {
@@ -1223,6 +1225,8 @@ footer {
       <button class="pill" data-cat="congelados">🧊 Congelados</button>
       <button class="pill" data-cat="encurtidos">🫙 Encurtidos</button>
       <button class="pill" data-cat="regionales">🌾 Regionales</button>
+      <button class="pill" data-cat="aderezos">🧴 Aderezos</button>
+      <button class="pill" data-cat="dulces">🍬 Dulces</button>
     </div>
   </div>
 
@@ -1505,9 +1509,11 @@ const CATS_CONFIG = [
   { id:'congelados',label:'Congelados', icon:'🧊' },
   { id:'encurtidos',label:'Encurtidos', icon:'🫙' },
   { id:'regionales',label:'Regionales', icon:'🌾' },
+  { id:'aderezos',  label:'Aderezos',  icon:'🧴' },
+  { id:'dulces',    label:'Dulces',    icon:'🍬' },
 ];
 
-const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',regionales:'🌾'};
+const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',regionales:'🌾',aderezos:'🧴',dulces:'🍬'};
 
 function prodCardHTML(p) {
   const stripeClass = 'stripe-' + (p.cat||'fiambres');
