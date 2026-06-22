@@ -34,6 +34,7 @@
   --danger:  #c0392b;
   --success: #2d7a4f;
   --radius:  12px;
+  --terra:   #A94A3A;
 }
 body { font-family: 'Playfair Display', serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
@@ -481,6 +482,17 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 }
 .preview-card-foto img { width: 100%; height: 100%; object-fit: cover; }
 .preview-card-stripe { height: 3px; }
+.stripe-fiambres   { background: #A94A3A; }
+.stripe-quesos     { background: #C0862A; }
+.stripe-embutidos  { background: #5B3A29; }
+.stripe-regionales { background: #7B6562; }
+.stripe-lacteos    { background: #6b8fbd; }
+.stripe-almacen    { background: #6b9e6b; }
+.stripe-bebidas    { background: #4a8fa8; }
+.stripe-congelados { background: #5b9ec9; }
+.stripe-encurtidos { background: #8fa85b; }
+.stripe-aderezos   { background: #d4a017; }
+.stripe-dulces     { background: #c06090; }
 .preview-card-body { padding: 14px; }
 .preview-card-cat {
   font-family: 'Cinzel', serif; font-size: .55rem; font-weight: 600;
@@ -1809,7 +1821,8 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
 // ══════════════════════
 const CAT_STRIPES = {
   fiambres:'stripe-fiambres', quesos:'stripe-quesos', embutidos:'stripe-embutidos',
-  regionales:'stripe-regionales', congelados:'stripe-congelados', encurtidos:'stripe-encurtidos', lacteos:'stripe-lacteos', almacen:'stripe-almacen', bebidas:'stripe-bebidas'
+  regionales:'stripe-regionales', congelados:'stripe-congelados', encurtidos:'stripe-encurtidos', lacteos:'stripe-lacteos', almacen:'stripe-almacen', bebidas:'stripe-bebidas',
+  aderezos:'stripe-aderezos', dulces:'stripe-dulces'
 };
 let editIdx = -1, editFotoFile = null, epPosX = 50, epPosY = 50;
 
