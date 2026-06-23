@@ -1,0 +1,14 @@
+# Andamiaje de agentes / tooling
+.agents/
+skills-lock.json
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs / secrets
+*.log
+.env
+.env.*
