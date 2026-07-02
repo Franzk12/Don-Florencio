@@ -493,6 +493,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 .stripe-encurtidos { background: #8fa85b; }
 .stripe-aderezos   { background: #d4a017; }
 .stripe-dulces     { background: #c06090; }
+.stripe-panificados { background: #b5793a; }
+.stripe-pastas     { background: #d9a441; }
 .preview-card-body { padding: 14px; }
 .preview-card-cat {
   font-family: 'Cinzel', serif; font-size: .55rem; font-weight: 600;
@@ -723,6 +725,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <button class="cat-pill" data-cat="congelados">🧊 Congelados</button>
       <button class="cat-pill" data-cat="encurtidos">🫙 Encurtidos</button>
       <button class="cat-pill" data-cat="regionales">🌾 Regionales</button>
+      <button class="cat-pill" data-cat="panificados">🍞 Panadería</button>
+      <button class="cat-pill" data-cat="pastas">🍝 Pastas</button>
       <button class="cat-pill" data-cat="aderezos">🧴 Aderezos</button>
       <button class="cat-pill" data-cat="dulces">🍬 Dulces</button>
     </div>
@@ -960,6 +964,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <option value="congelados">🧊 Congelados</option>
             <option value="encurtidos">🫙 Encurtidos</option>
             <option value="regionales">🌾 Regionales</option>
+            <option value="panificados">🍞 Panadería</option>
+            <option value="pastas">🍝 Pastas</option>
             <option value="aderezos">🧴 Aderezos</option>
             <option value="dulces">🍬 Dulces</option>
           </select>
@@ -1084,6 +1090,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <option value="congelados">Congelados</option>
           <option value="encurtidos">Encurtidos</option>
           <option value="regionales">Regionales</option>
+          <option value="panificados">Panadería</option>
+          <option value="pastas">Pastas</option>
           <option value="aderezos">Aderezos</option>
           <option value="dulces">Dulces</option>
         </select>
@@ -1462,8 +1470,8 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
 // ══════════════════════
 // PRODUCTOS / CATÁLOGO
 // ══════════════════════
-const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','regionales','aderezos','dulces'];
-const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Encurtidos',regionales:'Regionales',aderezos:'Aderezos',dulces:'Dulces'};
+const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','regionales','panificados','pastas','aderezos','dulces'];
+const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Encurtidos',regionales:'Regionales',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 let modalProdIdx = -1, fotoProdFile = null;
 
@@ -1603,7 +1611,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     if (!rows.length) { toast('El archivo está vacío', true); return; }
 
     // Mapear columnas flexibles
-    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales', aderezo:'aderezos', dulce:'dulces' };
+    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales', panificado:'panificados', panificados:'panificados', panaderia:'panificados', pasta:'pastas', pastas:'pastas', aderezo:'aderezos', dulce:'dulces' };
     const normalize = s => (s+'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
     // Normalizar claves del row (quitar espacios de nombres de columna)
@@ -1822,6 +1830,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
 const CAT_STRIPES = {
   fiambres:'stripe-fiambres', quesos:'stripe-quesos', embutidos:'stripe-embutidos',
   regionales:'stripe-regionales', congelados:'stripe-congelados', encurtidos:'stripe-encurtidos', lacteos:'stripe-lacteos', almacen:'stripe-almacen', bebidas:'stripe-bebidas',
+  panificados:'stripe-panificados', pastas:'stripe-pastas',
   aderezos:'stripe-aderezos', dulces:'stripe-dulces'
 };
 let editIdx = -1, editFotoFile = null, epPosX = 50, epPosY = 50;
