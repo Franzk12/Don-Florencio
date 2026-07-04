@@ -1661,6 +1661,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       await setDoc(doc(db,'productos',p.id), {
         nombre:p.nombre, cat:p.cat, desc:p.desc||'',
         min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'',
+        tieneFoto: !!(p.fotoUrl),
         enOferta:p.enOferta||false, stock: p.stock !== false,
         orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
       });
@@ -1705,7 +1706,7 @@ document.getElementById('btn-confirmar-foto').addEventListener('click', async ()
     const fotoUrl = await uploadImageToStorage(fotoProdFile, `productos/${productos[modalProdIdx].id}_${Date.now()}.jpg`);
     productos[modalProdIdx].fotoUrl = fotoUrl;
     const p = productos[modalProdIdx];
-    await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl,stock:p.stock!==false });
+    await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl,tieneFoto:!!fotoUrl,stock:p.stock!==false });
     toast('✅ Foto guardada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
   } catch(e) { toast('Error: '+e.message, true); }
   btn.innerHTML = '💾 Guardar foto'; btn.disabled = false;
@@ -1714,7 +1715,7 @@ document.getElementById('btn-borrar-foto').addEventListener('click', async () =>
   if(!confirm('¿Quitar la foto?')) return;
   productos[modalProdIdx].fotoUrl = '';
   const p = productos[modalProdIdx];
-  await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl:'',stock:p.stock!==false });
+  await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl:'',tieneFoto:false,stock:p.stock!==false });
   toast('Foto eliminada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
 });
 
@@ -1808,6 +1809,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
     await setDoc(doc(db, 'productos', id), {
       nombre:nuevo.nombre, cat:nuevo.cat, desc:nuevo.desc,
       min:nuevo.min, may:nuevo.may, fotoUrl:nuevo.fotoUrl,
+      tieneFoto: !!nuevo.fotoUrl,
       enOferta:false, stock:nuevo.stock, orden:nuevo.orden,
       fotoPosX:nuevo.fotoPosX, fotoPosY:nuevo.fotoPosY
     });
@@ -1974,6 +1976,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     await setDoc(doc(db,'productos',p.id), {
       nombre:p.nombre, cat:p.cat, desc:p.desc, min:p.min,
       may:p.may, orden:p.orden, stock:p.stock, fotoUrl:p.fotoUrl,
+      tieneFoto: !!p.fotoUrl,
       enOferta: p.enOferta||false,
       fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY
     });
