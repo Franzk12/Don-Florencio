@@ -584,11 +584,11 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
     <h1>Panel Admin</h1>
     <p>Santa María Distribuidora</p>
     <div class="field">
-      <label>Email</label>
+      <label for="inp-email">Email</label>
       <input type="email" id="inp-email" placeholder="admin@santamaria.com" autocomplete="email">
     </div>
     <div class="field">
-      <label>Contraseña</label>
+      <label for="inp-pass">Contraseña</label>
       <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="btn-login" id="btn-login">Ingresar</button>
@@ -1162,7 +1162,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc }
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
@@ -1656,16 +1656,22 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
   const btn = document.getElementById('btn-save-precios');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
+    const CHUNK = 400;   // Firestore permite hasta 500 operaciones por batch
     let guardados = 0;
-    for (const p of productos) {
-      await setDoc(doc(db,'productos',p.id), {
-        nombre:p.nombre, cat:p.cat, desc:p.desc||'',
-        min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'',
-        tieneFoto: !!(p.fotoUrl),
-        enOferta:p.enOferta||false, stock: p.stock !== false,
-        orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
+    for (let i = 0; i < productos.length; i += CHUNK) {
+      const lote = productos.slice(i, i + CHUNK);
+      const batch = writeBatch(db);
+      lote.forEach(p => {
+        batch.set(doc(db,'productos',p.id), {
+          nombre:p.nombre, cat:p.cat, desc:p.desc||'',
+          min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'',
+          tieneFoto: !!(p.fotoUrl),
+          enOferta:p.enOferta||false, stock: p.stock !== false,
+          orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
+        });
       });
-      guardados++;
+      await batch.commit();
+      guardados += lote.length;
       btn.innerHTML = `<span class="spinner"></span> ${guardados}/${productos.length}`;
     }
     cambios = false;
