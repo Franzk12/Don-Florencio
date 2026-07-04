@@ -12,3 +12,14 @@ Thumbs.db
 *.log
 .env
 .env.*
+
+# Datos pesados: no versionar (planillas de origen, backups y payloads de importación)
+*.xlsx
+*.xls
+backup-productos-*.json
+import-almacen-*.json
+
+# Documentos generados (informes de entrega)
+Entrega-*.pdf
+informe-entrega.pdf
+informe-entrega.tex
