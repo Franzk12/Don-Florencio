@@ -1485,6 +1485,35 @@ function fmt(n) { return '$' + Number(n).toLocaleString('es-AR'); }
 function cap(s) { if(!s) return ''; return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
+
+// ── Carga del catálogo por REST SIN fotos (payload liviano) + fotos lazy bajo demanda ──
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+const APIKEY = firebaseConfig.apiKey;
+const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','fotoZoom','tieneFoto'];
+function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
+const fotoCache = new Map();
+let fotoObserver = null;
+function _setFotoImg(el, dataUrl, id){ const p = productos.find(x => x.id === id); el.innerHTML = `<img src="${esc(dataUrl)}" alt="${esc(p ? p.nombre : '')}" loading="lazy">`; }
+async function loadFoto(el){
+  const id = el.getAttribute('data-foto-id');
+  if(!id || el.dataset.fotoLoaded) return;
+  el.dataset.fotoLoaded = '1';
+  if(fotoCache.has(id)){ _setFotoImg(el, fotoCache.get(id), id); return; }
+  try {
+    const r = await fetch(`${FS_BASE}/productos/${id}?mask.fieldPaths=fotoUrl&key=${APIKEY}`);
+    const d = await r.json();
+    const data = (d.fields && d.fields.fotoUrl) ? (d.fields.fotoUrl.stringValue || '') : '';
+    if(data){ fotoCache.set(id, data); _setFotoImg(el, data, id); }
+  } catch(e){ el.dataset.fotoLoaded = ''; }
+}
+function observeFotos(){
+  if(!fotoObserver){
+    fotoObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){ loadFoto(e.target); fotoObserver.unobserve(e.target); } });
+    }, { rootMargin: '300px' });
+  }
+  document.querySelectorAll('.prod-foto[data-foto-id]').forEach(el => { if(!el.dataset.fotoLoaded) fotoObserver.observe(el); });
+}
 function buildVideoEl(url) {
   if (url.includes('youtube.com') || url.includes('youtu.be')) {
     let vid = '';
@@ -1529,7 +1558,7 @@ function prodCardHTML(p) {
       <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     </a>
     ${p.stock===false ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>' : ''}
-    <div class="prod-foto" style="--foto-zoom:${p.fotoZoom||1}">
+    <div class="prod-foto" style="--foto-zoom:${p.fotoZoom||1}"${(!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${esc(p.id)}"` : ''}>
       ${p.fotoUrl
         ? `<img src="${esc(p.fotoUrl)}" alt="${esc(p.nombre)}" loading="lazy">`
         : `<span class="prod-foto-placeholder">${CAT_ICONS[p.cat]||'🥩'}</span>`}
@@ -1572,6 +1601,7 @@ function renderCatRows() {
     } else {
       gridEl.innerHTML = lista.map(p => prodCardHTML(p)).join('');
     }
+    observeFotos();
     return;
   }
 
@@ -1610,6 +1640,7 @@ function renderCatRows() {
       </div>`;
     rowsEl.appendChild(row);
   });
+  observeFotos();
 }
 
 window.scrollRow = (id, dir) => {
@@ -1714,30 +1745,37 @@ document.getElementById('of-next').addEventListener('click', () => {
   document.getElementById('ofertas-grid').scrollBy({ left: 320, behavior: 'smooth' });
 });
 
-// Firebase — productos (realtime onSnapshot)
-onSnapshot(
-  collection(db, 'productos'),
-  snap => {
-    // Si viene de caché Y está vacío, seguir mostrando skeletons — el server aún no respondió
-    if (snap.metadata.fromCache && snap.empty) return;
-
-    productos = [];
-    snap.forEach(d => productos.push({ id: d.id, ...d.data() }));
+// Firebase — productos: carga REST liviana (metadatos SIN fotoUrl); las fotos se bajan lazy
+const _fallbackProd = [
+  {id:'p1',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600,fotoUrl:''},
+  {id:'p2',nombre:'Queso cremoso',cat:'quesos',desc:'',min:5800,may:4900,fotoUrl:''}
+];
+async function cargarProductos() {
+  try {
+    const mask = PROD_FIELDS.map(f => 'mask.fieldPaths=' + f).join('&');
+    let token = '', out = [];
+    do {
+      const url = `${FS_BASE}/productos?pageSize=300&${mask}${token ? ('&pageToken=' + encodeURIComponent(token)) : ''}&key=${APIKEY}`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      (d.documents || []).forEach(doc => {
+        const o = { id: doc.name.split('/').pop() };
+        const fs = doc.fields || {};
+        PROD_FIELDS.forEach(f => { const v = _fsVal(fs[f]); if (v !== undefined) o[f] = v; });
+        out.push(o);
+      });
+      token = d.nextPageToken || '';
+    } while (token);
+    productos = out.length ? out : _fallbackProd;
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
-    if (!productos.length) productos = [
-      {id:'p1',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600,fotoUrl:''},
-      {id:'p2',nombre:'Queso cremoso',cat:'quesos',desc:'',min:5800,may:4900,fotoUrl:''}
-    ];
     renderProductos();
-  },
-  _err => {
-    productos = [
-      {id:'p1',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600,fotoUrl:''},
-      {id:'p2',nombre:'Queso cremoso',cat:'quesos',desc:'',min:5800,may:4900,fotoUrl:''}
-    ];
+  } catch(e) {
+    productos = _fallbackProd;
     renderProductos();
   }
-);
+}
+cargarProductos();
 
 // Firebase — ofertas (realtime onSnapshot)
 onSnapshot(
