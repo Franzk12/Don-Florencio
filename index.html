@@ -543,6 +543,7 @@ nav::after {
 .stripe-quesos    { background: #C0862A; }
 .stripe-embutidos { background: var(--marron); }
 .stripe-limpieza { background: #6a9fb5; }
+.stripe-bazar { background: #b08968; }
 
 .prod-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .prod-cat {
@@ -1227,6 +1228,7 @@ footer {
       <button class="pill" data-cat="congelados">🧊 Congelados</button>
       <button class="pill" data-cat="encurtidos">🫙 Conservas</button>
       <button class="pill" data-cat="limpieza">🧼 Limpieza</button>
+      <button class="pill" data-cat="bazar">📦 Bazar</button>
       <button class="pill" data-cat="panificados">🍞 Panadería</button>
       <button class="pill" data-cat="pastas">🍝 Pastas</button>
       <button class="pill" data-cat="aderezos">🧴 Aderezos</button>
@@ -1542,13 +1544,14 @@ const CATS_CONFIG = [
   { id:'congelados',label:'Congelados', icon:'🧊' },
   { id:'encurtidos',label:'Conservas', icon:'🫙' },
   { id:'limpieza',  label:'Limpieza',  icon:'🧼' },
+  { id:'bazar',     label:'Bazar',     icon:'📦' },
   { id:'panificados',label:'Panadería', icon:'🍞' },
   { id:'pastas',    label:'Pastas',    icon:'🍝' },
   { id:'aderezos',  label:'Aderezos',  icon:'🧴' },
   { id:'dulces',    label:'Dulces',    icon:'🍬' },
 ];
 
-const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',limpieza:'🧼',panificados:'🍞',pastas:'🍝',aderezos:'🧴',dulces:'🍬'};
+const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',limpieza:'🧼',bazar:'📦',panificados:'🍞',pastas:'🍝',aderezos:'🧴',dulces:'🍬'};
 
 function prodCardHTML(p) {
   const stripeClass = 'stripe-' + (p.cat||'fiambres');
