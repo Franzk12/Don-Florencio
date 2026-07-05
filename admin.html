@@ -485,7 +485,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 .stripe-fiambres   { background: #A94A3A; }
 .stripe-quesos     { background: #C0862A; }
 .stripe-embutidos  { background: #5B3A29; }
-.stripe-regionales { background: #7B6562; }
+.stripe-limpieza { background: #6a9fb5; }
 .stripe-lacteos    { background: #6b8fbd; }
 .stripe-almacen    { background: #6b9e6b; }
 .stripe-bebidas    { background: #4a8fa8; }
@@ -723,8 +723,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <button class="cat-pill" data-cat="almacen">🌿 Almacén</button>
       <button class="cat-pill" data-cat="bebidas">🧃 Bebidas</button>
       <button class="cat-pill" data-cat="congelados">🧊 Congelados</button>
-      <button class="cat-pill" data-cat="encurtidos">🫙 Encurtidos</button>
-      <button class="cat-pill" data-cat="regionales">🌾 Regionales</button>
+      <button class="cat-pill" data-cat="encurtidos">🫙 Conservas</button>
+      <button class="cat-pill" data-cat="limpieza">🧼 Limpieza</button>
       <button class="cat-pill" data-cat="panificados">🍞 Panadería</button>
       <button class="cat-pill" data-cat="pastas">🍝 Pastas</button>
       <button class="cat-pill" data-cat="aderezos">🧴 Aderezos</button>
@@ -962,8 +962,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <option value="almacen">🌿 Almacén</option>
             <option value="bebidas">🧃 Bebidas</option>
             <option value="congelados">🧊 Congelados</option>
-            <option value="encurtidos">🫙 Encurtidos</option>
-            <option value="regionales">🌾 Regionales</option>
+            <option value="encurtidos">🫙 Conservas</option>
+            <option value="limpieza">🧼 Limpieza</option>
             <option value="panificados">🍞 Panadería</option>
             <option value="pastas">🍝 Pastas</option>
             <option value="aderezos">🧴 Aderezos</option>
@@ -1088,8 +1088,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <option value="almacen">Almacén</option>
           <option value="bebidas">Bebidas</option>
           <option value="congelados">Congelados</option>
-          <option value="encurtidos">Encurtidos</option>
-          <option value="regionales">Regionales</option>
+          <option value="encurtidos">Conservas</option>
+          <option value="limpieza">Limpieza</option>
           <option value="panificados">Panadería</option>
           <option value="pastas">Pastas</option>
           <option value="aderezos">Aderezos</option>
@@ -1470,8 +1470,8 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
 // ══════════════════════
 // PRODUCTOS / CATÁLOGO
 // ══════════════════════
-const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','regionales','panificados','pastas','aderezos','dulces'];
-const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Encurtidos',regionales:'Regionales',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
+const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','limpieza','panificados','pastas','aderezos','dulces'];
+const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Conservas',limpieza:'Limpieza',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 let modalProdIdx = -1, fotoProdFile = null;
 
@@ -1611,7 +1611,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     if (!rows.length) { toast('El archivo está vacío', true); return; }
 
     // Mapear columnas flexibles
-    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', regional:'regionales', panificado:'panificados', panificados:'panificados', panaderia:'panificados', pasta:'pastas', pastas:'pastas', aderezo:'aderezos', dulce:'dulces' };
+    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', conserva:'encurtidos', conservas:'encurtidos', encurtido:'encurtidos', limpieza:'limpieza', perfumeria:'limpieza', panificado:'panificados', panificados:'panificados', panaderia:'panificados', pasta:'pastas', pastas:'pastas', aderezo:'aderezos', dulce:'dulces' };
     const normalize = s => (s+'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
     // Normalizar claves del row (quitar espacios de nombres de columna)
@@ -1837,7 +1837,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
 // ══════════════════════
 const CAT_STRIPES = {
   fiambres:'stripe-fiambres', quesos:'stripe-quesos', embutidos:'stripe-embutidos',
-  regionales:'stripe-regionales', congelados:'stripe-congelados', encurtidos:'stripe-encurtidos', lacteos:'stripe-lacteos', almacen:'stripe-almacen', bebidas:'stripe-bebidas',
+  limpieza:'stripe-limpieza', congelados:'stripe-congelados', encurtidos:'stripe-encurtidos', lacteos:'stripe-lacteos', almacen:'stripe-almacen', bebidas:'stripe-bebidas',
   panificados:'stripe-panificados', pastas:'stripe-pastas',
   aderezos:'stripe-aderezos', dulces:'stripe-dulces'
 };

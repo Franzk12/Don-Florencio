@@ -542,7 +542,7 @@ nav::after {
 .stripe-fiambres  { background: var(--terra); }
 .stripe-quesos    { background: #C0862A; }
 .stripe-embutidos { background: var(--marron); }
-.stripe-regionales { background: var(--gris); }
+.stripe-limpieza { background: #6a9fb5; }
 
 .prod-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .prod-cat {
@@ -1225,8 +1225,8 @@ footer {
       <button class="pill" data-cat="almacen">🌿 Almacén</button>
       <button class="pill" data-cat="bebidas">🧃 Bebidas</button>
       <button class="pill" data-cat="congelados">🧊 Congelados</button>
-      <button class="pill" data-cat="encurtidos">🫙 Encurtidos</button>
-      <button class="pill" data-cat="regionales">🌾 Regionales</button>
+      <button class="pill" data-cat="encurtidos">🫙 Conservas</button>
+      <button class="pill" data-cat="limpieza">🧼 Limpieza</button>
       <button class="pill" data-cat="panificados">🍞 Panadería</button>
       <button class="pill" data-cat="pastas">🍝 Pastas</button>
       <button class="pill" data-cat="aderezos">🧴 Aderezos</button>
@@ -1540,15 +1540,15 @@ const CATS_CONFIG = [
   { id:'almacen',   label:'Almacén',   icon:'🌿' },
   { id:'bebidas',   label:'Bebidas',   icon:'🧃' },
   { id:'congelados',label:'Congelados', icon:'🧊' },
-  { id:'encurtidos',label:'Encurtidos', icon:'🫙' },
-  { id:'regionales',label:'Regionales', icon:'🌾' },
+  { id:'encurtidos',label:'Conservas', icon:'🫙' },
+  { id:'limpieza',  label:'Limpieza',  icon:'🧼' },
   { id:'panificados',label:'Panadería', icon:'🍞' },
   { id:'pastas',    label:'Pastas',    icon:'🍝' },
   { id:'aderezos',  label:'Aderezos',  icon:'🧴' },
   { id:'dulces',    label:'Dulces',    icon:'🍬' },
 ];
 
-const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',regionales:'🌾',panificados:'🍞',pastas:'🍝',aderezos:'🧴',dulces:'🍬'};
+const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛',almacen:'🌿',bebidas:'🧃',congelados:'🧊',encurtidos:'🫙',limpieza:'🧼',panificados:'🍞',pastas:'🍝',aderezos:'🧴',dulces:'🍬'};
 
 function prodCardHTML(p) {
   const stripeClass = 'stripe-' + (p.cat||'fiambres');
