@@ -1,4 +1,4 @@
-const CACHE = 'santamaria-v4';
+const CACHE = 'santamaria-v5';
 const PRECACHE = ['/index.html', '/favicon.ico', '/logo-512.png', '/site.webmanifest'];
 
 self.addEventListener('install', e => {

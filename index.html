@@ -563,6 +563,7 @@ nav::after {
 .prod-precio-label { font-family: 'Cinzel', serif; font-size: .58rem; font-weight: 600; color: var(--gris2); letter-spacing: 1.5px; text-transform: uppercase; }
 .prod-precio-val { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700; color: var(--terra); }
 .prod-precio-val.may { color: #2d7a4f; font-size: 1.1rem; }
+.may-consultar { font-family: inherit; font-size: .95rem; font-weight: 600; color: #2d7a4f; text-decoration: underline; text-underline-offset: 2px; }
 
 .prod-wa {
   position: absolute; right: 12px; top: 12px;
@@ -1579,7 +1580,7 @@ function prodCardHTML(p) {
           </div>
           <div class="prod-precio-row">
             <span class="prod-precio-label">Mayorista</span>
-            <span class="prod-precio-val may">${fmt(p.may)}</span>
+            <span class="prod-precio-val may">${Number(p.may) > 0 ? fmt(p.may) : '<a href="https://wa.me/5491162263206?text=Hola!%20Quiero%20consultar%20precio%20mayorista" target="_blank" rel="noopener" class="may-consultar">A consultar</a>'}</span>
           </div>` : `
           <div class="prod-precio-row">
             <span class="prod-precio-val">${fmt(p.min)}</span>
