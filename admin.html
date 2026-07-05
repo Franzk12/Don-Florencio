@@ -275,6 +275,9 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 .prod-thumb:hover { border-color: var(--rojo); }
 .prod-thumb-empty { width: 44px; height: 44px; border-radius: 8px; background: var(--bg3); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: border-color .2s; }
 .prod-thumb-empty:hover { border-color: var(--rojo); }
+.prod-thumb-wrap { width: 44px; height: 44px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border); overflow: hidden; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color .2s; }
+.prod-thumb-wrap:hover { border-color: var(--rojo); }
+.prod-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ── MODAL ── */
 .modal-overlay {
@@ -1306,8 +1309,8 @@ function renderOfProdGrid() {
   }
   grid.innerHTML = lista.map(p => `
     <div class="of-prod-card${p.id === currentOfferProductId ? ' selected' : ''}" data-id="${p.id}">
-      <div class="of-prod-card-img">
-        ${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}" alt="${esc(p.nombre)}">` : '🥩'}
+      <div class="of-prod-card-img"${p.tieneFoto ? ` data-foto-id="${p.id}"` : ''}${p.fotoUrl ? ' data-foto-loaded="1"' : ''}>
+        ${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}" alt="${esc(p.nombre)}">` : (p.tieneFoto ? '' : '🥩')}
       </div>
       <div class="of-prod-card-body">
         <div class="of-prod-card-nombre">${esc(p.nombre)}</div>
@@ -1322,10 +1325,12 @@ function renderOfProdGrid() {
       _selectOfertaProd(prod);
     });
   });
+  observeFotos();
 }
 
-function _selectOfertaProd(prod) {
+async function _selectOfertaProd(prod) {
   currentOfferProductId = prod ? prod.id : null;
+  if (prod && !prod.fotoUrl && prod.tieneFoto) await ensureFoto(prod.id);
   // Llenar formulario
   document.getElementById('of-titulo').value = prod ? prod.nombre : '';
   document.getElementById('of-precio').value = prod ? '$' + Number(prod.min||0).toLocaleString('es-AR') : '';
@@ -1402,7 +1407,10 @@ document.getElementById('btn-guardar-oferta').addEventListener('click', async ()
   try {
     let fotoUrl = '';
     if (fotoOfFile) fotoUrl = await uploadImageToStorage(fotoOfFile, `ofertas/oferta_${Date.now()}.jpg`);
-    else if (currentOfferProductId) fotoUrl = productos.find(p => p.id === currentOfferProductId)?.fotoUrl || '';
+    else if (currentOfferProductId) {
+      const op = productos.find(p => p.id === currentOfferProductId);
+      fotoUrl = (op && op.fotoUrl) || (op && op.tieneFoto ? await ensureFoto(currentOfferProductId) : '') || '';
+    }
     await setDoc(doc(db, 'ofertas', 'oferta_'+Date.now()), {
       titulo, desc: document.getElementById('of-desc').value.trim(),
       precio, fotoUrl, createdAt: new Date().toISOString(),
@@ -1486,11 +1494,57 @@ function imgSearchUrl(nombre) {
   return 'https://www.google.com/search?udm=2&q=' + encodeURIComponent(prompt);
 }
 
+// ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+const APIKEY  = firebaseConfig.apiKey;
+const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
+function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
+const fotoCache = new Map();
+let fotoObserver = null;
+async function ensureFoto(id){
+  if(fotoCache.has(id)) return fotoCache.get(id);
+  try{
+    const r = await fetch(`${FS_BASE}/productos/${id}?mask.fieldPaths=fotoUrl&key=${APIKEY}`);
+    const d = await r.json();
+    const data = (d.fields && d.fields.fotoUrl) ? (d.fields.fotoUrl.stringValue || '') : '';
+    if(data){ fotoCache.set(id, data); const p = productos.find(x => x.id === id); if(p) p.fotoUrl = data; }
+    return data;
+  }catch(e){ return ''; }
+}
+async function loadFoto(el){
+  const id = el.getAttribute('data-foto-id');
+  if(!id || el.dataset.fotoLoaded) return;
+  el.dataset.fotoLoaded = '1';
+  const data = await ensureFoto(id);
+  if(data) el.innerHTML = `<img src="${esc(data)}" alt="">`;
+  else el.dataset.fotoLoaded = '';
+}
+function observeFotos(){
+  if(!fotoObserver){
+    fotoObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){ loadFoto(e.target); fotoObserver.unobserve(e.target); } });
+    }, { rootMargin: '300px' });
+  }
+  document.querySelectorAll('.prod-thumb-wrap[data-foto-id], .of-prod-card-img[data-foto-id]').forEach(el => { if(!el.dataset.fotoLoaded) fotoObserver.observe(el); });
+}
 async function loadPrecios() {
-  const snap = await getDocs(collection(db,'productos'));
   productos = [];
-  if (!snap.empty) snap.forEach(d => productos.push({id:d.id,...d.data()}));
-  else productos = [{id:'p01',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600,fotoUrl:''}];
+  const maskQS = PROD_FIELDS.map(f => 'mask.fieldPaths=' + f).join('&');
+  let pageToken = '';
+  try {
+    do {
+      const url = `${FS_BASE}/productos?pageSize=300&${maskQS}&key=${APIKEY}` + (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '');
+      const r = await fetch(url);
+      const d = await r.json();
+      (d.documents || []).forEach(dc => {
+        const o = { id: dc.name.split('/').pop() };
+        PROD_FIELDS.forEach(f => { const v = dc.fields ? _fsVal(dc.fields[f]) : undefined; if (v !== undefined) o[f] = v; });
+        productos.push(o);
+      });
+      pageToken = d.nextPageToken || '';
+    } while (pageToken);
+  } catch(e) { toast('Error al cargar productos: ' + e.message, true); }
+  if (!productos.length) productos = [{id:'p01',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600}];
   productos.sort((a,b) => {
     const catDiff = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
     return catDiff !== 0 ? catDiff : (a.orden||0) - (b.orden||0);
@@ -1512,8 +1566,8 @@ function renderTabla() {
     return `
     <tr data-i="${i}" style="cursor:pointer;">
       <td class="td-foto">
-        ${p.fotoUrl
-          ? `<img src="${esc(p.fotoUrl)}" class="prod-thumb" data-action="edit-modal" data-idx="${i}">`
+        ${p.tieneFoto
+          ? `<div class="prod-thumb-wrap" data-foto-id="${p.id}" data-action="edit-modal" data-idx="${i}"${p.fotoUrl ? ' data-foto-loaded="1"' : ''}>${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}" class="prod-thumb">` : ''}</div>`
           : `<div class="prod-thumb-empty" data-action="edit-modal" data-idx="${i}">📷</div>`}
       </td>
       <td>
@@ -1537,6 +1591,7 @@ function renderTabla() {
       </td>
     </tr>`;
   }).join('');
+  observeFotos();
 }
 
 function _edit(i, campo, val) {
@@ -1668,11 +1723,10 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       lote.forEach(p => {
         batch.set(doc(db,'productos',p.id), {
           nombre:p.nombre, cat:p.cat, desc:p.desc||'',
-          min:p.min, may:p.may||0, fotoUrl:p.fotoUrl||'',
-          tieneFoto: !!(p.fotoUrl),
+          min:p.min, may:p.may||0,
           enOferta:p.enOferta||false, stock: p.stock !== false,
           orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
-        });
+        }, { merge:true });
       });
       await batch.commit();
       guardados += lote.length;
@@ -1686,12 +1740,14 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
 });
 
 // Modal foto
-function _openModal(i) {
+async function _openModal(i) {
   modalProdIdx = i; fotoProdFile = null;
   const p = productos[i];
   document.getElementById('modal-prod-nombre').textContent = p.nombre;
   const prev = document.getElementById('preview-prod-img');
-  if (p.fotoUrl) { prev.src = p.fotoUrl; prev.style.display = 'block'; }
+  let foto = p.fotoUrl;
+  if (!foto && p.tieneFoto) foto = await ensureFoto(p.id);
+  if (foto) { prev.src = foto; prev.style.display = 'block'; }
   else prev.style.display = 'none';
   document.getElementById('inp-foto-prod').value = '';
   document.getElementById('modal-foto').classList.add('open');
@@ -1715,8 +1771,10 @@ document.getElementById('btn-confirmar-foto').addEventListener('click', async ()
   try {
     const fotoUrl = await uploadImageToStorage(fotoProdFile, `productos/${productos[modalProdIdx].id}_${Date.now()}.jpg`);
     productos[modalProdIdx].fotoUrl = fotoUrl;
+    productos[modalProdIdx].tieneFoto = !!fotoUrl;
     const p = productos[modalProdIdx];
-    await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl,tieneFoto:!!fotoUrl,stock:p.stock!==false });
+    fotoCache.set(p.id, fotoUrl);
+    await setDoc(doc(db,'productos',p.id), { fotoUrl, tieneFoto:!!fotoUrl }, { merge:true });
     toast('✅ Foto guardada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
   } catch(e) { toast('Error: '+e.message, true); }
   btn.innerHTML = '💾 Guardar foto'; btn.disabled = false;
@@ -1724,8 +1782,10 @@ document.getElementById('btn-confirmar-foto').addEventListener('click', async ()
 document.getElementById('btn-borrar-foto').addEventListener('click', async () => {
   if(!confirm('¿Quitar la foto?')) return;
   productos[modalProdIdx].fotoUrl = '';
+  productos[modalProdIdx].tieneFoto = false;
   const p = productos[modalProdIdx];
-  await setDoc(doc(db,'productos',p.id), { nombre:p.nombre,cat:p.cat,desc:p.desc||'',min:p.min,may:p.may||0,fotoUrl:'',tieneFoto:false,stock:p.stock!==false });
+  fotoCache.delete(p.id);
+  await setDoc(doc(db,'productos',p.id), { fotoUrl:'', tieneFoto:false }, { merge:true });
   toast('Foto eliminada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
 });
 
@@ -1866,10 +1926,11 @@ function _openEditModal(i) {
   document.getElementById('ep-pos-y').value = epPosY;
   document.getElementById('ep-pos-x-val').textContent = epPosX + '%';
   document.getElementById('ep-pos-y-val').textContent = epPosY + '%';
-  document.getElementById('ep-foto-ajuste').style.display = p.fotoUrl ? 'block' : 'none';
-  // Preview
+  document.getElementById('ep-foto-ajuste').style.display = p.tieneFoto ? 'block' : 'none';
+  // Preview (carga la foto on-demand si el producto tiene y no está cargada)
   _updateEditPreview();
   document.getElementById('modal-edit-prod').classList.add('open');
+  if (!p.fotoUrl && p.tieneFoto) ensureFoto(p.id).then(() => { document.getElementById('ep-foto-ajuste').style.display = productos[editIdx] && productos[editIdx].tieneFoto ? 'block' : 'none'; _updateEditPreview(); });
 }
 
 function _updateEditPreview() {
@@ -1965,8 +2026,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
   const btn = document.getElementById('btn-ep-guardar');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
-    let fotoUrl = productos[editIdx].fotoUrl || '';
-    if (editFotoFile) fotoUrl = await uploadImageToStorage(editFotoFile, `productos/${productos[editIdx].id}_${Date.now()}.jpg`);
+    let newFoto = null;
+    if (editFotoFile) newFoto = await uploadImageToStorage(editFotoFile, `productos/${productos[editIdx].id}_${Date.now()}.jpg`);
 
     productos[editIdx] = {
       ...productos[editIdx],
@@ -1977,19 +2038,20 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       may:     +document.getElementById('ep-may').value || 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
-      fotoUrl,
       fotoPosX: epPosX, fotoPosY: epPosY,
     };
+    if (newFoto !== null) { productos[editIdx].fotoUrl = newFoto; productos[editIdx].tieneFoto = !!newFoto; fotoCache.set(productos[editIdx].id, newFoto); }
 
-    // Guardar directo en Firestore
+    // Guardar directo en Firestore (merge: no pisa la foto si no se cambió)
     const p = productos[editIdx];
-    await setDoc(doc(db,'productos',p.id), {
+    const payload = {
       nombre:p.nombre, cat:p.cat, desc:p.desc, min:p.min,
-      may:p.may, orden:p.orden, stock:p.stock, fotoUrl:p.fotoUrl,
-      tieneFoto: !!p.fotoUrl,
+      may:p.may, orden:p.orden, stock:p.stock,
       enOferta: p.enOferta||false,
       fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY
-    });
+    };
+    if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }
+    await setDoc(doc(db,'productos',p.id), payload, { merge:true });
 
     document.getElementById('modal-edit-prod').classList.remove('open');
     renderTabla();
