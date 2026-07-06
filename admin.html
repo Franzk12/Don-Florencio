@@ -719,7 +719,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <button class="cat-pill" data-cat="congelados">🧊 Congelados</button>
       <button class="cat-pill" data-cat="encurtidos">🫙 Conservas</button>
       <button class="cat-pill" data-cat="limpieza">🧼 Limpieza</button>
-      <button class="cat-pill" data-cat="bazar">📦 Bazar</button>
+      <button class="cat-pill" data-cat="bazar">📦 Papelera</button>
       <button class="cat-pill" data-cat="panificados">🍞 Panadería</button>
       <button class="cat-pill" data-cat="pastas">🍝 Pastas</button>
       <button class="cat-pill" data-cat="aderezos">🧴 Aderezos</button>
@@ -900,11 +900,11 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
         </div>
         <div class="config-field">
           <label>Teléfono / WhatsApp (texto)</label>
-          <input type="text" id="cfg-tel" placeholder="+54 9 11 6226-3206">
+          <input type="text" id="cfg-tel" placeholder="+54 9 11 5723-8769">
         </div>
         <div class="config-field">
           <label>Link WhatsApp</label>
-          <input type="text" id="cfg-wa" placeholder="https://wa.me/5491162263206">
+          <input type="text" id="cfg-wa" placeholder="https://wa.me/5491157238769">
         </div>
         <div class="config-field">
           <label>Link Google Maps</label>
@@ -959,7 +959,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <option value="congelados">🧊 Congelados</option>
             <option value="encurtidos">🫙 Conservas</option>
             <option value="limpieza">🧼 Limpieza</option>
-            <option value="bazar">📦 Bazar</option>
+            <option value="bazar">📦 Papelera</option>
             <option value="panificados">🍞 Panadería</option>
             <option value="pastas">🍝 Pastas</option>
             <option value="aderezos">🧴 Aderezos</option>
@@ -1068,7 +1068,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <option value="congelados">Congelados</option>
           <option value="encurtidos">Conservas</option>
           <option value="limpieza">Limpieza</option>
-          <option value="bazar">Bazar</option>
+          <option value="bazar">Papelera</option>
           <option value="panificados">Panadería</option>
           <option value="pastas">Pastas</option>
           <option value="aderezos">Aderezos</option>
@@ -1456,7 +1456,7 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
 // PRODUCTOS / CATÁLOGO
 // ══════════════════════
 const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','limpieza','bazar','panificados','pastas','aderezos','dulces'];
-const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Conservas',limpieza:'Limpieza',bazar:'Bazar',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
+const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Conservas',limpieza:'Limpieza',bazar:'Papelera',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
 
 function imgSearchUrl(nombre) {
@@ -1646,7 +1646,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     if (!rows.length) { toast('El archivo está vacío', true); return; }
 
     // Mapear columnas flexibles
-    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', conserva:'encurtidos', conservas:'encurtidos', encurtido:'encurtidos', limpieza:'limpieza', perfumeria:'limpieza', bazar:'bazar', descartable:'bazar', descartables:'bazar', vaso:'bazar', vasos:'bazar', bandeja:'bazar', bandejas:'bazar', bolsa:'bazar', bolsas:'bazar', servilleta:'bazar', servilletas:'bazar', panificado:'panificados', panificados:'panificados', panaderia:'panificados', pasta:'pastas', pastas:'pastas', aderezo:'aderezos', dulce:'dulces' };
+    const catMap = { fiambre:'fiambres', queso:'quesos', embutido:'embutidos', lacteo:'lacteos', almacén:'almacen', almacen:'almacen', bebida:'bebidas', conserva:'encurtidos', conservas:'encurtidos', encurtido:'encurtidos', limpieza:'limpieza', perfumeria:'limpieza', bazar:'bazar', papelera:'bazar', descartable:'bazar', descartables:'bazar', vaso:'bazar', vasos:'bazar', bandeja:'bazar', bandejas:'bazar', bolsa:'bazar', bolsas:'bazar', servilleta:'bazar', servilletas:'bazar', panificado:'panificados', panificados:'panificados', panaderia:'panificados', pasta:'pastas', pastas:'pastas', aderezo:'aderezos', dulce:'dulces' };
     const normalize = s => (s+'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
     // Normalizar claves del row (quitar espacios de nombres de columna)
