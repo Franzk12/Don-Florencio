@@ -54,15 +54,24 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 
 ### 🟡 MEDIO — pendiente
 
-**M3 — Sin paginación / DOM grande.** Los 1.130 productos se montan todos en el DOM (aunque las fotos ya cargan lazy). Conviene paginar o renderizar por categoría.
-
-**M6 — El panel admin sigue pesado.** `admin.html` hace `getDocs(productos)` completo → baja las fotos al abrir (afecta solo al dueño). Se le puede aplicar la misma carga lazy.
+**M3 — Sin paginación / DOM grande.** Los ~1.100 productos se montan todos en el DOM (aunque las fotos ya cargan lazy). Conviene paginar o renderizar por categoría.
 
 ### 🟢 BAJO — pendiente
 
 - **B6** — Parseo de precios frágil ante formato "1.234,50".
-- **B7** — Links sociales de Instagram/Facebook apuntan a `#` (falta pasar las URLs reales o quitarlos).
 - **B5b** — El resto de labels del admin (modales) sin `for` — micro-a11y en panel de un solo usuario.
+- **Deuda:** las ofertas duplican la foto base64 del producto en su propio doc (`ofertas/*`); cambiar a referencia por `productId` toca index+admin.
+
+### ✅ RESUELTO en ronda 2 (5–6 jul 2026)
+
+- **M6** — Panel admin pesado → **resuelto** (commit `8d6568f`): carga REST con field-mask sin fotos + lazy-load de miniaturas + guardados con `merge:true` que no pisan fotos no cargadas.
+- **BUG ALTO (nuevo, detectado en ronda 2)** — Eliminar producto solo lo sacaba de memoria; **nunca borraba el doc en Firestore** (reaparecía al recargar) → ahora `_delProd` hace `deleteDoc` real. También: duplicar producto ya no arrastra foto fantasma, y se quitó el fallback que podía crear un doc espurio `p01`.
+- **SW nunca registrado** — `sw.js` existía y se versionaba pero ningún HTML llamaba a `serviceWorker.register()`; la PWA estaba inactiva → registrado en `index.html` (cache v7).
+- **Headers de seguridad** — no había `vercel.json` → creado con `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `HSTS`, `Permissions-Policy`.
+- **B7** — Instagram real conectado (`instagram.com/santamaria_dist`), ícono de Facebook quitado (no hay página).
+- **SEO/previews** — `og:image`/`og:url` absolutas, `canonical`, Twitter Card, `preconnect` a `fonts.gstatic.com`, `openingHoursSpecification` + `sameAs` en JSON-LD.
+- **Horarios unificados** — Lun–Vie 7–21, Sáb 7–13 (footer, mapa y "cómo comprás" decían tres cosas distintas).
+- **Varios** — `fotoZoom` sanitizado en atributo `style`; `$NaN` evitado en precios sin `min`; link "A consultar" usa el teléfono configurable; `rel="noopener"` en todos los `target="_blank"`; `aria-pressed` en los filtros; el encuadre `fotoPosX/Y` del admin ahora sí se aplica en el sitio; `loadOfertas` con manejo de error; eliminado el modal de foto muerto y CSS/wrappers sin uso; `uploadImageToStorage` renombrada a `compressToDataURL` (no subía a Storage).
 
 ---
 
@@ -80,12 +89,9 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 ## Lo que queda por hacer
 
 1. **Confirmar las reglas de Firestore por UID del dueño** (A3) — consola. Única tarea de seguridad abierta.
-2. **Aligerar el panel admin** (M6) — misma carga lazy que el catálogo.
-3. **Paginar el catálogo** (M3) — opcional, el DOM es grande pero funciona.
-4. **Detalles** (B6, B7) — parseo de precios, links sociales.
-5. **Opcional:** si se activa Firebase Storage, mover las fotos a un CDN real; versionar `firestore.rules`.
-
-*(También sigue pendiente de sesiones anteriores la fusión de variantes de precio min/may.)*
+2. **Paginar el catálogo** (M3) — opcional, el DOM es grande pero funciona.
+3. **Detalles** (B6, B5b) — parseo de precios, labels de modales.
+4. **Opcional:** si se activa Firebase Storage, mover las fotos a un CDN real; versionar `firestore.rules`; des-duplicar la foto base64 de las ofertas.
 
 ---
 

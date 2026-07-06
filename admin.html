@@ -184,7 +184,7 @@ body { font-family: 'Playfair Display', serif; background: var(--bg); color: var
 .upload-area:hover { border-color: var(--rojo); background: var(--bg4); }
 .upload-area p { color: var(--muted); font-size: .83rem; font-style: italic; }
 .upload-area strong { color: var(--rojo); font-style: normal; font-family: 'Cinzel', serif; font-size: .75rem; text-transform: uppercase; letter-spacing: .8px; }
-#preview-img, #preview-prod-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 12px; display: none; object-fit: cover; }
+#preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 12px; display: none; object-fit: cover; }
 
 /* ── OFERTAS CARDS ── */
 .ofertas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
@@ -254,16 +254,6 @@ thead th {
 tbody td { padding: 10px 16px; border-bottom: 1px solid var(--border2); font-size: .88rem; vertical-align: middle; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: rgba(169,74,58,.02); }
-.td-input {
-  background: transparent; border: 1px solid transparent;
-  border-radius: 7px; padding: 5px 9px;
-  color: var(--text); font-family: 'Playfair Display', serif; font-size: .88rem;
-  outline: none; transition: all .2s; width: 100%;
-}
-.td-input:focus { border-color: var(--rojo); background: var(--bg3); }
-.td-input.nombre { font-weight: 600; min-width: 160px; }
-.td-input.desc { font-size: .78rem; font-style: italic; margin-top: 5px; color: var(--muted); }
-.td-input.precio { text-align: right; min-width: 90px; font-family: 'Cinzel', serif; }
 .td-select {
   background: var(--bg3); border: 1px solid var(--border);
   border-radius: 7px; padding: 5px 9px;
@@ -1057,24 +1047,6 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 </div>
 
 <!-- ── MODAL FOTO PRODUCTO ── -->
-<div class="modal-overlay" id="modal-foto">
-  <div class="modal-box">
-    <h3>📷 Cambiar foto del producto</h3>
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;font-style:italic;" id="modal-prod-nombre"></p>
-    <div class="upload-area" id="upload-area-prod">
-      <p>📷 <strong>Clic para subir foto</strong> o arrastrá acá</p>
-      <p style="font-size:.75rem;margin-top:4px;color:var(--grisc);">JPG, PNG — máx. 5MB. Se comprime automáticamente.</p>
-      <input type="file" id="inp-foto-prod" accept="image/*" style="display:none">
-      <img id="preview-prod-img" alt="Preview">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-vino" id="btn-confirmar-foto">💾 Guardar foto</button>
-      <button class="btn btn-ghost" id="btn-cancel-modal">Cancelar</button>
-      <button class="btn btn-danger btn-sm" id="btn-borrar-foto" style="margin-left:auto;">🗑 Quitar foto</button>
-    </div>
-  </div>
-</div>
-
 <!-- ── MODAL NUEVO PRODUCTO ── -->
 <div class="modal-overlay" id="modal-nuevo-prod">
   <div class="modal-box" style="width:min(580px,92vw);">
@@ -1215,7 +1187,7 @@ function compressImage(file) {
   });
 }
 
-async function uploadImageToStorage(file, path) {
+async function compressToDataURL(file) {
   const blob = await compressImage(file);
   return new Promise((res, rej) => {
     const reader = new FileReader();
@@ -1286,7 +1258,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 async function initAdmin() {
   await Promise.all([loadOfertas(), loadPrecios(), loadTicker(), loadHero(), loadConfig()]);
-  populateOfertaSelect();
+  renderOfProdGrid();
 }
 
 // ══════════════════════
@@ -1385,7 +1357,6 @@ document.getElementById('btn-limpiar-of').addEventListener('click', () => {
   renderOfProdGrid();
 });
 
-function populateOfertaSelect() { renderOfProdGrid(); }
 
 document.getElementById('upload-area-of').addEventListener('click', () => document.getElementById('inp-foto-of').click());
 document.getElementById('upload-area-of').addEventListener('dragover', e => e.preventDefault());
@@ -1406,7 +1377,7 @@ document.getElementById('btn-guardar-oferta').addEventListener('click', async ()
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
     let fotoUrl = '';
-    if (fotoOfFile) fotoUrl = await uploadImageToStorage(fotoOfFile, `ofertas/oferta_${Date.now()}.jpg`);
+    if (fotoOfFile) fotoUrl = await compressToDataURL(fotoOfFile);
     else if (currentOfferProductId) {
       const op = productos.find(p => p.id === currentOfferProductId);
       fotoUrl = (op && op.fotoUrl) || (op && op.tieneFoto ? await ensureFoto(currentOfferProductId) : '') || '';
@@ -1425,7 +1396,9 @@ document.getElementById('btn-guardar-oferta').addEventListener('click', async ()
 
 async function loadOfertas() {
   const c = document.getElementById('ofertas-container');
-  const snap = await getDocs(collection(db, 'ofertas'));
+  let snap;
+  try { snap = await getDocs(collection(db, 'ofertas')); }
+  catch(e) { c.innerHTML = '<div class="empty-box">⚠️ No se pudieron cargar las ofertas. Revisá la conexión y recargá.</div>'; return; }
   if (snap.empty) { c.innerHTML = '<div class="empty-box">No hay ofertas cargadas todavía.</div>'; return; }
   const items = []; snap.forEach(d => items.push({id:d.id,...d.data()}));
   items.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
@@ -1485,7 +1458,6 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
 const CATS = ['fiambres','quesos','embutidos','lacteos','almacen','bebidas','congelados','encurtidos','limpieza','bazar','panificados','pastas','aderezos','dulces'];
 const CAT_LABELS = {fiambres:'Fiambres',quesos:'Quesos',embutidos:'Embutidos',lacteos:'Lácteos',almacen:'Almacén',bebidas:'Bebidas',congelados:'Congelados',encurtidos:'Conservas',limpieza:'Limpieza',bazar:'Bazar',panificados:'Panadería',pastas:'Pastas',aderezos:'Aderezos',dulces:'Dulces'};
 let productos = [], cambios = false, adminCatFilter = 'todos', adminSearch = '';
-let modalProdIdx = -1, fotoProdFile = null;
 
 function imgSearchUrl(nombre) {
   if (!nombre) return '#';
@@ -1544,7 +1516,6 @@ async function loadPrecios() {
       pageToken = d.nextPageToken || '';
     } while (pageToken);
   } catch(e) { toast('Error al cargar productos: ' + e.message, true); }
-  if (!productos.length) productos = [{id:'p01',nombre:'Jamón cocido',cat:'fiambres',desc:'',min:4200,may:3600}];
   productos.sort((a,b) => {
     const catDiff = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
     return catDiff !== 0 ? catDiff : (a.orden||0) - (b.orden||0);
@@ -1616,11 +1587,17 @@ document.getElementById('admin-cat-filter').addEventListener('click', e => {
   document.querySelectorAll('#admin-cat-filter .cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === adminCatFilter));
   renderTabla();
 });
-function _delProd(i) {
-  if(!confirm('¿Eliminar producto?')) return;
-  productos.splice(i,1); cambios = true;
-  document.getElementById('cambios-txt').textContent = '⚠️ Cambios sin guardar';
-  renderTabla();
+async function _delProd(i) {
+  if(!confirm('¿Eliminar producto? Se borra definitivamente del catálogo.')) return;
+  const p = productos[i];
+  if (!p) return;
+  try {
+    await deleteDoc(doc(db,'productos',p.id));
+    productos.splice(i,1);
+    fotoCache.delete(p.id);
+    renderTabla();
+    toast('🗑 Producto eliminado');
+  } catch(e) { toast('Error al eliminar: '+e.message, true); }
 }
 const tbodyEl = document.getElementById('precios-tbody');
 tbodyEl.addEventListener('click', e => {
@@ -1634,11 +1611,10 @@ tbodyEl.addEventListener('click', e => {
   const action = el.dataset.action;
   if (action === 'toggle-stock') _toggleStock(i);
   else if (action === 'del') _delProd(i);
-  else if (action === 'open-modal') _openModal(i);
   else if (action === 'edit-modal') _openEditModal(i);
   else if (action === 'dup') {
     const orig = productos[i];
-    const copia = { ...orig, id: 'p_'+Date.now(), nombre: orig.nombre + ' (copia)' };
+    const copia = { ...orig, id: 'p_'+Date.now(), nombre: orig.nombre + ' (copia)', fotoUrl: '', tieneFoto: false };
     productos.splice(i+1, 0, copia);
     cambios = true;
     document.getElementById('cambios-txt').textContent = '⚠️ Cambios sin guardar';
@@ -1739,55 +1715,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
   btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
 });
 
-// Modal foto
-async function _openModal(i) {
-  modalProdIdx = i; fotoProdFile = null;
-  const p = productos[i];
-  document.getElementById('modal-prod-nombre').textContent = p.nombre;
-  const prev = document.getElementById('preview-prod-img');
-  let foto = p.fotoUrl;
-  if (!foto && p.tieneFoto) foto = await ensureFoto(p.id);
-  if (foto) { prev.src = foto; prev.style.display = 'block'; }
-  else prev.style.display = 'none';
-  document.getElementById('inp-foto-prod').value = '';
-  document.getElementById('modal-foto').classList.add('open');
-}
-document.getElementById('upload-area-prod').addEventListener('click', () => document.getElementById('inp-foto-prod').click());
-document.getElementById('upload-area-prod').addEventListener('dragover', e => e.preventDefault());
-document.getElementById('upload-area-prod').addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if(f && f.type.startsWith('image/')) setFotoProd(f); });
-document.getElementById('inp-foto-prod').addEventListener('change', e => { if(e.target.files[0]) setFotoProd(e.target.files[0]); });
-
-function setFotoProd(file) {
-  fotoProdFile = file;
-  const p = document.getElementById('preview-prod-img');
-  p.src = URL.createObjectURL(file); p.style.display = 'block';
-}
-document.getElementById('btn-cancel-modal').addEventListener('click', () => document.getElementById('modal-foto').classList.remove('open'));
-document.getElementById('modal-foto').addEventListener('click', e => { if(e.target===document.getElementById('modal-foto')) document.getElementById('modal-foto').classList.remove('open'); });
-document.getElementById('btn-confirmar-foto').addEventListener('click', async () => {
-  if (!fotoProdFile) { toast('Seleccioná una foto primero', true); return; }
-  const btn = document.getElementById('btn-confirmar-foto');
-  btn.innerHTML = '<span class="spinner"></span> Procesando...'; btn.disabled = true;
-  try {
-    const fotoUrl = await uploadImageToStorage(fotoProdFile, `productos/${productos[modalProdIdx].id}_${Date.now()}.jpg`);
-    productos[modalProdIdx].fotoUrl = fotoUrl;
-    productos[modalProdIdx].tieneFoto = !!fotoUrl;
-    const p = productos[modalProdIdx];
-    fotoCache.set(p.id, fotoUrl);
-    await setDoc(doc(db,'productos',p.id), { fotoUrl, tieneFoto:!!fotoUrl }, { merge:true });
-    toast('✅ Foto guardada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
-  } catch(e) { toast('Error: '+e.message, true); }
-  btn.innerHTML = '💾 Guardar foto'; btn.disabled = false;
-});
-document.getElementById('btn-borrar-foto').addEventListener('click', async () => {
-  if(!confirm('¿Quitar la foto?')) return;
-  productos[modalProdIdx].fotoUrl = '';
-  productos[modalProdIdx].tieneFoto = false;
-  const p = productos[modalProdIdx];
-  fotoCache.delete(p.id);
-  await setDoc(doc(db,'productos',p.id), { fotoUrl:'', tieneFoto:false }, { merge:true });
-  toast('Foto eliminada'); document.getElementById('modal-foto').classList.remove('open'); renderTabla();
-});
+// (El modal de foto independiente se eliminó: la foto se edita desde el modal de edición del producto.)
 
 // ══════════════════════
 // MODAL NUEVO PRODUCTO
@@ -1864,7 +1792,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
   try {
     const id = 'p_' + Date.now();
     let fotoUrl = '';
-    if (fotaNuevoProdFile) fotoUrl = await uploadImageToStorage(fotaNuevoProdFile, `productos/${id}.jpg`);
+    if (fotaNuevoProdFile) fotoUrl = await compressToDataURL(fotaNuevoProdFile);
     const nuevo = {
       id, nombre,
       cat:    document.getElementById('np-cat').value,
@@ -1888,7 +1816,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
       const d = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
       return d !== 0 ? d : (a.orden||0) - (b.orden||0);
     });
-    populateOfertaSelect();
+    renderOfProdGrid();
     renderTabla();
     document.getElementById('modal-nuevo-prod').classList.remove('open');
     toast('✅ Producto agregado');
@@ -2027,7 +1955,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
     let newFoto = null;
-    if (editFotoFile) newFoto = await uploadImageToStorage(editFotoFile, `productos/${productos[editIdx].id}_${Date.now()}.jpg`);
+    if (editFotoFile) newFoto = await compressToDataURL(editFotoFile);
 
     productos[editIdx] = {
       ...productos[editIdx],
@@ -2063,9 +1991,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
 document.getElementById('btn-ep-cancelar').addEventListener('click', () => {
   document.getElementById('modal-edit-prod').classList.remove('open');
 });
-document.getElementById('btn-ep-borrar').addEventListener('click', () => {
-  if (!confirm('¿Eliminar este producto?')) return;
-  _delProd(editIdx);
+document.getElementById('btn-ep-borrar').addEventListener('click', async () => {
+  await _delProd(editIdx);
   document.getElementById('modal-edit-prod').classList.remove('open');
 });
 document.getElementById('modal-edit-prod').addEventListener('click', e => {

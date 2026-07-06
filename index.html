@@ -7,7 +7,13 @@
 <meta property="og:title" content="Santa María Distribuidora — Fiambres & Quesos">
 <meta property="og:description" content="Fiambres, quesos y embutidos al mejor precio. Mayorista y minorista. Los Polvorines, Buenos Aires.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="/logo-512.png">
+<meta property="og:url" content="https://don-florencio.vercel.app/">
+<meta property="og:image" content="https://don-florencio.vercel.app/logo-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Santa María Distribuidora — Fiambres & Quesos">
+<meta name="twitter:description" content="Fiambres, quesos y embutidos al mejor precio. Mayorista y minorista. Los Polvorines, Buenos Aires.">
+<meta name="twitter:image" content="https://don-florencio.vercel.app/logo-512.png">
+<link rel="canonical" href="https://don-florencio.vercel.app/">
 <meta name="theme-color" content="#5a1515">
 <!-- SEO: datos estructurados para Google (negocio local) -->
 <script type="application/ld+json">
@@ -31,6 +37,11 @@
     "longitude": -58.7081671
   },
   "hasMap": "https://maps.app.goo.gl/LtphovQhGUpeZD4dA",
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "07:00", "closes": "21:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "07:00", "closes": "13:00" }
+  ],
+  "sameAs": ["https://www.instagram.com/santamaria_dist"],
   "priceRange": "$$",
   "currenciesAccepted": "ARS",
   "paymentAccepted": "Efectivo, Tarjetas, Mercado Pago"
@@ -42,6 +53,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Cormorant+SC:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -532,6 +544,7 @@ nav::after {
 .prod-foto img {
   width: 100%; height: 100%;
   object-fit: contain;
+  object-position: var(--foto-pos-x, 50%) var(--foto-pos-y, 50%);
   padding: 8px;
   transform: scale(var(--foto-zoom, 1));
   transition: transform .2s;
@@ -1059,7 +1072,7 @@ footer {
     <a class="nav-link" href="#contacto" data-section="contacto">Contacto</a>
   </div>
 
-  <a class="btn-wa-nav" href="https://wa.me/5491162263206?text=Hola%20Santa%20María!%20Quiero%20consultar%20precios" target="_blank">
+  <a class="btn-wa-nav" href="https://wa.me/5491162263206?text=Hola%20Santa%20María!%20Quiero%20consultar%20precios" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     <span class="wa-nav-label">WhatsApp</span>
   </a>
@@ -1122,7 +1135,7 @@ footer {
 
     <div class="hero-actions">
       <a href="#catalogo" class="btn-primary">Ver precios</a>
-      <a href="https://wa.me/5491162263206" target="_blank" class="btn-outline">Consultar por WhatsApp</a>
+      <a href="https://wa.me/5491162263206" target="_blank" rel="noopener" class="btn-outline">Consultar por WhatsApp</a>
     </div>
 
     <!-- ── WHY US STRIP ── -->
@@ -1219,21 +1232,21 @@ footer {
 
   <div class="filter-pills-wrap">
     <div class="filter-pills" id="filter-pills">
-      <button class="pill active" data-cat="todos">🛒 Todos</button>
-      <button class="pill" data-cat="fiambres">🥩 Fiambres</button>
-      <button class="pill" data-cat="quesos">🧀 Quesos</button>
-      <button class="pill" data-cat="embutidos">🌭 Embutidos</button>
-      <button class="pill" data-cat="lacteos">🥛 Lácteos</button>
-      <button class="pill" data-cat="almacen">🌿 Almacén</button>
-      <button class="pill" data-cat="bebidas">🧃 Bebidas</button>
-      <button class="pill" data-cat="congelados">🧊 Congelados</button>
-      <button class="pill" data-cat="encurtidos">🫙 Conservas</button>
-      <button class="pill" data-cat="limpieza">🧼 Limpieza</button>
-      <button class="pill" data-cat="bazar">📦 Bazar</button>
-      <button class="pill" data-cat="panificados">🍞 Panadería</button>
-      <button class="pill" data-cat="pastas">🍝 Pastas</button>
-      <button class="pill" data-cat="aderezos">🧴 Aderezos</button>
-      <button class="pill" data-cat="dulces">🍬 Dulces</button>
+      <button class="pill active" aria-pressed="true" data-cat="todos">🛒 Todos</button>
+      <button class="pill" aria-pressed="false" data-cat="fiambres">🥩 Fiambres</button>
+      <button class="pill" aria-pressed="false" data-cat="quesos">🧀 Quesos</button>
+      <button class="pill" aria-pressed="false" data-cat="embutidos">🌭 Embutidos</button>
+      <button class="pill" aria-pressed="false" data-cat="lacteos">🥛 Lácteos</button>
+      <button class="pill" aria-pressed="false" data-cat="almacen">🌿 Almacén</button>
+      <button class="pill" aria-pressed="false" data-cat="bebidas">🧃 Bebidas</button>
+      <button class="pill" aria-pressed="false" data-cat="congelados">🧊 Congelados</button>
+      <button class="pill" aria-pressed="false" data-cat="encurtidos">🫙 Conservas</button>
+      <button class="pill" aria-pressed="false" data-cat="limpieza">🧼 Limpieza</button>
+      <button class="pill" aria-pressed="false" data-cat="bazar">📦 Bazar</button>
+      <button class="pill" aria-pressed="false" data-cat="panificados">🍞 Panadería</button>
+      <button class="pill" aria-pressed="false" data-cat="pastas">🍝 Pastas</button>
+      <button class="pill" aria-pressed="false" data-cat="aderezos">🧴 Aderezos</button>
+      <button class="pill" aria-pressed="false" data-cat="dulces">🍬 Dulces</button>
     </div>
   </div>
 
@@ -1258,7 +1271,7 @@ footer {
     </svg>
     <h2>¿Necesitás precio mayorista?</h2>
     <p>Consultanos por WhatsApp y te damos una atención personalizada con los mejores precios para tu negocio.</p>
-    <a href="https://wa.me/5491162263206?text=Hola!%20Vi%20los%20precios%20en%20la%20web%20y%20quiero%20consultar%20precio%20mayorista" target="_blank" class="btn-primary">
+    <a href="https://wa.me/5491162263206?text=Hola!%20Vi%20los%20precios%20en%20la%20web%20y%20quiero%20consultar%20precio%20mayorista" target="_blank" rel="noopener" class="btn-primary">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
       Escribinos ahora
     </a>
@@ -1325,11 +1338,11 @@ footer {
     </div>
 
     <div class="como-cta">
-      <a href="https://wa.me/5491162263206?text=Hola!%20Quiero%20hacer%20un%20pedido" target="_blank" class="btn-como">
+      <a href="https://wa.me/5491162263206?text=Hola!%20Quiero%20hacer%20un%20pedido" target="_blank" rel="noopener" class="btn-como">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         Hacer mi pedido ahora
       </a>
-      <p class="como-nota">Abrimos todos los días desde las 7 AM · Los Polvorines, Av. Perón 965</p>
+      <p class="como-nota">Abrimos de lunes a sábado desde las 7 AM · Los Polvorines, Av. Perón 965</p>
     </div>
   </div>
 </section>
@@ -1352,7 +1365,7 @@ footer {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <div>
             <strong>Horarios</strong>
-            <span id="ft-horarios-mapa">Lun – Sáb: 7:00 – 21:00<br>Dom: 8:00 – 12:00</span>
+            <span id="ft-horarios-mapa">Lun – Vie: 7:00 – 21:00<br>Sáb: 7:00 – 13:00</span>
           </div>
         </div>
         <div class="mapa-dato">
@@ -1363,7 +1376,7 @@ footer {
           </div>
         </div>
       </div>
-      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="btn-mapa lnk-maps">
+      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" rel="noopener" class="btn-mapa lnk-maps">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Cómo llegar
       </a>
@@ -1416,23 +1429,22 @@ footer {
       </div>
       <p class="footer-tagline">Fiambres, quesos y embutidos al mejor precio. Más de 20 años de trayectoria en Los Polvorines.</p>
       <div class="footer-socials">
-        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.351C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.323-.593 1.323-1.325V1.325C24 .593 23.407 0 22.675 0z"/></svg></a>
+        <a href="https://www.instagram.com/santamaria_dist" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
       </div>
     </div>
 
     <div class="footer-col">
       <h4>Sucursal</h4>
       <p id="ft-dir">Av. Perón 965<br>Los Polvorines<br>Buenos Aires</p>
-      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" class="footer-highlight lnk-maps">Ver en Google Maps →</a>
+      <a href="https://maps.app.goo.gl/LtphovQhGUpeZD4dA" target="_blank" rel="noopener" class="footer-highlight lnk-maps">Ver en Google Maps →</a>
       <br>
-      <a href="https://wa.me/5491162263206" target="_blank" class="footer-highlight" style="margin-top:10px;" id="ft-wa">+54 9 11 6226-3206</a>
+      <a href="https://wa.me/5491162263206" target="_blank" rel="noopener" class="footer-highlight" style="margin-top:10px;" id="ft-wa">+54 9 11 6226-3206</a>
     </div>
 
     <div class="footer-col">
       <h4>Horarios</h4>
       <div id="ft-horarios">
-        <p>Lun – Sáb: 7:00 – 13:00<br>17:00 – 21:00<br>Domingos: 8:00 – 12:00</p>
+        <p>Lun – Vie: 7:00 – 21:00<br>Sábados: 7:00 – 13:00</p>
       </div>
       <h4 style="margin-top:24px;">Envíos</h4>
       <p id="ft-envios">Retiro en local y envíos por la zona.</p>
@@ -1459,7 +1471,7 @@ footer {
 </footer>
 
 <!-- WA FLOAT -->
-<a class="wa-float" href="https://wa.me/5491162263206?text=Hola!%20Vi%20los%20precios%20en%20la%20web%20y%20quiero%20consultar" target="_blank">
+<a class="wa-float" href="https://wa.me/5491162263206?text=Hola!%20Vi%20los%20precios%20en%20la%20web%20y%20quiero%20consultar" target="_blank" rel="noopener">
   <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
 </a>
 
@@ -1484,7 +1496,7 @@ let waPhone = '5491162263206';
 // Año dinámico en el footer
 (() => { const y = document.getElementById('ft-year'); if (y) y.textContent = new Date().getFullYear(); })();
 
-function fmt(n) { return '$' + Number(n).toLocaleString('es-AR'); }
+function fmt(n) { return '$' + Number(n||0).toLocaleString('es-AR'); }
 function cap(s) { if(!s) return ''; return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
@@ -1492,7 +1504,7 @@ function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = se
 // ── Carga del catálogo por REST SIN fotos (payload liviano) + fotos lazy bajo demanda ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','fotoZoom','tieneFoto'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1557,12 +1569,12 @@ const CAT_ICONS = {fiambres:'🥩',quesos:'🧀',embutidos:'🌭',lacteos:'🥛'
 function prodCardHTML(p) {
   const stripeClass = 'stripe-' + (p.cat||'fiambres');
   return `
-  <div class="prod-card${p.enOferta ? ' destacado' : ''}${p.stock===false ? ' sin-stock' : ''}">
-    <a class="prod-wa" href="https://wa.me/${waPhone}?text=Hola!%20Consulto%20por%20${encodeURIComponent(p.nombre)}" target="_blank">
+  <div class="prod-card${p.stock===false ? ' sin-stock' : ''}">
+    <a class="prod-wa" href="https://wa.me/${waPhone}?text=Hola!%20Consulto%20por%20${encodeURIComponent(p.nombre)}" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     </a>
     ${p.stock===false ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>' : ''}
-    <div class="prod-foto" style="--foto-zoom:${p.fotoZoom||1}"${(!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${esc(p.id)}"` : ''}>
+    <div class="prod-foto" style="--foto-zoom:${Number(p.fotoZoom)||1};${p.fotoPosX!==undefined ? `--foto-pos-x:${Number(p.fotoPosX)||50}%;` : ''}${p.fotoPosY!==undefined ? `--foto-pos-y:${Number(p.fotoPosY)||50}%;` : ''}"${(!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${esc(p.id)}"` : ''}>
       ${p.fotoUrl
         ? `<img src="${esc(p.fotoUrl)}" alt="${esc(p.nombre)}" loading="lazy">`
         : `<span class="prod-foto-placeholder">${CAT_ICONS[p.cat]||'🥩'}</span>`}
@@ -1580,7 +1592,7 @@ function prodCardHTML(p) {
           </div>
           <div class="prod-precio-row">
             <span class="prod-precio-label">Mayorista</span>
-            <span class="prod-precio-val may">${Number(p.may) > 0 ? fmt(p.may) : '<a href="https://wa.me/5491162263206?text=Hola!%20Quiero%20consultar%20precio%20mayorista" target="_blank" rel="noopener" class="may-consultar">A consultar</a>'}</span>
+            <span class="prod-precio-val may">${Number(p.may) > 0 ? fmt(p.may) : `<a href="https://wa.me/${waPhone}?text=Hola!%20Quiero%20consultar%20precio%20mayorista" target="_blank" rel="noopener" class="may-consultar">A consultar</a>`}</span>
           </div>` : `
           <div class="prod-precio-row">
             <span class="prod-precio-val">${fmt(p.min)}</span>
@@ -1652,7 +1664,6 @@ window.scrollRow = (id, dir) => {
   if (track) track.scrollBy({ left: dir * (220 + 14) * 3, behavior: 'smooth' });
 };
 
-function renderProductos() { renderCatRows(); }
 
 // Filtros
 // Nav links — active state on scroll
@@ -1715,7 +1726,7 @@ document.getElementById('filter-pills').addEventListener('click', e => {
   const btn = e.target.closest('.pill');
   if (!btn) return;
   catActiva = btn.dataset.cat;
-  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.pill').forEach(b => { const on = b === btn; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
   renderCatRows();
 });
 
@@ -1724,7 +1735,7 @@ document.getElementById('search-inp').addEventListener('input', debounce(e => {
   // Al buscar, volver a "todos"
   if (busqueda) {
     catActiva = 'todos';
-    document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b.dataset.cat === 'todos'));
+    document.querySelectorAll('.pill').forEach(b => { const on = b.dataset.cat === 'todos'; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
   }
   renderCatRows();
 }, 250));
@@ -1779,7 +1790,7 @@ async function cargarProductos() {
     if (!out.length) { _mostrarErrorCatalogo(); return; }
     productos = out;
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
-    renderProductos();
+    renderCatRows();
   } catch(e) {
     _mostrarErrorCatalogo();
   }
@@ -1887,7 +1898,7 @@ onSnapshot(
         document.querySelectorAll('a[href*="wa.me"]').forEach(el => {
           el.href = el.href.replace(/wa\.me\/\d+/, `wa.me/${waPhone}`);
         });
-        if (productos.length) renderProductos();
+        if (productos.length) renderCatRows();
       }
       if (data.horarios) { const html = data.horarios.split('\\n').map(l => `<p>${esc(l)}</p>`).join(''); document.querySelectorAll('#ft-horarios, #ft-horarios-mapa').forEach(el => el.innerHTML = html); }
       if (data.envios) document.getElementById('ft-envios').textContent = data.envios;
@@ -1895,6 +1906,7 @@ onSnapshot(
     }
   } catch(e) {}
 })();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>
