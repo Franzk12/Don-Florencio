@@ -73,6 +73,13 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 - **Horarios unificados** — Lun–Vie 7–21, Sáb 7–13 (footer, mapa y "cómo comprás" decían tres cosas distintas).
 - **Varios** — `fotoZoom` sanitizado en atributo `style`; `$NaN` evitado en precios sin `min`; link "A consultar" usa el teléfono configurable; `rel="noopener"` en todos los `target="_blank"`; `aria-pressed` en los filtros; el encuadre `fotoPosX/Y` del admin ahora sí se aplica en el sitio; `loadOfertas` con manejo de error; eliminado el modal de foto muerto y CSS/wrappers sin uso; `uploadImageToStorage` renombrada a `compressToDataURL` (no subía a Storage).
 
+### ✅ Ronda 3 (11 jul 2026) — pedidos de la dueña + hallazgos
+
+- **Contenido actualizado en `index.html`:** "más de 25 años" (hero y footer); horarios Lun–Vie 7–17, Sáb 7–15, Feriados 7–13 (mapa, footer y JSON-LD); dirección **Av. Sesquicentenario 2036, Los Polvorines** en footer, mapa, badge del hero y JSON-LD (links y embed de Maps ahora buscan por dirección; coordenadas viejas eliminadas); badge "Todos los días" → "Lunes a sábado".
+- **Precios:** leyenda "Los precios pueden modificarse sin previo aviso" bajo el título del catálogo; cada tarjeta muestra "Precio sin impuestos nacionales" (min ÷ 1,21); el precio mayorista solo se muestra en productos que lo tienen cargado (se quitó el "A consultar" por tarjeta; la clase CSS `may-consultar` quedó sin uso).
+- ⚠️ **Pendiente de config:** actualizar `dir`, `horarios` y `maps` en la config del admin (Firestore) — si conservan los valores viejos pisan el HTML al cargar.
+- 🖼️ **Foto Gancia (staging):** `fotos-para-editar/gancia-americano-950-ml__p_imp_1783122342_0408.jpg` muestra la lata **Gancia Sin Alcohol 0.0 (473 ml)**, pero el único Gancia del catálogo es "Gancia Americano (950 ml)" (sin `tieneFoto`, no está publicada). Antes de subirla: conseguir la foto correcta de la botella, o cargar el producto sin alcohol como producto nuevo.
+
 ---
 
 ## Cambios ya aplicados y deployados
