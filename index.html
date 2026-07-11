@@ -1900,7 +1900,7 @@ onSnapshot(
         });
         if (productos.length) renderCatRows();
       }
-      if (data.horarios) { const html = data.horarios.split('\\n').map(l => `<p>${esc(l)}</p>`).join(''); document.querySelectorAll('#ft-horarios, #ft-horarios-mapa').forEach(el => el.innerHTML = html); }
+      if (data.horarios) { const html = data.horarios.split(/\\n|\n/).map(l => l.trim()).filter(Boolean).map(l => `<p>${esc(l)}</p>`).join(''); document.querySelectorAll('#ft-horarios, #ft-horarios-mapa').forEach(el => el.innerHTML = html); }
       if (data.envios) document.getElementById('ft-envios').textContent = data.envios;
       if (data.pagos) document.getElementById('ft-pagos').textContent = data.pagos;
     }
