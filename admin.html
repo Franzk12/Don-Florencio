@@ -664,15 +664,15 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
         </div>
         <div class="form-grid" style="margin-top:20px;">
           <div class="form-field">
-            <label>Título de la oferta</label>
+            <label for="of-titulo">Título de la oferta</label>
             <input type="text" id="of-titulo" placeholder="Ej: Jamón cocido premium">
           </div>
           <div class="form-field">
-            <label>Precio promocional</label>
+            <label for="of-precio">Precio promocional</label>
             <input type="text" id="of-precio" placeholder="$4.200/kg">
           </div>
           <div class="form-field full">
-            <label>Descripción (opcional)</label>
+            <label for="of-desc">Descripción (opcional)</label>
             <textarea id="of-desc" placeholder="Breve descripción de la oferta..." style="min-height:70px;"></textarea>
           </div>
           <div class="form-field full">
@@ -777,7 +777,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       </div>
 
       <div class="speed-row">
-        <label>Velocidad</label>
+        <label for="ticker-speed">Velocidad</label>
         <input type="range" id="ticker-speed" min="10" max="60" value="28" step="2">
         <span class="speed-val" id="speed-label">28s</span>
       </div>
@@ -810,19 +810,19 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <div class="card-title">Textos del hero</div>
       <div class="config-grid">
         <div class="config-field">
-          <label>Título principal</label>
+          <label for="hero-cfg-titulo">Título principal</label>
           <input type="text" id="hero-cfg-titulo" placeholder="Santa María">
         </div>
         <div class="config-field">
-          <label>Subtítulo</label>
+          <label for="hero-cfg-subtitulo">Subtítulo</label>
           <input type="text" id="hero-cfg-subtitulo" placeholder="Distribuidora">
         </div>
         <div class="config-field">
-          <label>Categorías (eyebrow)</label>
+          <label for="hero-cfg-eyebrow">Categorías (eyebrow)</label>
           <input type="text" id="hero-cfg-eyebrow" placeholder="Fiambres · Quesos · Embutidos">
         </div>
         <div class="config-field">
-          <label>Descripción</label>
+          <label for="hero-cfg-descripcion">Descripción</label>
           <input type="text" id="hero-cfg-descripcion" placeholder="Más de 20 años llevando la mejor selección...">
         </div>
       </div>
@@ -859,7 +859,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           </div>
         </div>
         <div class="config-field full">
-          <label>URL del video (se llena automáticamente al subir)</label>
+          <label for="hero-cfg-videoUrl">URL del video (se llena automáticamente al subir)</label>
           <input type="text" id="hero-cfg-videoUrl" placeholder="Se completa al subir · o pegá una URL directa (mp4, webm)">
           <small style="font-size:.72rem;color:var(--muted);margin-top:4px;font-style:italic;">También podés pegar la URL de un video hospedado externamente.</small>
         </div>
@@ -895,31 +895,31 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <div class="card-title">Información del local</div>
       <div class="config-grid">
         <div class="config-field full">
-          <label>Dirección</label>
+          <label for="cfg-dir">Dirección</label>
           <input type="text" id="cfg-dir" placeholder="Av. Perón 965, Los Polvorines, Buenos Aires">
         </div>
         <div class="config-field">
-          <label>Teléfono / WhatsApp (texto)</label>
+          <label for="cfg-tel">Teléfono / WhatsApp (texto)</label>
           <input type="text" id="cfg-tel" placeholder="+54 9 11 5723-8769">
         </div>
         <div class="config-field">
-          <label>Link WhatsApp</label>
+          <label for="cfg-wa">Link WhatsApp</label>
           <input type="text" id="cfg-wa" placeholder="https://wa.me/5491157238769">
         </div>
         <div class="config-field">
-          <label>Link Google Maps</label>
+          <label for="cfg-maps">Link Google Maps</label>
           <input type="text" id="cfg-maps" placeholder="https://maps.google.com/?q=...">
         </div>
         <div class="config-field full">
-          <label>Horarios (una línea por turno)</label>
+          <label for="cfg-horarios">Horarios (una línea por turno)</label>
           <textarea id="cfg-horarios" placeholder="Lun – Sáb: 7:00 – 13:00\n17:00 – 21:00\nDomingos: 8:00 – 12:00"></textarea>
         </div>
         <div class="config-field">
-          <label>Información de envíos</label>
+          <label for="cfg-envios">Información de envíos</label>
           <input type="text" id="cfg-envios" placeholder="Retiro en local y envíos por la zona.">
         </div>
         <div class="config-field">
-          <label>Medios de pago</label>
+          <label for="cfg-pagos">Medios de pago</label>
           <input type="text" id="cfg-pagos" placeholder="Efectivo, Tarjetas y Transferencias.">
         </div>
       </div>
@@ -944,11 +944,11 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <h3 style="font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--vino);margin-bottom:22px;text-transform:uppercase;letter-spacing:1px;">✏️ Editar producto</h3>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Nombre</label>
+          <label for="ep-nombre">Nombre</label>
           <input type="text" id="ep-nombre" placeholder="Ej: Jamón cocido premium">
         </div>
         <div class="form-field">
-          <label>Categoría</label>
+          <label for="ep-cat">Categoría</label>
           <select id="ep-cat">
             <option value="fiambres">🥩 Fiambres</option>
             <option value="quesos">🧀 Quesos</option>
@@ -967,19 +967,19 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           </select>
         </div>
         <div class="form-field">
-          <label>Orden de aparición</label>
+          <label for="ep-orden">Orden de aparición</label>
           <input type="number" id="ep-orden" min="0" placeholder="0">
         </div>
         <div class="form-field full">
-          <label>Descripción</label>
+          <label for="ep-desc">Descripción</label>
           <textarea id="ep-desc" placeholder="Descripción corta del producto..." style="min-height:64px;"></textarea>
         </div>
         <div class="form-field">
-          <label>Precio minorista</label>
+          <label for="ep-min">Precio minorista</label>
           <input type="number" id="ep-min" placeholder="0" min="0">
         </div>
         <div class="form-field">
-          <label>Precio mayorista</label>
+          <label for="ep-may">Precio mayorista</label>
           <input type="number" id="ep-may" placeholder="—" min="0">
         </div>
         <div class="form-field full">
@@ -993,12 +993,12 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <div style="font-family:'Cinzel',serif;font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Ajustar encuadre</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div class="pos-slider-row">
-                <label>↔ Horizontal</label>
+                <label for="ep-pos-x">↔ Horizontal</label>
                 <input type="range" id="ep-pos-x" min="0" max="100" value="50" step="1">
                 <span id="ep-pos-x-val">50%</span>
               </div>
               <div class="pos-slider-row">
-                <label>↕ Vertical</label>
+                <label for="ep-pos-y">↕ Vertical</label>
                 <input type="range" id="ep-pos-y" min="0" max="100" value="50" step="1">
                 <span id="ep-pos-y-val">50%</span>
               </div>
@@ -1053,11 +1053,11 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
     <h3>+ Nuevo producto</h3>
     <div class="form-grid">
       <div class="form-field">
-        <label>Nombre *</label>
+        <label for="np-nombre">Nombre *</label>
         <input type="text" id="np-nombre" placeholder="Ej: Jamón cocido premium">
       </div>
       <div class="form-field">
-        <label>Categoría</label>
+        <label for="np-cat">Categoría</label>
         <select id="np-cat">
           <option value="fiambres">Fiambres</option>
           <option value="quesos">Quesos</option>
@@ -1076,19 +1076,19 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
         </select>
       </div>
       <div class="form-field full">
-        <label>Descripción</label>
+        <label for="np-desc">Descripción</label>
         <textarea id="np-desc" placeholder="Descripción corta del producto..." style="min-height:60px;"></textarea>
       </div>
       <div class="form-field">
-        <label>Precio minorista *</label>
+        <label for="np-min">Precio minorista *</label>
         <input type="number" id="np-min" placeholder="0" min="0">
       </div>
       <div class="form-field">
-        <label>Precio mayorista</label>
+        <label for="np-may">Precio mayorista</label>
         <input type="number" id="np-may" placeholder="0" min="0">
       </div>
       <div class="form-field">
-        <label>Orden en catálogo</label>
+        <label for="np-orden">Orden en catálogo</label>
         <input type="number" id="np-orden" placeholder="0" min="0" value="0">
       </div>
       <div class="form-field" style="justify-content:flex-start;gap:10px;">
@@ -1113,12 +1113,12 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             </div>
             <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
               <div class="pos-slider-row">
-                <label>↔ Horizontal</label>
+                <label for="np-pos-x">↔ Horizontal</label>
                 <input type="range" id="np-pos-x" min="0" max="100" value="50" step="1">
                 <span id="np-pos-x-val">50%</span>
               </div>
               <div class="pos-slider-row">
-                <label>↕ Vertical</label>
+                <label for="np-pos-y">↕ Vertical</label>
                 <input type="range" id="np-pos-y" min="0" max="100" value="50" step="1">
                 <span id="np-pos-y-val">50%</span>
               </div>
@@ -1661,12 +1661,21 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
       return catMap[n] || CATS.find(c => n.includes(c.replace(/s$/,''))) || null;
     })();
 
+    // Precios en formato AR: "1.234,50" (punto = miles, coma = decimal), "1234.5" o número plano
+    const parsePrecio = v => {
+      if (typeof v === 'number') return v;
+      let s = String(v ?? '').replace(/[^0-9.,-]/g, '');
+      if (!s) return 0;
+      if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+      else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+      return parseFloat(s) || 0;
+    };
     const nuevos = normRows.map(row => {
       const nombre = row['nombre'] || row['Nombre'] || row['NOMBRE'] || row['descrip_arti'] || row['DESCRIP_ARTI'] || '';
       const catRaw = normalize(row['categoria'] || row['Categoría'] || row['cat'] || '');
       const cat = catRaw ? (catMap[catRaw] || CATS.find(c => catRaw.includes(c.replace(/s$/,''))) || filenameCat || 'fiambres') : (filenameCat || 'fiambres');
-      const min = parseFloat(String(row['minorista'] || row['Minorista'] || row['precio'] || row['min'] || row['precio_uni'] || row['PRECIO_UNI'] || 0).replace(/[^0-9.]/g,'')) || 0;
-      const may = parseFloat(String(row['mayorista'] || row['Mayorista'] || row['may'] || 0).replace(/[^0-9.]/g,'')) || 0;
+      const min = parsePrecio(row['minorista'] || row['Minorista'] || row['precio'] || row['min'] || row['precio_uni'] || row['PRECIO_UNI'] || 0);
+      const may = parsePrecio(row['mayorista'] || row['Mayorista'] || row['may'] || 0);
       const desc = row['descripcion'] || row['Descripción'] || row['desc'] || row['desc_adicional'] || '';
       const stockVal = row['cant_stock'] !== undefined ? Number(row['cant_stock']) > 0 : true;
       return { id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min, may, fotoUrl: '', stock: stockVal };
