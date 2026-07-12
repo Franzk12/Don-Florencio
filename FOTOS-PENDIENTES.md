@@ -24,6 +24,11 @@ con IA y queda blanco tipo packshot.
 10. Jamón Cocido **Sello de Plata** *(la foto actual es chica, 368×500; el único
     candidato online era de la marca "Sello de Oro" — otra marca, descartado)*
 
+## 🌭 Embutidos (1)
+
+11. Panceta Salada **Calchaquí** *(la foto cargada es de la panceta AHUMADA —
+    producto equivocado; no hay packshot de la salada online)*
+
 ## ❓ Decisiones pendientes de la dueña (mirando el producto real)
 
 - **Gancia**: ¿venden la botella Americano 950 ml o la lata Sin Alcohol 473 ml?
@@ -33,6 +38,9 @@ con IA y queda blanco tipo packshot.
 - **"Paleta Especial Bierzo"**: la foto cargada es el pack rojo oficial de
   **Grassetto (paleta de cerdo)** — ¿es Bierzo o Grassetto lo que venden?
   (si es Grassetto, ya está el packshot oficial 800×894 listo)
+- **"Salamines Bierzo"**: la foto actual tiene etiqueta bordó; hay disponible en
+  3334px el salamín **picado grueso** (etiqueta verde), en `pendientes-confirmar/`
+  — ¿cuál variante venden?
 
 ## ✅ Ya resuelto en esta ronda (en `fotos-mejoradas/`, se suben con subir-fotos.js)
 
