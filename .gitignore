@@ -23,3 +23,9 @@ import-almacen-*.json
 Entrega-*.pdf
 informe-entrega.pdf
 informe-entrega.tex
+
+# Archivo local (planillas viejas, backups pesados, informes entregados)
+_archivo/
+
+# Hojas de revisión generadas
+revision-fotos-*.html
