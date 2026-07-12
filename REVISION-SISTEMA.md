@@ -78,6 +78,8 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 - ✅ **B6 resuelto** — el importador Excel parsea precios AR ("1.234,50"); antes ese valor se leía como `1.234`.
 - ✅ **B5b resuelto** — 32 labels de config/modales del admin vinculados con `for=`.
 - 🆕 **`subir-fotos.js`** — script de carga masiva de fotos (consola del admin logueado): matchea `archivo__IDPRODUCTO.jpg` o por nombre normalizado, comprime 1200px/85% (recomprime si supera 900KB), escribe `fotoUrl`+`tieneFoto` en lotes con `merge:true`, con simulación previa. Para atacar los 506 productos sin foto.
+- 🖼️ **Fotos fiambres (ronda de calidad):** 4 packshots en alta conseguidos (`fotos-mejoradas/`: Jamón Cocido Bierzo 1200px, Queso de Cerdo Bierzo 801px, Paleta Sandwichera Jetfood 1170px, Paleta Sandwichera Grasetto 1600px — esta no tenía foto). 5 fotos con fondo no blanco recortadas con IA (rembg, venv en `~/.local/share/rembg-venv`) → `fotos-fondo/blancas/`; 3 aprobables subidas a `fotos-mejoradas/` (f183 Valentín, f185 Coliqueo, f204 Sandwichera Bierzo).
+- ⚠️ **Posibles fotos equivocadas detectadas** (decisión de la dueña, como el Gancia): **f174 "Jamón Cocido El Madrileño"** muestra un paquete **Cagnoli de Tandil**; **f195 "Paleta Especial Bierzo"** muestra un paquete rojo **Grassetto**. O la foto es de otro producto, o el nombre del producto está mal.
 
 ---
 
