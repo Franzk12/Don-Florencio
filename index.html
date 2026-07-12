@@ -797,6 +797,14 @@ footer {
 .cat-row-track .prod-card {
   flex: 0 0 220px; scroll-snap-align: start;
 }
+.ver-todos-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  min-height: 240px; cursor: pointer;
+  border: 2px dashed var(--border); background: var(--blanco);
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: .9rem; color: var(--terra);
+}
+.ver-todos-card:hover { border-color: var(--terra); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.ver-todos-card .vt-flecha { font-size: 1.6rem; line-height: 1; }
 
 /* Stripe colores por categoría */
 .stripe-lacteos   { background: #6b8fbd; }
@@ -1488,6 +1496,24 @@ const app = initializeApp(firebaseConfig);
 const db  = initializeFirestore(app, { localCache: persistentLocalCache() });
 
 let productos = [], catActiva = 'todos', mostrarMay = false, busqueda = '';
+
+// M3: límites de render (el DOM ya no monta las ~1.100 tarjetas de una)
+const ROW_INICIAL = 12;   // tarjetas visibles por fila de categoría
+const GRID_LOTE = 60;     // tarjetas por lote en la grilla
+let gridPendientes = [];
+const gridObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    const s = en.target;
+    gridObserver.unobserve(s);
+    const chunk = gridPendientes.slice(0, GRID_LOTE);
+    gridPendientes = gridPendientes.slice(GRID_LOTE);
+    s.insertAdjacentHTML('beforebegin', chunk.map(p => prodCardHTML(p)).join(''));
+    observeFotos();
+    if (gridPendientes.length) gridObserver.observe(s);
+    else s.remove();
+  });
+}, { rootMargin: '600px' });
 let waPhone = '5491157238769';
 
 // Año dinámico en el footer
@@ -1615,7 +1641,16 @@ function renderCatRows() {
     if (!lista.length) {
       gridEl.innerHTML = '<div class="no-results">No se encontraron productos.</div>';
     } else {
-      gridEl.innerHTML = lista.map(p => prodCardHTML(p)).join('');
+      // M3: grilla progresiva — primer lote y el resto a medida que se scrollea
+      gridEl.innerHTML = lista.slice(0, GRID_LOTE).map(p => prodCardHTML(p)).join('');
+      gridPendientes = lista.slice(GRID_LOTE);
+      if (gridPendientes.length) {
+        const s = document.createElement('div');
+        s.className = 'grid-sentinel';
+        s.style.cssText = 'grid-column:1/-1;height:1px;';
+        gridEl.appendChild(s);
+        gridObserver.observe(s);
+      }
     }
     observeFotos();
     return;
@@ -1623,12 +1658,18 @@ function renderCatRows() {
 
   // Modo "todos": filas por categoría
   gridEl.style.display = 'none';
+  gridEl.innerHTML = '';
+  gridPendientes = [];
   rowsEl.style.display = 'block';
   rowsEl.innerHTML = '';
 
   CATS_CONFIG.forEach(({ id, label, icon }) => {
     const lista = productos.filter(p => p.cat === id);
     if (!lista.length) return;
+
+    // M3: solo las primeras tarjetas por fila; el resto vía "Ver todos"
+    const visibles = lista.slice(0, ROW_INICIAL);
+    const resto = lista.length - visibles.length;
 
     const rowId = 'row-' + id;
     const row = document.createElement('div');
@@ -1651,7 +1692,8 @@ function renderCatRows() {
       </div>
       <div class="cat-row-track-wrap">
         <div class="cat-row-track" id="${rowId}">
-          ${lista.map(p => prodCardHTML(p)).join('')}
+          ${visibles.map(p => prodCardHTML(p)).join('')}
+          ${resto > 0 ? `<button class="prod-card ver-todos-card" onclick="verCategoria('${id}')" aria-label="Ver todos los productos de ${label}"><span class="vt-flecha">→</span>Ver todos (${lista.length})</button>` : ''}
         </div>
       </div>`;
     rowsEl.appendChild(row);
@@ -1662,6 +1704,15 @@ function renderCatRows() {
 window.scrollRow = (id, dir) => {
   const track = document.getElementById(id);
   if (track) track.scrollBy({ left: dir * (220 + 14) * 3, behavior: 'smooth' });
+};
+
+// M3: activar una categoría desde la tarjeta "Ver todos" (misma lógica que las pills)
+window.verCategoria = (id) => {
+  catActiva = id;
+  document.querySelectorAll('.pill').forEach(b => { const on = b.dataset.cat === id; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
+  renderCatRows();
+  const cat = document.getElementById('catalogo');
+  if (cat) cat.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 

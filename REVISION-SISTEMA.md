@@ -52,14 +52,8 @@
 El panel se abre con solo estar autenticado; la seguridad real depende de las reglas. El test de escritura sin auth ya da 403 (bien), pero no pude confirmar si piden un UID específico o solo `auth != null`. Trabado en ubicar la cuenta dueña del proyecto GCP.
 → **Acción manual (consola Firebase → Firestore → Reglas):** confirmar `request.auth.uid == "<UID>"` y no solo `request.auth != null`. No urgente (no hay registro público).
 
-### 🟡 MEDIO — pendiente
-
-**M3 — Sin paginación / DOM grande.** Los ~1.100 productos se montan todos en el DOM (aunque las fotos ya cargan lazy). Conviene paginar o renderizar por categoría.
-
 ### 🟢 BAJO — pendiente
 
-- **B6** — Parseo de precios frágil ante formato "1.234,50".
-- **B5b** — El resto de labels del admin (modales) sin `for` — micro-a11y en panel de un solo usuario.
 - **Deuda:** las ofertas duplican la foto base64 del producto en su propio doc (`ofertas/*`); cambiar a referencia por `productId` toca index+admin.
 
 ### ✅ RESUELTO en ronda 2 (5–6 jul 2026)
@@ -79,6 +73,11 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 - **Precios:** leyenda "Los precios pueden modificarse sin previo aviso" bajo el título del catálogo; cada tarjeta muestra "Precio sin impuestos nacionales" (min ÷ 1,21); el precio mayorista solo se muestra en productos que lo tienen cargado (se quitó el "A consultar" por tarjeta; la clase CSS `may-consultar` quedó sin uso).
 - ⚠️ **Pendiente de config:** actualizar `dir`, `horarios` y `maps` en la config del admin (Firestore) — si conservan los valores viejos pisan el HTML al cargar.
 - 🖼️ **Foto Gancia (staging):** `fotos-para-editar/gancia-americano-950-ml__p_imp_1783122342_0408.jpg` muestra la lata **Gancia Sin Alcohol 0.0 (473 ml)**, pero el único Gancia del catálogo es "Gancia Americano (950 ml)" (sin `tieneFoto`, no está publicada). Antes de subirla: conseguir la foto correcta de la botella, o cargar el producto sin alcohol como producto nuevo.
+- ✅ **Config del admin actualizada** (dir/horarios/maps con Sesquicentenario 2036) — verificado leyendo `config/footer` por REST.
+- ✅ **M3 resuelto** — filas de categoría montan 12 tarjetas + tarjeta "Ver todos (N) →"; la grilla (búsqueda/categoría) carga en lotes de 60 con `IntersectionObserver`. DOM inicial: ~1.121 → 182 tarjetas (verificado en navegador local). `sw` v9.
+- ✅ **B6 resuelto** — el importador Excel parsea precios AR ("1.234,50"); antes ese valor se leía como `1.234`.
+- ✅ **B5b resuelto** — 32 labels de config/modales del admin vinculados con `for=`.
+- 🆕 **`subir-fotos.js`** — script de carga masiva de fotos (consola del admin logueado): matchea `archivo__IDPRODUCTO.jpg` o por nombre normalizado, comprime 1200px/85% (recomprime si supera 900KB), escribe `fotoUrl`+`tieneFoto` en lotes con `merge:true`, con simulación previa. Para atacar los 506 productos sin foto.
 
 ---
 
@@ -96,9 +95,8 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 ## Lo que queda por hacer
 
 1. **Confirmar las reglas de Firestore por UID del dueño** (A3) — consola. Única tarea de seguridad abierta.
-2. **Paginar el catálogo** (M3) — opcional, el DOM es grande pero funciona.
-3. **Detalles** (B6, B5b) — parseo de precios, labels de modales.
-4. **Opcional:** si se activa Firebase Storage, mover las fotos a un CDN real; versionar `firestore.rules`; des-duplicar la foto base64 de las ofertas.
+2. **Cargar fotos faltantes** (506 productos, 46%) — usar `subir-fotos.js` desde la consola del admin.
+3. **Opcional:** si se activa Firebase Storage, mover las fotos a un CDN real; versionar `firestore.rules`; des-duplicar la foto base64 de las ofertas.
 
 ---
 
