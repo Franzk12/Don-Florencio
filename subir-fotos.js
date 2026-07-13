@@ -75,19 +75,27 @@
 
   const api = {
     async elegir() {
+      // El file picker solo puede abrirse desde un click real del usuario
+      // (user activation): mostramos un botón y el click del botón abre el
+      // selector de forma sincrónica.
+      console.log('👉 Hacé click en el botón verde que apareció arriba a la izquierda del panel.');
+      const files = await new Promise(res => {
+        const b = document.createElement('button');
+        b.textContent = '📸 Elegir fotos para subir';
+        b.style.cssText = 'position:fixed;top:16px;left:16px;z-index:99999;padding:14px 18px;font-size:16px;background:#2d7a4f;color:#fff;border:0;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3)';
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+        inp.onchange = () => { b.remove(); res([...inp.files]); };
+        b.onclick = () => inp.click();
+        document.body.appendChild(b);
+      });
+      if (!files.length) { console.log('No elegiste archivos.'); return; }
+
       const { db, fsMod } = await fb();
       const snap = await fsMod.getDocs(fsMod.collection(db, COL));
       const prods = [];
       snap.forEach(d => { const x = d.data(); prods.push({ id: d.id, nombre: x.nombre || '', tieneFoto: !!x.tieneFoto, slug: slug(x.nombre) }); });
       console.log(`Catálogo: ${prods.length} productos (${prods.filter(p => !p.tieneFoto).length} sin foto).`);
-
-      const files = await new Promise(res => {
-        const inp = document.createElement('input');
-        inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
-        inp.onchange = () => res([...inp.files]);
-        inp.click();
-      });
-      if (!files.length) { console.log('No elegiste archivos.'); return; }
 
       const porId = new Map(prods.map(p => [p.id, p]));
       plan = { matches: [], sinMatch: [], ambiguos: [] };
