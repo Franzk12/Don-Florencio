@@ -989,6 +989,9 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             <p style="font-size:.72rem;margin-top:3px;color:var(--grisc);">JPG, PNG — máx. 5MB</p>
             <input type="file" id="inp-foto-ep" accept="image/*" style="display:none">
           </div>
+          <div id="ep-foto-acciones" style="display:none;gap:8px;margin-top:8px;">
+            <button type="button" class="btn btn-danger btn-sm" id="btn-ep-quitar-foto">🗑 Quitar foto</button>
+          </div>
           <div id="ep-foto-ajuste" style="display:none;margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;">
             <div style="font-family:'Cinzel',serif;font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Ajustar encuadre</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1001,6 +1004,11 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
                 <label for="ep-pos-y">↕ Vertical</label>
                 <input type="range" id="ep-pos-y" min="0" max="100" value="50" step="1">
                 <span id="ep-pos-y-val">50%</span>
+              </div>
+              <div class="pos-slider-row">
+                <label for="ep-zoom">🔎 Zoom</label>
+                <input type="range" id="ep-zoom" min="100" max="250" value="100" step="5">
+                <span id="ep-zoom-val">100%</span>
               </div>
             </div>
           </div>
@@ -1842,10 +1850,19 @@ const CAT_STRIPES = {
   panificados:'stripe-panificados', pastas:'stripe-pastas',
   aderezos:'stripe-aderezos', dulces:'stripe-dulces'
 };
-let editIdx = -1, editFotoFile = null, epPosX = 50, epPosY = 50;
+let editIdx = -1, editFotoFile = null, editFotoBorrada = false, epPosX = 50, epPosY = 50, epZoom = 1;
+
+function _epFotoStyle() {
+  return `width:100%;height:100%;object-fit:cover;object-position:${epPosX}% ${epPosY}%;transform:scale(${epZoom});transition:transform .15s;`;
+}
+
+function _epFotoAcciones() {
+  const hay = !editFotoBorrada && (editFotoFile || (editIdx >= 0 && (productos[editIdx]?.tieneFoto || productos[editIdx]?.fotoUrl)));
+  document.getElementById('ep-foto-acciones').style.display = hay ? 'flex' : 'none';
+}
 
 function _openEditModal(i) {
-  editIdx = i; editFotoFile = null;
+  editIdx = i; editFotoFile = null; editFotoBorrada = false;
   const p = productos[i];
   // Rellenar campos
   document.getElementById('ep-nombre').value  = p.nombre || '';
@@ -1859,15 +1876,19 @@ function _openEditModal(i) {
   document.getElementById('inp-foto-ep').value = '';
   epPosX = p.fotoPosX !== undefined ? +p.fotoPosX : 50;
   epPosY = p.fotoPosY !== undefined ? +p.fotoPosY : 50;
+  epZoom = Math.min(2.5, Math.max(1, Number(p.fotoZoom) || 1));
   document.getElementById('ep-pos-x').value = epPosX;
   document.getElementById('ep-pos-y').value = epPosY;
   document.getElementById('ep-pos-x-val').textContent = epPosX + '%';
   document.getElementById('ep-pos-y-val').textContent = epPosY + '%';
+  document.getElementById('ep-zoom').value = Math.round(epZoom * 100);
+  document.getElementById('ep-zoom-val').textContent = Math.round(epZoom * 100) + '%';
   document.getElementById('ep-foto-ajuste').style.display = p.tieneFoto ? 'block' : 'none';
+  _epFotoAcciones();
   // Preview (carga la foto on-demand si el producto tiene y no está cargada)
   _updateEditPreview();
   document.getElementById('modal-edit-prod').classList.add('open');
-  if (!p.fotoUrl && p.tieneFoto) ensureFoto(p.id).then(() => { document.getElementById('ep-foto-ajuste').style.display = productos[editIdx] && productos[editIdx].tieneFoto ? 'block' : 'none'; _updateEditPreview(); });
+  if (!p.fotoUrl && p.tieneFoto) ensureFoto(p.id).then(() => { document.getElementById('ep-foto-ajuste').style.display = productos[editIdx] && productos[editIdx].tieneFoto ? 'block' : 'none'; _epFotoAcciones(); _updateEditPreview(); });
 }
 
 function _updateEditPreview() {
@@ -1889,10 +1910,13 @@ function _updateEditPreview() {
 
   // Foto preview
   const fotoEl = document.getElementById('ep-prev-foto');
-  if (editFotoFile) {
+  if (editFotoBorrada) {
+    fotoEl.innerHTML = '📷';
+  } else if (editFotoFile) {
     // Ya hay nueva foto seleccionada — se muestra desde el onChange
   } else if (editIdx >= 0 && productos[editIdx]?.fotoUrl) {
-    fotoEl.innerHTML = `<img src="${esc(productos[editIdx].fotoUrl)}" style="width:100%;height:100%;object-fit:cover;object-position:${epPosX}% ${epPosY}%;">`;
+    fotoEl.innerHTML = `<img src="${esc(productos[editIdx].fotoUrl)}" style="${_epFotoStyle()}">`;
+    fotoEl.style.overflow = 'hidden';
   } else {
     fotoEl.innerHTML = '📷';
   }
@@ -1918,15 +1942,32 @@ document.getElementById('inp-foto-ep').addEventListener('change', e => {
 });
 function _setEditFoto(file) {
   editFotoFile = file;
+  editFotoBorrada = false;
+  _epFotoAcciones();
   const url = URL.createObjectURL(file);
-  epPosX = 50; epPosY = 50;
+  epPosX = 50; epPosY = 50; epZoom = 1;
   document.getElementById('ep-pos-x').value = 50;
   document.getElementById('ep-pos-y').value = 50;
   document.getElementById('ep-pos-x-val').textContent = '50%';
   document.getElementById('ep-pos-y-val').textContent = '50%';
+  document.getElementById('ep-zoom').value = 100;
+  document.getElementById('ep-zoom-val').textContent = '100%';
   document.getElementById('ep-foto-ajuste').style.display = 'block';
-  document.getElementById('ep-prev-foto').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;">`;
+  const fotoEl = document.getElementById('ep-prev-foto');
+  fotoEl.style.overflow = 'hidden';
+  fotoEl.innerHTML = `<img src="${url}" style="${_epFotoStyle()}">`;
 }
+
+// Quitar la foto del producto (se aplica al guardar)
+document.getElementById('btn-ep-quitar-foto').addEventListener('click', () => {
+  editFotoFile = null;
+  editFotoBorrada = true;
+  document.getElementById('inp-foto-ep').value = '';
+  document.getElementById('ep-foto-ajuste').style.display = 'none';
+  _epFotoAcciones();
+  _updateEditPreview();
+  toast('🗑 Foto quitada — se aplica al Guardar');
+});
 
 // ── PEGAR IMAGEN CON CTRL+V ──
 document.addEventListener('paste', e => {
@@ -1956,6 +1997,12 @@ document.getElementById('ep-pos-y').addEventListener('input', e => {
   const img = document.querySelector('#ep-prev-foto img');
   if (img) img.style.objectPosition = `${epPosX}% ${epPosY}%`;
 });
+document.getElementById('ep-zoom').addEventListener('input', e => {
+  epZoom = (+e.target.value) / 100;
+  document.getElementById('ep-zoom-val').textContent = e.target.value + '%';
+  const img = document.querySelector('#ep-prev-foto img');
+  if (img) img.style.transform = `scale(${epZoom})`;
+});
 
 // Guardar cambios del modal
 document.getElementById('btn-ep-guardar').addEventListener('click', async () => {
@@ -1975,9 +2022,10 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       may:     +document.getElementById('ep-may').value || 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
-      fotoPosX: epPosX, fotoPosY: epPosY,
+      fotoPosX: epPosX, fotoPosY: epPosY, fotoZoom: epZoom,
     };
     if (newFoto !== null) { productos[editIdx].fotoUrl = newFoto; productos[editIdx].tieneFoto = !!newFoto; fotoCache.set(productos[editIdx].id, newFoto); }
+    if (editFotoBorrada) { productos[editIdx].fotoUrl = ''; productos[editIdx].tieneFoto = false; fotoCache.delete(productos[editIdx].id); }
 
     // Guardar directo en Firestore (merge: no pisa la foto si no se cambió)
     const p = productos[editIdx];
@@ -1985,9 +2033,10 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       nombre:p.nombre, cat:p.cat, desc:p.desc, min:p.min,
       may:p.may, orden:p.orden, stock:p.stock,
       enOferta: p.enOferta||false,
-      fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY
+      fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY, fotoZoom: p.fotoZoom
     };
     if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }
+    if (editFotoBorrada) { payload.fotoUrl = ''; payload.tieneFoto = false; }
     await setDoc(doc(db,'productos',p.id), payload, { merge:true });
 
     document.getElementById('modal-edit-prod').classList.remove('open');
