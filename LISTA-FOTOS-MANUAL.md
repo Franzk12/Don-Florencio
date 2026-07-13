@@ -17,11 +17,11 @@ Leyenda:
 **📷 Falta foto (1):**
 - Jamón Cocido Sello de Plata *(la actual es 368×500, chica; único candidato online era "Sello de Oro" — otra marca)*
 
-## 🌭 Embutidos
-**⚠️ Revisar (3):**
+## 🌭 Embutidos *(42 fotos verificadas una por una — todo legítimo salvo:)*
+**⚠️ Revisar (2):**
 - Panceta **Salada** Calchaquí (f250) → la foto es la panceta **AHUMADA**
 - Salamines Bierzo (f255) → foto actual etiqueta bordó; disponible **picado grueso** (verde, 3334px) en `pendientes-confirmar/` — ¿cuál venden?
-- Salame 1154 Bierzo (f760) ✅ → la nueva trae el **packaging renovado** — confirmar de un vistazo
+- ~~Salame 1154 Bierzo~~ → verificado OK: el pack azul "1154" es correcto (el envoltorio blanco a rayas era el "Salame Tipo Milán Bierzo", que ya existe como producto aparte — reemplazo descartado)
 
 ## 🥛 Lácteos
 **⚠️ Revisar (6):**
@@ -39,7 +39,15 @@ Leyenda:
 - Postre Suelto *(suelto, sin marca — foto propia)*
 - *(bonus: Manteca SyS tiene foto pero en 225px — retomarla en el local)*
 
-## 🧀 Quesos
+## 🧀 Quesos *(67 fotos verificadas una por una)*
+**⚠️ Revisar (6):**
+- **Sardo Blanco Santa María** → la foto parece un paquete de **HARINA DE ARROZ** (¡ni siquiera es queso!)
+- Queso **Cremoso Don Santiago** → la foto es el **Cremoso Punta del Agua** (pack celeste)
+- Queso **Cremoso La Internacional** → la foto es el pack rojo **TYBO** La Internacional *(ojo: "Queso de Barra La Internacional" está sin foto — puede que esta foto sea la de ese)*
+- Queso **de Barra Punta del Agua** → la foto parece el pack del **Cremoso** PdA — confirmar
+- **Muzzarella en Plancha Silvia** → la foto es el **cilindro** Silvia (formato distinto)
+- **Provoleta Nonna Pia** ↔ **Queso de Campo** → posible cruce: la foto del "de Campo" tiene la etiqueta **Nonna Pia** y la de la provoleta es una horma sin marca
+
 **📷 Falta foto (7):** *(marcas chicas, sin packshot online — foto propia en el local)*
 - Muzzarella en Plancha La Pastora · Queso Cremoso La Pastora · Ricota La Pastora
 - Queso Pategras Monta · Queso Sardo Pintado Monta · Queso Sbrinz Monta
