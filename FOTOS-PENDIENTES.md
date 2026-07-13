@@ -29,6 +29,22 @@ con IA y queda blanco tipo packshot.
 11. Panceta Salada **Calchaquí** *(la foto cargada es de la panceta AHUMADA —
     producto equivocado; no hay packshot de la salada online)*
 
+## 🥛 Lácteos (2)
+
+12. **Postre Suelto** *(producto suelto, sin marca — foto propia)*
+13. Manteca **SyS** *(la actual es el pack correcto pero 225px; el packshot de
+    Jumbo resultó un placeholder — retomar en el local)*
+
+## 🔎 Nombres vs. fotos a revisar con la dueña (lácteos — la foto ya cargada
+muestra otra marca/sabor; ¿cuál es el producto real?)
+
+- Flan **Ravana** Dulce de Leche → la foto es un flan **Exquisita**
+- Flan **Ravana** Vainilla → la foto es un flan **Royal**
+- Yogur con Cereal Light **Tregar** → la foto es un **Milkaut** vainilla con cereales
+- Yogur **Ser** con Cereal Probióticos → la foto es el mismo **Milkaut** (foto casi duplicada)
+- Yogur Bebible Tregar **Arándanos** → la foto es el bebible **vainilla**
+- Yogur Tregar **Durazno** → la foto es el **natural sin azúcar**
+
 ## ❓ Decisiones pendientes de la dueña (mirando el producto real)
 
 - **Gancia**: ¿venden la botella Americano 950 ml o la lata Sin Alcohol 473 ml?
