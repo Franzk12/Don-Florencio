@@ -1,6 +1,7 @@
 # Lista de fotos — para trabajar por sección
 
-*Generada el 11/07/2026 desde la base en vivo. Estado: **1.107 productos — 936 con foto, 171 sin foto, 12 fotos a revisar.***
+*Generada el 11/07/2026 desde la base en vivo — **barrido completo: las 936 fotos del catálogo verificadas contra su nombre.**
+Estado: **1.107 productos — 936 con foto, 171 sin foto, ~85 fotos a revisar/quitar** (lista precargada en `quitar-fotos.js`).*
 
 Leyenda:
 - 📷 **Falta foto** — buscar packshot online o sacarla en el local.
@@ -55,6 +56,8 @@ Leyenda:
 - *(bonus: Queso Sardo Blanco Monta tiene foto pero en 240px)*
 
 ## 🍺 Bebidas
+**⚠️ Revisar (11):** Baggio sin Azúcar Durazno (¡foto de lata Monster!) · Baggio sin Azúcar Naranja (Fanta Zero) · Café La Virginia en Saquitos (té de Tilo) · Café Nory en Saquitos (Bonafide) · Vermouth Cinzano Rosso (vermut Desconfiado) · Clight Pera (sobre Ananá) · Rinde 2 Naranja y Mango (botella Bless) · Tang Ananá / Limonada / Pera / Uva (sobre "Galáctico" de relleno)
+
 **⚠️ Revisar (1):**
 - **Gancia Americano (950 ml)** → sin foto; la foto guardada (en papelera) es la **lata Sin Alcohol 0.0 473 ml** — ¿cuál venden?
 
@@ -62,26 +65,38 @@ Leyenda:
 - Burzot Sello de Oro · Jugo Clight Mandarina sin Azúcar · Jugo Rinde 2 Frutilla · Jugo Rinde 2 Manzana · Jugo de Limón 120 Años (1 L) · Jugo de Limón 120 Años (500 ml) · Licor de Menta Peters (700 ml) · Naranjú Caja · Té de Boldo Cachamai
 
 ## 🍞 Panadería
+**⚠️ Revisar (9):** Bizcochuelos Ravana Chocolate/Naranja/Vainilla (bolsas de otras marcas: Exquisita, Morixe) · Copos de Maíz Morixe (foto de harina para arepas) · Crackers de Arroz Molinos Ala (foto de arroz 1kg) · Pan Lactal Blanco Malu y Remanso + Salvado Remanso y Tío Guis (los 4 con packs de la marca "Lactal")
+
 **📷 Falta foto (30):**
 - Budinchelo Tregar · Coquitos Par Nor · Galletitas Celosas (230 g) · Galletitas Celosas (350 g) · Galletitas de Coco Par Nor · Medialunas Tío Guis x3 · Pan Dulce Don Satur sin Fruta · Pan Lactal Chico Blanco Tío Guis (250 g) · Pan Lactal Chico Blanco Tío Guis (300 g) · Pan Lactal Tío Guis (500 g) · Pan Miguita · Pan Mil Semillas La Santiagueña · **Pan Rallado Preferido ✅** · Pan Rallado Sequito · Pan Rallado Silvina (5 kg) · Pan Rallado Silvina (500 g) · Pan Semillado Tío Guis · Pan con Salvado Tío Guis · Pan de Hamburguesa Panburg x4 · Pan de Hamburguesa Remanso x4 · Pan de Hamburguesa Tío Guis · Pan de Miga Santa María · Pan de Pancho Remanso x6 · Pan de Pancho Tío Guis · Pepitas Par Nor · Pionono Bonmase · Prepizzas La Santiagueña x2 · **Rebozador Preferido ✅** · Rebozador Sequito · Rebozador Silvina
 
 ## 🧴 Aderezos
+**⚠️ Revisar (7):** Salsa Barbacoa Benidorm (foto Hellmann's) · Salsa Boloñesa Knorr (foto del Filetto) · Ají Picante 537 (¡foto de un Tabasco!) · Salsa de Soja 537 (¡foto de un Kikkoman!) · Tomate Triturado Cayfar y Dulcor ×2 (doypack "Don Triturado")
+
 **📷 Falta foto (23):**
 - Aceite Bonoleo (900 cc) · Aceite Caracas Bidón Chico · Aceite Cañuelas (1,5 L) · Aceite Don Hugo (5 L) · Aceto Balsámico 120 Años (500 ml) · Base para Preparar Sabor Hierbas y Ají · Bicarbonato 537 (500 g) · Chimichurri 537 (500 g) · Condimento en Tira x10 · Curry 537 (500 g) · Ketchup Hellmann's (500 g) · Orégano 537 (500 g) · Perejil 537 (500 g) · Pimentón 537 (500 g) · Provenzal 537 (500 g) · Puré de Tomate Del Valle (520 g) · Sal Entrefina Tresal (1 kg) · Sal Fina Tresal (500 g) · Sal Gruesa Tresal (1 kg) · Sal Parrillera Celusal (1 kg) · Salsa Golf Benidorm Individual Caja x198 · **Salsa Provenzal 537 (330 g) ✅** · Vinagre 537 (5 L)
 
 ## 🍝 Pastas
+**⚠️ Revisar (10):** Fideos Ave María Lucchetti (foto de arroz Parboil) · Letritas y Municiones Lucchetti (foto de Coditos) · Mostachol 308 (foto Matarazzo) · Ravioles 4 Quesos El Sol (pack Villa D'Agri) · Ravioles Pollo y Verdura La Italiana (pack Mendía) · Tapas Copetín Delitap (Mendía) · Tapas Pascualina Delitap y El Sol (Mendía duplicada) · Pascualina La Santiagueña (pack La Salteña)
+
 **📷 Falta foto (23):**
 - Fainá Silvina · Fideos Coditos Sol Pampeano · Fideos Mostachol Sol Pampeano · Fideos Spaghetti Sol Pampeano · Fideos Tallarín Sol Pampeano · Fideos Tirabuzón Sol Pampeano · Masa en Tubo Doña Yoly · Masa en Tubo Doña Yoly Pack x3 · Masa en Tubo Doña Yoly Pack x5 · Pionono Signo de Oro · Ravioles de Calabaza y Muzzarella El Sol · Tapas Plinita Delitap · Tapas Plinitas con Salvado Delitap · Tapas de Empanada El Sol · Tapas de Empanada El Sol Pack x4 doc · Tapas de Hojaldre Grueso Delitap · Tapas en Tubo Paty Delitap · Tapas en Tubo Paty Delitap Pack x3 · Tapas en Tubo Roticero Delitap · Tapas en Tubo Roticero Delitap Pack x3 · Tapas en Tubo con Salvado Delitap Pack x5 doc · Tapas para Pastelito Delitap · Ñoquis El Sol
 
 ## 🛒 Almacén
+**⚠️ Revisar (8):** Arroz Rojo Carogran (caja Riso Scotti) · Crema Frutilla Ledevit (¡golosinas Vidal!) · Sopa Quick Choclo (Maggi) · Sopa Quick de Vegetales (verduras congeladas) · Yerba La Cumbrecita 1kg y 500g (packs La Merced) · Azúcar Ledesma Clásica y Pack (muestran la Light)
+
 **📷 Falta foto (20):**
 - Arroz Moneda (1 kg) · Azúcar La Muñeca (1 kg) · Azúcar La Muñeca Pack · Caja Individuales de Azúcar Inysa x800 · Edulcorante Si Diet (600 ml) · Grasa de Cerdo Esani (500 g) · Harina 000 Bruning · Harina 000 Bruning Pack · Harina de Maíz Blanco P.A.N. (1 kg) · Polenta La Española (500 g) · Polenta Noel (490 g) · Polenta Silvina · Porotos Manteca Elio · Sopa Paraguaya Silvina (400 g) · Sopa Paraguaya Silvina (900 g) · **Sopa Quick Arvejas Light ✅** · **Sopa Quick Zapallo Romero y Pimienta ✅** · Sémola Silvina (400 g) · Yerba Don Arregui Boldo y Poleo · Yerba Don Arregui con Burrito (500 g)
 
 ## 🍬 Dulces
+**⚠️ Revisar (8):** Caramelos masticables Misky (pack Mogul) · Garrapiñadas Caviwa (Bonafide duplicada) · Gelatinas Ravana Cereza/Durazno/Frambuesa/Frutilla/Naranja (packs Exquisita/Godet/otros) · Maní con Chocolate Namur (barra Shot)
+
 **📷 Falta foto (20):**
 - Alfajores Escolares x5 · Alfajores Escolares Caja · Alfajores Guaymallén x5 · Alfajores Guaymallén Caja · Busetana Tubo Roticero · Busetana Tubo Roticero Pack x3 · Gelatina Ravana Ananá · Gelatina Ravana Manzana · Gelatina Ravana Manzana Light · Gelatina Suelta · Gomitas Misky Fantasía · Maní Cropp Chilli Pepper · Miel La Chacra (1 L) · Miel La Chacra (500 g) · Miel Pampera (250 g) · Miel Pampera (500 g) · Miel Pura Santa María (1 kg) · Miel Pura Santa María (500 g) · Oreo Suelta · Postre Árabe Caviwa
 
 ## 🫙 Conservas
+**⚠️ Revisar (18):** Aceitunas Tres Reyes ×2 (doypacks Vanoli) · Choclos La Banda cremosos ×3 (latas La Campagnola) · Choclo Entero La Banda 800 e Inca (latas Arcor) · Cóctel Cumaná (lata Alco) · Duraznos Cumaná ×2, Inca y Sabio (los 4 con la misma lata Zummun) · Lomitos de Atún en Aceite Cumaná 170 (La Campagnola) · Porotos Soja/Negros Elio (Egran) y Alubia Elio (Inalpa) · Puré de Tomate Inca (otra marca) · Tomate Triturado Inca (Don Triturado)
+
 **📷 Falta foto (19):**
 - Aceitunas La Bernal 00 (5 kg) · Aceitunas La Bernal 1B (2 kg) · Aceitunas La Bernal 1B (5 kg) · Aceitunas Tres Reyes (2,25 kg) · Arvejas Cumaná (350 g) · Arvejas Inca (350 g) · Berenjenas de Copetín (200 g) · Champiñones Enteros La Banda (400 g) · Extracto de Tomate Inca (150 g) · Garbanzos Cumaná (350 g) · Jardinera Inca (220 g) · Lentejas Cumaná (350 g) · Lentejas Elio (400 g) · Lentejas Inca (350 g) · Lentejas La Banda (350 g) · Lentejón Elio (400 g) · Porotos Cumaná (350 g) · Porotos Pallares Elio (500 g) · Tomate Pouch Cumaná (2 kg)
 
@@ -90,9 +105,13 @@ Leyenda:
 - Bandejas Expandido 617 x25 · Bandejas Expandido 618 x25 · Bandejas de Cartón N°5 · Bandejas de Cartón N°6 · Bolsa Consorcio Mellis 45x60 · Bolsa de Papel N°6 · Bolsas Camisetas 40x50 · Bolsas de Arranque Titán 35x45 · Caja de Sorbetes x1000 · Cajas de Pizza x100 · Film Stretch (10 cm) · Papel Aluminio Alumax Familiar (5 m) · Rollo de Cocina New Dicha (mayor)
 
 ## 🧊 Congelados
+**⚠️ Revisar (1, opcional):** Hamburguesas Pacheco x40 (foto = caja de cartón sin marca)
+
 **📷 Falta foto (1):** Hamburguesas Pacheco x2
 
 ## 🧼 Limpieza
+**⚠️ Revisar (1):** Jabón Dove Fresh Care Pomelo (la foto es un desodorante Dove Men+Care)
+
 **📷 Falta foto (1):** Repelente Above Protect (150 ml)
 
 ---
