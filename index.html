@@ -1958,6 +1958,21 @@ onSnapshot(
   } catch(e) {}
 })();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// ── Vercel Web Analytics + evento de clicks a WhatsApp (el "checkout" real) ──
+window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href*="wa.me"]');
+  if (!a) return;
+  const seccion = a.closest('.prod-card') ? 'producto'
+    : a.closest('.como-cta') ? 'como-compras'
+    : a.closest('footer') ? 'footer'
+    : a.closest('.mayorista-cta, #mayorista') ? 'mayorista'
+    : a.closest('nav, .navbar') ? 'navbar'
+    : 'otro';
+  window.va('event', { name: 'whatsapp_click', data: { seccion } });
+}, { capture: true, passive: true });
 </script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
