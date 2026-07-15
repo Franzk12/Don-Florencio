@@ -29,3 +29,8 @@ _archivo/
 
 # Hojas de revisión generadas
 revision-fotos-*.html
+
+# Carpetas de trabajo de fotos (caché local, no versionar)
+fotos-fondo/
+fotos-mejoradas/
+graphify-out/
