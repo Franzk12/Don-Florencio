@@ -2,129 +2,133 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[spanish,es-noshorthands]{babel}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage[margin=2.2cm,bottom=2.6cm]{geometry}
 \usepackage{booktabs}
 \usepackage{parskip}
 \usepackage{enumitem}
+\usepackage{graphicx}
 \usepackage{xcolor}
 \definecolor{vino}{RGB}{90,21,21}
+\definecolor{crema}{RGB}{245,237,224}
+\definecolor{verde}{RGB}{45,122,79}
+\definecolor{grisc}{RGB}{120,110,100}
+\usepackage[most]{tcolorbox}
 \usepackage{sectsty}
 \allsectionsfont{\color{vino}}
-
-\title{\color{vino}\textbf{El cat\'alogo online de Santa Mar\'ia}\\[4pt]
-\large Qu\'e tenemos hoy y hacia d\'onde puede crecer}
-\author{}
-\date{15 de julio de 2026}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\color{grisc}\small\texttt{don-florencio.vercel.app} \;\textcolor{vino}{---}\; WhatsApp +54 9 11 5723-8769 \;\textcolor{vino}{---}\; IG @santamaria\_dist \;\textcolor{vino}{---}\; p\'ag.\ \thepage}
 
 \begin{document}
-\maketitle
-\vspace{-2.5em}
 
-\section*{En una frase}
+% ── Portada compacta con logo ──
+\begin{center}
+  \includegraphics[width=2.2cm]{logo-512.png}\\[8pt]
+  {\LARGE\color{vino}\textbf{El cat\'alogo online de Santa Mar\'ia}}\\[6pt]
+  {\large\color{grisc} Qu\'e tenemos hoy y hacia d\'onde puede crecer}\\[4pt]
+  {\small\color{grisc} 15 de julio de 2026}
+\end{center}
+\vspace{4pt}
 
-Santa Mar\'ia ya tiene lo que la mayor\'ia de las distribuidoras de la zona no tiene:
-\textbf{una sucursal digital abierta las 24 horas}, donde cualquier cliente ---minorista o
-mayorista--- puede ver los m\'as de 1.100 productos con precio real y pedir por WhatsApp
+% ── En una frase: caja destacada ──
+\begin{tcolorbox}[colback=crema, colframe=vino, boxrule=1pt, arc=3mm,
+                  left=10pt, right=10pt, top=8pt, bottom=8pt]
+\centering
+\textbf{\color{vino}\large Santa Mar\'ia ya tiene lo que la mayor\'ia de las
+distribuidoras de la zona no tiene:}\\[4pt]
+\textbf{una sucursal digital abierta las 24 horas} --- m\'as de 1.100 productos con
+precio real,\\ donde el cliente minorista o mayorista mira, elige y pide por WhatsApp
 sin llamar ni esperar.
+\end{tcolorbox}
 
-\section{Qu\'e tiene el negocio hoy}
+\section*{1 \textperiodcentered\ Qu\'e tiene el negocio hoy}
 
-\begin{itemize}[leftmargin=1.2em, itemsep=3pt]
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt]
   \item \textbf{Todo el cat\'alogo, siempre a mano}: 1.106 productos en 14 categor\'ias,
         con precios minorista y mayorista, ordenados y con buscador. El cliente encuentra
         en segundos lo que en el mostrador lleva una consulta.
   \item \textbf{Fotos de verdad}: 9 de cada 10 productos con su foto real, estilo
         supermercado, revisadas una por una. La g\'ondola digital se ve tan seria como
         el local.
-  \item \textbf{Precios claros y legales}: cada producto muestra el precio final, el
-        precio sin impuestos nacionales (como exige la normativa de transparencia) y la
-        aclaraci\'on de que los precios pueden cambiar sin aviso.
+  \item \textbf{Precios claros y legales}: precio final, precio sin impuestos nacionales
+        (normativa de transparencia) y la aclaraci\'on de que pueden cambiar sin aviso.
   \item \textbf{Todo lleva a WhatsApp}: cada producto tiene su bot\'on. El cliente mira,
-        elige y escribe. El tel\'efono del negocio es la caja registradora del sitio.
+        elige y escribe. \emph{El tel\'efono del negocio es la caja registradora del sitio.}
   \item \textbf{R\'apido y seguro}: abre en menos de un segundo hasta en celulares
         b\'asicos, funciona como aplicaci\'on instalable, y nadie m\'as que la
         administraci\'on puede tocar precios o productos.
-  \item \textbf{Panel de control propio}: precios, stock, fotos, ofertas de la semana y
-        datos del local se cambian desde el panel, sin depender de nadie ni saber de
-        computaci\'on.
+  \item \textbf{Panel de control propio}: precios, stock, fotos, ofertas y datos del
+        local se cambian desde el panel, sin depender de nadie ni saber de computaci\'on.
   \item \textbf{Medici\'on encendida}: desde esta semana el sitio cuenta cu\'anta gente
-        entra y cu\'antos tocan el bot\'on de WhatsApp. Por primera vez se va a poder
-        saber qu\'e mira la gente y qu\'e convierte en consulta.
+        entra y cu\'antos tocan el bot\'on de WhatsApp --- por primera vez se va a saber
+        qu\'e mira la gente y qu\'e termina en consulta.
 \end{itemize}
 
-\section{Qu\'e significa esto en plata}
+\section*{2 \textperiodcentered\ Qu\'e significa esto en plata}
 
-\begin{itemize}[leftmargin=1.2em, itemsep=3pt]
-  \item \textbf{El vendedor que no cobra sueldo}: el cat\'alogo atiende consultas de
-        precios a cualquier hora, tambi\'en domingos y feriados, sin ocupar a nadie
-        del mostrador.
-  \item \textbf{Clientes mayoristas m\'as f\'aciles}: un comercio que quiere comparar
-        precios puede revisar todo el surtido sin llamar --- y el que compara, pide.
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt]
+  \item \textbf{El vendedor que no cobra sueldo}: atiende consultas de precios a
+        cualquier hora, tambi\'en domingos y feriados, sin ocupar a nadie del mostrador.
+  \item \textbf{Clientes mayoristas m\'as f\'aciles}: el comercio que quiere comparar
+        precios revisa todo el surtido sin llamar --- y el que compara, pide.
   \item \textbf{Los precios se actualizan una sola vez}: se cargan en el panel y quedan
         publicados. Se termin\'o el ``te paso la lista'' producto por producto.
-  \item \textbf{Imagen}: un negocio con cat\'alogo online prolijo transmite el tama\~no
-        y la seriedad que Santa Mar\'ia tiene en el mostrador, tambi\'en en el celular
-        del cliente.
+  \item \textbf{Imagen}: un cat\'alogo online prolijo transmite en el celular del cliente
+        el mismo tama\~no y seriedad que Santa Mar\'ia tiene en el mostrador.
 \end{itemize}
 
-\section{C\'omo sacarle el jugo (lo que depende del negocio)}
+\section*{3 \textperiodcentered\ C\'omo sacarle el jugo (lo que depende del negocio)}
 
-\begin{enumerate}[leftmargin=1.4em, itemsep=3pt]
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt]
   \item \textbf{Difundir el link}: estados de WhatsApp, respuesta autom\'atica del
-        WhatsApp del negocio, Instagram, y un cartel con QR en el mostrador.
-        Cuesta cero y es lo que enciende el canal.
-  \item \textbf{Google Business} (gratis): que el negocio aparezca en Google Maps con
-        el link del cat\'alogo. Los clientes nuevos de la zona llegan solos.
+        WhatsApp del negocio, Instagram y un cartel con QR en el mostrador.
+        \textcolor{verde}{\textbf{Cuesta cero}} y es lo que enciende el canal.
+  \item \textbf{Google Business} (gratis): aparecer en Google Maps con el link del
+        cat\'alogo --- los clientes nuevos de la zona llegan solos.
   \item \textbf{Completar las \'ultimas fotos}: quedan 108 productos de marcas
         regionales; con los cat\'alogos de los preventistas o una foto en el local se
-        terminan de cubrir (el sistema las procesa autom\'aticamente a fondo blanco).
-  \item \textbf{Mantener precios y stock al d\'ia} desde el panel: cinco minutos por
-        semana que mantienen la confianza del cliente.
-  \item \textbf{Ofertas de la semana}: el sitio tiene una secci\'on de ofertas destacada
-        --- usarla todas las semanas da motivo para que el cliente vuelva a entrar.
+        cubren (el sistema las deja autom\'aticamente con fondo blanco).
+  \item \textbf{Precios y stock al d\'ia}: cinco minutos por semana en el panel que
+        sostienen la confianza del cliente.
+  \item \textbf{Ofertas de la semana}: la secci\'on destacada del sitio --- usarla todas
+        las semanas le da al cliente un motivo para volver a entrar.
 \end{enumerate}
 
-\section{Hacia d\'onde puede crecer (cuando la direcci\'on lo decida)}
+\section*{4 \textperiodcentered\ Hacia d\'onde puede crecer (cuando la direcci\'on lo decida)}
 
-Ninguna de estas mejoras es urgente; el sitio est\'a completo y funcionando. Son
-oportunidades para cuando el canal demuestre movimiento:
+Nada de esto es urgente: el sitio est\'a completo y funcionando. Son oportunidades para
+cuando el canal demuestre movimiento:
 
-\begin{itemize}[leftmargin=1.2em, itemsep=3pt]
-  \item \textbf{Direcci\'on propia} (ej.\ \texttt{santamariadist.com}, unos d\'olares
-        al a\~no): m\'as f\'acil de recordar, m\'as seria en tarjetas y publicidad.
-  \item \textbf{Pedidos m\'as grandes con menos vueltas}: hoy cada producto abre su
-        chat; se puede hacer que el cliente arme la lista completa y mande un solo
-        mensaje con todo. Para clientes mayoristas de 15--20 \'items, es la diferencia
-        entre pedir e irse.
-  \item \textbf{Promociones dirigidas}: con la medici\'on ya activa, se puede ver qu\'e
-        categor\'ias mira m\'as la gente y armar ofertas sobre eso.
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt]
+  \item \textbf{Direcci\'on propia} (ej.\ \texttt{santamariadist.com}, unos d\'olares al
+        a\~no): m\'as f\'acil de recordar y m\'as seria en tarjetas y publicidad.
+  \item \textbf{Pedidos grandes sin vueltas}: hoy cada producto abre su chat; se puede
+        hacer que el cliente arme la lista completa y mande \textbf{un solo mensaje} con
+        todo. Para mayoristas de 15--20 \'items, es la diferencia entre pedir e irse.
+  \item \textbf{Promociones dirigidas}: con la medici\'on activa se ve qu\'e categor\'ias
+        mira m\'as la gente, y las ofertas se arman sobre datos, no intuici\'on.
 \end{itemize}
 
-\section*{El resumen}
-
-\begin{table}[h]
+% ── Resumen: caja final ──
+\begin{tcolorbox}[colback=white, colframe=vino, boxrule=1pt, arc=3mm,
+                  title=\textbf{El cat\'alogo hoy, en n\'umeros},
+                  coltitle=white, colbacktitle=vino,
+                  left=10pt, right=10pt, top=6pt, bottom=6pt]
 \centering
 \begin{tabular}{lr}
-\toprule
-\textbf{El cat\'alogo hoy} & \\
-\midrule
-Productos publicados & 1.106 \\
-Con foto verificada & 90\% \\
-Tiempo de carga & menos de 1 segundo \\
-Atenci\'on & 24 horas, 7 d\'ias \\
-Costo de mantenerlo andando & el hosting actual es gratuito \\
-\bottomrule
+Productos publicados & \textbf{1.106} \\
+Con foto verificada & \textbf{90\,\%} \\
+Tiempo de carga & \textbf{menos de 1 segundo} \\
+Atenci\'on & \textbf{24 horas, 7 d\'ias} \\
+Costo de mantenerlo andando & \textbf{\textcolor{verde}{hosting gratuito}} \\
 \end{tabular}
-\end{table}
+\end{tcolorbox}
 
-La herramienta est\'a terminada, probada y en marcha. Lo que sigue ---difusi\'on,
-fotos que faltan, y las mejoras de la secci\'on anterior--- son decisiones del negocio,
-a su ritmo.
-
-\vspace{1em}
 \begin{center}
-\color{vino}\rule{0.6\textwidth}{0.4pt}\\[6pt]
-\small Sitio: \texttt{don-florencio.vercel.app} \quad---\quad WhatsApp: +54 9 11 5723-8769 \quad---\quad IG: @santamaria\_dist
+\emph{La herramienta est\'a terminada, probada y en marcha. Lo que sigue ---difusi\'on,
+las fotos que faltan y las mejoras del punto 4--- son decisiones del negocio, a su ritmo.}
 \end{center}
 
 \end{document}
