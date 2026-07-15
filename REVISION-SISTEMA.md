@@ -46,11 +46,9 @@
 - **B4 — Datos de ejemplo ante error.** Ahora muestra un mensaje al usuario. *Commit `d43bee1`.*
 - **B5 — Labels del login sin `for`.** Agregado. *Commit `d43bee1`.*
 
-### 🟠 ALTO — pendiente
+### ✅ A3 — RESUELTO (15 jul 2026)
 
-**A3 — Confirmar que las reglas de Firestore exigen el UID del admin.**
-El panel se abre con solo estar autenticado; la seguridad real depende de las reglas. El test de escritura sin auth ya da 403 (bien), pero no pude confirmar si piden un UID específico o solo `auth != null`. Trabado en ubicar la cuenta dueña del proyecto GCP.
-→ **Acción manual (consola Firebase → Firestore → Reglas):** confirmar `request.auth.uid == "<UID>"` y no solo `request.auth != null`. No urgente (no hay registro público).
+**Reglas de Firestore verificadas por el dueño en la consola:** lectura pública (por diseño, el catálogo lee sin login) y escritura condicionada a `request.auth != null && request.auth.uid == "<UID del admin>"` — exigen la cuenta exacta del administrador, no solo estar autenticado. Sumado al test de escritura sin auth → 403 (verificado en vivo), no quedan tareas de seguridad abiertas.
 
 ### 🟢 BAJO — pendiente
 
@@ -97,9 +95,10 @@ El panel se abre con solo estar autenticado; la seguridad real depende de las re
 
 ## Lo que queda por hacer
 
-1. **Confirmar las reglas de Firestore por UID del dueño** (A3) — consola. Única tarea de seguridad abierta.
-2. **Cargar fotos faltantes** (506 productos, 46%) — usar `subir-fotos.js` desde la consola del admin.
-3. **Opcional:** si se activa Firebase Storage, mover las fotos a un CDN real; versionar `firestore.rules`; des-duplicar la foto base64 de las ofertas.
+1. ~~Confirmar las reglas de Firestore por UID~~ ✅ **A3 resuelto (15/07)** — sin tareas de seguridad abiertas.
+2. **Cargar fotos faltantes** (108 productos, 10%) — catálogos de preventistas o foto propia + `subir-fotos.js`.
+3. **Lanzamiento**: dominio propio (pendiente decisión con la dueña) + QR; Analytics ya activo (15/07) con evento `whatsapp_click`.
+4. **Opcional:** pedido armado por WhatsApp (mejora comercial #1); Firebase Storage/CDN para fotos; versionar `firestore.rules`; des-duplicar foto base64 de ofertas.
 
 ---
 
