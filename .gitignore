@@ -17,6 +17,7 @@ Thumbs.db
 *.xlsx
 *.xls
 backup-productos-*.json
+backup_*.json
 import-almacen-*.json
 
 # Documentos generados (informes de entrega)
