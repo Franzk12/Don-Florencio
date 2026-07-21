@@ -477,27 +477,6 @@ nav::after {
 .pill:hover { border-color: var(--terra); color: var(--terra); }
 .pill.active { background: var(--bordo2); border-color: var(--bordo2); color: white; }
 
-.mayorista-toggle {
-  margin-left: auto; display: flex; align-items: center; gap: 10px;
-  cursor: pointer; user-select: none;
-  background: none; border: none; padding: 0;
-  font-family: 'Cinzel', serif; font-size: .6rem;
-  font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--gris);
-}
-.toggle-track {
-  width: 40px; height: 22px; background: var(--crema3);
-  border: 1px solid var(--border); border-radius: 999px;
-  position: relative; transition: background .2s;
-}
-.toggle-track.on { background: var(--terra); border-color: var(--terra); }
-.toggle-thumb {
-  position: absolute; top: 3px; left: 3px;
-  width: 14px; height: 14px; background: white; border-radius: 50%;
-  transition: transform .2s;
-}
-.toggle-track.on .toggle-thumb { transform: translateX(18px); }
-
 .search-box {
   display: flex; align-items: center; gap: 12px;
   background: var(--blanco); border: 1px solid var(--border);
@@ -568,11 +547,8 @@ nav::after {
 }
 .prod-precios { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border2); }
 .prod-precio-row { display: flex; align-items: center; justify-content: space-between; }
-.prod-precio-label { font-family: 'Cinzel', serif; font-size: .58rem; font-weight: 600; color: var(--gris2); letter-spacing: 1.5px; text-transform: uppercase; }
 .prod-precio-val { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700; color: var(--terra); }
-.prod-precio-val.may { color: #2d7a4f; font-size: 1.1rem; }
 .prod-sin-imp { font-size: .66rem; color: var(--gris2); letter-spacing: .3px; margin-top: 2px; }
-.may-consultar { font-family: inherit; font-size: .95rem; font-weight: 600; color: #2d7a4f; text-decoration: underline; text-underline-offset: 2px; }
 
 .prod-wa {
   position: absolute; right: 12px; top: 12px;
@@ -968,7 +944,6 @@ footer {
   .banda { padding: 48px 20px; }
   .footer-inner { grid-template-columns: 1fr; gap: 28px; }
   footer { padding: 48px 20px 32px; }
-  .mayorista-toggle > span:first-child { display: none; }
   .cat-topbar { flex-direction: column; align-items: flex-start; }
   .cat-controls { width: 100%; }
   .search-box { flex: 1; }
@@ -1228,10 +1203,6 @@ footer {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="search-inp" name="buscar" aria-label="Buscar producto" autocomplete="off" placeholder="Buscar producto…">
       </div>
-      <button type="button" class="mayorista-toggle" id="toggle-may" role="switch" aria-checked="false">
-        <span>Ver precio mayorista</span>
-        <span class="toggle-track" id="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
-      </button>
     </div>
   </div>
 
@@ -1495,7 +1466,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-let productos = [], catActiva = 'todos', mostrarMay = false, busqueda = '';
+let productos = [], catActiva = 'todos', busqueda = '';
 
 // M3: límites de render (el DOM ya no monta las ~1.100 tarjetas de una)
 const ROW_INICIAL = 12;   // tarjetas visibles por fila de categoría
@@ -1609,19 +1580,9 @@ function prodCardHTML(p) {
       <div class="prod-nombre">${esc(p.nombre)}</div>
       ${p.desc ? `<div class="prod-desc">${esc(p.desc)}</div>` : ''}
       <div class="prod-precios">
-        ${mostrarMay ? `
-          <div class="prod-precio-row">
-            <span class="prod-precio-label">Minorista</span>
-            <span class="prod-precio-val" style="font-size:1rem;color:var(--gris);">${fmt(p.min)}</span>
-          </div>
-          ${Number(p.may) > 0 ? `
-          <div class="prod-precio-row">
-            <span class="prod-precio-label">Mayorista</span>
-            <span class="prod-precio-val may">${fmt(p.may)}</span>
-          </div>` : ''}` : `
-          <div class="prod-precio-row">
-            <span class="prod-precio-val">${fmt(p.min)}</span>
-          </div>`}
+        <div class="prod-precio-row">
+          <span class="prod-precio-val">${fmt(p.min)}</span>
+        </div>
         <div class="prod-sin-imp">Precio sin impuestos nacionales: ${fmtSinImp(p.min)}</div>
       </div>
     </div>
@@ -1763,13 +1724,6 @@ document.querySelectorAll('.nav-link').forEach(a => {
     const section = a.dataset.section;
     if (section === 'inicio') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   });
-});
-
-document.getElementById('toggle-may').addEventListener('click', () => {
-  mostrarMay = !mostrarMay;
-  document.getElementById('toggle-track').classList.toggle('on', mostrarMay);
-  document.getElementById('toggle-may').setAttribute('aria-checked', mostrarMay);
-  renderCatRows();
 });
 
 // Filtro por categoría (pills) — closest() para captar clicks sobre el SVG interno
