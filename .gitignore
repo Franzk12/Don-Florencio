@@ -32,6 +32,9 @@ _archivo/
 revision-fotos-*.html
 
 # Carpetas de trabajo de fotos (caché local, no versionar)
-fotos-fondo/
-fotos-mejoradas/
+fotos/
 graphify-out/
+
+# Audios privados de la dueña (notas de voz — NO subir a repo público)
+audios-duena/
+*.ogg
