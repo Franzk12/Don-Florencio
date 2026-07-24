@@ -26,7 +26,7 @@
   // set: campos a escribir (merge). Solo se tocan los campos presentes.
   const LISTA = [
     // ── PAPELERA · escala (por unidad / por mayor tarjeta-QR / por mayor efectivo) ──
-    { id: 'p_1780333401808_qr8g', nombre: 'Papel Higiénico Elegante 6x30 m',        set: { min: 2320, mayor: 1855, mayorEfectivo: 1699 } }, // audio 9 (unitario corregido)
+    { id: 'p_1780333401808_nx52', nombre: 'Papel Higiénico Elegante 6x30 m (unidad)', set: { min: 2320, mayor: 1855, mayorEfectivo: 1699 } }, // audio 9 (va en el SKU "(unidad)")
     { id: 'p_1780333401808_4ylp', nombre: 'Rollo de Cocina Elegante 200 Paños',      set: { min: 2285, mayor: 1830, mayorEfectivo: 1675 } }, // audio 11
     { id: 'p_1780333401808_a6vf', nombre: 'Rollo de Cocina Elegante 3x50',           set: { min: 1720, mayor: 1375, mayorEfectivo: 1265 } },
     { id: 'p_1780333401808_05vu', nombre: 'Rollo de Cocina New Dicha',               set: { min: 1585, mayor: 1269, mayorEfectivo: 1165 } },
