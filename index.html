@@ -539,6 +539,14 @@ nav::after {
 .prod-precios { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border2); }
 .prod-precio-row { display: flex; align-items: center; justify-content: space-between; }
 .prod-precio-val { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700; color: var(--terra); }
+.prod-precio-val.tachado { color: var(--gris2); text-decoration: line-through; text-decoration-color: var(--terra); font-size: 1.05rem; }
+.pe-lbl { font-family: 'Cinzel', serif; font-size: .56rem; font-weight: 600; color: var(--gris2); letter-spacing: 1px; text-transform: uppercase; }
+.pe-lbl2 { font-family: 'Cinzel', serif; font-size: .54rem; font-weight: 600; color: var(--gris); letter-spacing: .5px; text-transform: uppercase; }
+.pe-lbl2 em { font-style: normal; color: var(--gris2); text-transform: none; font-size: .92em; }
+.pe-mid { font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 700; color: var(--terra); }
+.pe-verde { display: flex; align-items: center; justify-content: space-between; background: rgba(45,122,79,.10); border: 1px solid rgba(45,122,79,.25); border-radius: 8px; padding: 5px 9px; margin-top: 1px; }
+.pe-vl { font-family: 'Cinzel', serif; font-size: .57rem; font-weight: 700; color: #2d7a4f; letter-spacing: .4px; text-transform: uppercase; }
+.pe-vv { font-family: 'Cinzel', serif; font-size: 1.18rem; font-weight: 700; color: #2d7a4f; }
 .prod-sin-imp { font-size: .66rem; color: var(--gris2); letter-spacing: .3px; margin-top: 2px; }
 
 .prod-wa {
@@ -1483,6 +1491,28 @@ let waPhone = '5491157238769';
 
 function fmt(n) { return '$' + Number(n||0).toLocaleString('es-AR'); }
 function fmtSinImp(n) { return fmt(Math.round(Number(n||0) / 1.21)); }
+function precioBlock(p) {
+  const min = Number(p.min) || 0;
+  const ef = Number(p.efectivo) || 0;
+  const may = Number(p.mayor) || 0;
+  const mayEf = Number(p.mayorEfectivo) || 0;
+  const sinImp = `<div class="prod-sin-imp">Precio sin impuestos nacionales: ${fmtSinImp(min)}</div>`;
+  // Escala por mayor (papel higiénico, rollos): por unidad / por mayor (tarjeta o QR) / por mayor efectivo
+  if (may > 0 || mayEf > 0) {
+    let rows = `<div class="prod-precio-row"><span class="pe-lbl">Por unidad</span><span class="prod-precio-val">${fmt(min)}</span></div>`;
+    if (may > 0)   rows += `<div class="prod-precio-row pe-row2"><span class="pe-lbl2">Por mayor <em>(tarjeta o QR)</em></span><span class="pe-mid">${fmt(may)}</span></div>`;
+    if (mayEf > 0) rows += `<div class="pe-verde"><span class="pe-vl">💵 Por mayor efectivo</span><span class="pe-vv">${fmt(mayEf)}</span></div>`;
+    return rows + sinImp;
+  }
+  // Efectivo (2 niveles): precio de lista tachado + precio en efectivo
+  if (ef > 0 && ef < min) {
+    return `<div class="prod-precio-row"><span class="pe-lbl">Precio de lista</span><span class="prod-precio-val tachado">${fmt(min)}</span></div>`
+         + `<div class="pe-verde"><span class="pe-vl">💵 En efectivo</span><span class="pe-vv">${fmt(ef)}</span></div>`
+         + sinImp;
+  }
+  // Precio único
+  return `<div class="prod-precio-row"><span class="prod-precio-val">${fmt(min)}</span></div>` + sinImp;
+}
 function cap(s) { if(!s) return ''; return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; }
@@ -1490,7 +1520,7 @@ function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = se
 // ── Carga del catálogo por REST SIN fotos (payload liviano) + fotos lazy bajo demanda ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1558,12 +1588,7 @@ function prodCardHTML(p) {
       <div class="prod-cat">${esc(p.cat||'')}</div>
       <div class="prod-nombre">${esc(p.nombre)}</div>
       ${p.desc ? `<div class="prod-desc">${esc(p.desc)}</div>` : ''}
-      <div class="prod-precios">
-        <div class="prod-precio-row">
-          <span class="prod-precio-val">${fmt(p.min)}</span>
-        </div>
-        <div class="prod-sin-imp">Precio sin impuestos nacionales: ${fmtSinImp(p.min)}</div>
-      </div>
+      <div class="prod-precios">${precioBlock(p)}</div>
     </div>
   </div>`;
 }

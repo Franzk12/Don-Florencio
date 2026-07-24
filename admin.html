@@ -975,12 +975,20 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <textarea id="ep-desc" placeholder="Descripción corta del producto..." style="min-height:64px;"></textarea>
         </div>
         <div class="form-field">
-          <label for="ep-min">Precio minorista</label>
+          <label for="ep-min">Precio de lista / por unidad</label>
           <input type="number" id="ep-min" placeholder="0" min="0">
         </div>
         <div class="form-field">
-          <label for="ep-may">Precio mayorista</label>
-          <input type="number" id="ep-may" placeholder="—" min="0">
+          <label for="ep-efectivo">Precio en efectivo <span style="font-weight:400;color:var(--muted);">(contado · muestra el de lista tachado)</span></label>
+          <input type="number" id="ep-efectivo" placeholder="— (opcional)" min="0">
+        </div>
+        <div class="form-field">
+          <label for="ep-mayor">Precio por mayor <span style="font-weight:400;color:var(--muted);">(tarjeta o QR)</span></label>
+          <input type="number" id="ep-mayor" placeholder="— (opcional)" min="0">
+        </div>
+        <div class="form-field">
+          <label for="ep-mayorEfectivo">Precio por mayor en efectivo</label>
+          <input type="number" id="ep-mayorEfectivo" placeholder="— (opcional)" min="0">
         </div>
         <div class="form-field full">
           <label>Foto</label>
@@ -1465,7 +1473,7 @@ function imgSearchUrl(nombre) {
 // ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY  = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','orden','stock','enOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1857,8 +1865,10 @@ function _openEditModal(i) {
   document.getElementById('ep-cat').value     = p.cat || 'fiambres';
   document.getElementById('btn-ep-buscar-img').href = imgSearchUrl(p.nombre || '');
   document.getElementById('ep-desc').value    = p.desc || '';
-  document.getElementById('ep-min').value     = p.min || 0;
-  document.getElementById('ep-may').value     = p.may || '';
+  document.getElementById('ep-min').value           = p.min || 0;
+  document.getElementById('ep-efectivo').value      = p.efectivo || '';
+  document.getElementById('ep-mayor').value         = p.mayor || '';
+  document.getElementById('ep-mayorEfectivo').value = p.mayorEfectivo || '';
   document.getElementById('ep-orden').value   = p.orden || 0;
   document.getElementById('ep-stock').checked = p.stock !== false;
   document.getElementById('inp-foto-ep').value = '';
@@ -2006,8 +2016,10 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       nombre:  document.getElementById('ep-nombre').value.trim(),
       cat:     document.getElementById('ep-cat').value,
       desc:    document.getElementById('ep-desc').value.trim(),
-      min:     +document.getElementById('ep-min').value || 0,
-      may:     +document.getElementById('ep-may').value || 0,
+      min:          +document.getElementById('ep-min').value || 0,
+      efectivo:     +document.getElementById('ep-efectivo').value || 0,
+      mayor:        +document.getElementById('ep-mayor').value || 0,
+      mayorEfectivo:+document.getElementById('ep-mayorEfectivo').value || 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
       fotoPosX: epPosX, fotoPosY: epPosY, fotoZoom: epZoom,
@@ -2019,7 +2031,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     const p = productos[editIdx];
     const payload = {
       nombre:p.nombre, cat:p.cat, desc:p.desc, min:p.min,
-      may:p.may, orden:p.orden, stock:p.stock,
+      efectivo:p.efectivo||0, mayor:p.mayor||0, mayorEfectivo:p.mayorEfectivo||0,
+      orden:p.orden, stock:p.stock,
       enOferta: p.enOferta||false,
       fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY, fotoZoom: p.fotoZoom
     };
