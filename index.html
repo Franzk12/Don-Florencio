@@ -1779,24 +1779,41 @@ function _mostrarErrorCatalogo() {
     gridEl.innerHTML = '<div class="no-results">No pudimos cargar el catálogo. Revisá tu conexión y volvé a intentar. Ante cualquier duda, escribinos por WhatsApp.</div>';
   }
 }
+// Snapshot: 1 sola lectura (config/catalogo) con todo el catálogo liviano.
+async function cargarDesdeSnapshot() {
+  const r = await fetch(`${FS_BASE}/config/catalogo?mask.fieldPaths=productos&key=${APIKEY}`);
+  if (!r.ok) return null;
+  const d = await r.json();
+  const raw = d.fields && d.fields.productos && d.fields.productos.stringValue;
+  if (!raw) return null;
+  const arr = JSON.parse(raw);
+  return (Array.isArray(arr) && arr.length) ? arr : null;
+}
+// Fallback: paginar la colección productos con field-mask (~1.100 lecturas).
+async function cargarDesdeColeccion() {
+  const mask = PROD_FIELDS.map(f => 'mask.fieldPaths=' + f).join('&');
+  let token = '', out = [];
+  do {
+    const url = `${FS_BASE}/productos?pageSize=300&${mask}${token ? ('&pageToken=' + encodeURIComponent(token)) : ''}&key=${APIKEY}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    (d.documents || []).forEach(doc => {
+      const o = { id: doc.name.split('/').pop() };
+      const fs = doc.fields || {};
+      PROD_FIELDS.forEach(f => { const v = _fsVal(fs[f]); if (v !== undefined) o[f] = v; });
+      out.push(o);
+    });
+    token = d.nextPageToken || '';
+  } while (token);
+  return out;
+}
 async function cargarProductos() {
   try {
-    const mask = PROD_FIELDS.map(f => 'mask.fieldPaths=' + f).join('&');
-    let token = '', out = [];
-    do {
-      const url = `${FS_BASE}/productos?pageSize=300&${mask}${token ? ('&pageToken=' + encodeURIComponent(token)) : ''}&key=${APIKEY}`;
-      const r = await fetch(url);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const d = await r.json();
-      (d.documents || []).forEach(doc => {
-        const o = { id: doc.name.split('/').pop() };
-        const fs = doc.fields || {};
-        PROD_FIELDS.forEach(f => { const v = _fsVal(fs[f]); if (v !== undefined) o[f] = v; });
-        out.push(o);
-      });
-      token = d.nextPageToken || '';
-    } while (token);
-    if (!out.length) { _mostrarErrorCatalogo(); return; }
+    let out = null;
+    try { out = await cargarDesdeSnapshot(); } catch(_) { out = null; }
+    if (!out) out = await cargarDesdeColeccion();
+    if (!out || !out.length) { _mostrarErrorCatalogo(); return; }
     productos = out;
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
     renderCatRows();

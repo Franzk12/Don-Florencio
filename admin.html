@@ -706,6 +706,8 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           ↑ Excel
           <input type="file" id="inp-excel" accept=".xlsx,.xls" style="display:none">
         </label>
+        <button class="btn btn-ghost btn-sm" id="btn-publicar-snapshot" title="Publica el catálogo para que la web lo lea de una sola vez (bajísimo consumo)">📢 Publicar catálogo</button>
+        <button class="btn btn-ghost btn-sm" id="btn-backup" title="Descarga una copia de seguridad del catálogo (JSON)">⬇ Backup</button>
       </div>
     </div>
     <div class="cat-filter-bar" id="admin-cat-filter">
@@ -1599,6 +1601,7 @@ async function _delProd(i) {
     await deleteDoc(doc(db,'productos',p.id));
     productos.splice(i,1);
     fotoCache.delete(p.id);
+    await publicarSnapshot(true);
     renderTabla();
     toast('🗑 Producto eliminado');
   } catch(e) { toast('Error al eliminar: '+e.message, true); }
@@ -1700,6 +1703,39 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
   }
   e.target.value = '';
 });
+// ── SNAPSHOT del catálogo (config/catalogo): 1 doc liviano que lee la home ──
+const SNAP_FIELDS = ['nombre','cat','desc','min','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
+function _snapArray() {
+  return productos.map(p => {
+    const o = { id: p.id };
+    SNAP_FIELDS.forEach(f => { if (p[f] !== undefined && p[f] !== null && p[f] !== '') o[f] = p[f]; });
+    return o;
+  });
+}
+async function publicarSnapshot(silencioso) {
+  try {
+    const arr = _snapArray();
+    await setDoc(doc(db, 'config', 'catalogo'), { productos: JSON.stringify(arr), count: arr.length, updatedAt: Date.now() });
+    if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
+    return true;
+  } catch(e) { if (!silencioso) toast('Error al publicar el catálogo: ' + e.message, true); return false; }
+}
+
+document.getElementById('btn-publicar-snapshot').addEventListener('click', async (e) => {
+  const b = e.currentTarget, t = b.textContent;
+  b.disabled = true; b.textContent = '⏳ Publicando...';
+  await publicarSnapshot(false);
+  b.textContent = t; b.disabled = false;
+});
+document.getElementById('btn-backup').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(_snapArray(), null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'catalogo-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  toast('⬇ Backup descargado (' + productos.length + ' productos)');
+});
+
 document.getElementById('btn-save-precios').addEventListener('click', async () => {
   const btn = document.getElementById('btn-save-precios');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
@@ -1722,6 +1758,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       btn.innerHTML = `<span class="spinner"></span> ${guardados}/${productos.length}`;
     }
     cambios = false;
+    await publicarSnapshot(true);
     document.getElementById('cambios-txt').textContent = '✅ Guardado';
     toast('✅ Catálogo guardado');
   } catch(e) { toast('Error: '+e.message, true); }
@@ -1829,6 +1866,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
       const d = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
       return d !== 0 ? d : (a.orden||0) - (b.orden||0);
     });
+    await publicarSnapshot(true);
     renderOfProdGrid();
     renderTabla();
     document.getElementById('modal-nuevo-prod').classList.remove('open');
@@ -2040,6 +2078,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     if (editFotoBorrada) { payload.fotoUrl = ''; payload.tieneFoto = false; }
     await setDoc(doc(db,'productos',p.id), payload, { merge:true });
 
+    await publicarSnapshot(true);
     document.getElementById('modal-edit-prod').classList.remove('open');
     renderTabla();
     toast('✅ Producto guardado');
