@@ -1,0 +1,120 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe precios especiales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bordo:#5a1515;--terra:#A94A3A;--gris:#7B6562;--gris2:#B5A79A;--crema:#F5EDE0;--verde:#2d7a4f;--border:rgba(169,74,58,.18);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Cormorant Garamond',Georgia,serif;color:#2a1a10;background:#faf6ef;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.page{max-width:900px;margin:0 auto;padding:26px 34px 44px;}
+.top{background:var(--bordo);color:#f6e9d8;border-radius:14px;padding:22px 26px;margin-bottom:20px;}
+.top .m{font-family:'Cinzel',serif;letter-spacing:3px;font-size:.68rem;opacity:.8;text-transform:uppercase;}
+.top h1{font-family:'Cinzel',serif;font-size:1.5rem;margin-top:6px;}
+.top .s{opacity:.9;margin-top:3px;font-size:1.02rem;}
+.kpis{display:flex;gap:14px;margin:18px 0 24px;flex-wrap:wrap;}
+.kpi{flex:1;min-width:118px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.kpi .n{font-family:'Cinzel',serif;font-size:1.7rem;color:var(--terra);font-weight:700;}
+.kpi .l{font-size:.92rem;color:var(--gris);}
+.kpi.green .n{color:var(--verde);}
+.intro{background:var(--crema);border-left:5px solid var(--terra);border-radius:8px;padding:14px 18px;margin-bottom:24px;font-size:1.05rem;}
+h2{font-family:'Cinzel',serif;color:var(--bordo);font-size:1rem;letter-spacing:.5px;text-transform:uppercase;margin:26px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::after{content:"";flex:1;height:1px;background:var(--border);}
+.sub{font-size:.98rem;color:var(--gris);margin-bottom:10px;}
+table{width:100%;border-collapse:collapse;font-size:.95rem;background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+th{background:#f0e6d6;color:var(--bordo);font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.5px;text-transform:uppercase;padding:8px 10px;text-align:left;}
+td{padding:7px 10px;border-top:1px solid var(--border);}
+.num{text-align:right;font-variant-numeric:tabular-nums;}
+.sp{color:var(--verde);font-weight:700;}
+.d{color:var(--verde);font-weight:600;}
+.rub{color:var(--gris2);font-size:.82rem;text-transform:capitalize;}
+.b{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:10px;margin-right:3px;font-family:'Cinzel',serif;}
+.b-ef{background:rgba(45,122,79,.14);color:var(--verde);}
+.b-may{background:rgba(169,74,58,.14);color:var(--terra);}
+.note{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:10px;font-size:.98rem;color:var(--gris);}
+.reco{background:var(--crema);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-top:24px;}
+.reco ul{margin:8px 0 0 18px;} .reco li{margin:4px 0;font-size:1.02rem;}
+.foot{text-align:center;color:var(--gris2);font-size:.82rem;margin-top:28px;border-top:1px solid var(--border);padding-top:12px;}
+tr{break-inside:avoid;}
+@media print{body{background:#fff;} .note,.reco,.intro{break-inside:avoid;} h2{break-after:avoid;} @page{size:A4;margin:13mm;}}
+</style></head><body><div class="page">
+<div class="top"><div class="m">Santa María Distribuidora</div>
+<h1>Informe de precios especiales</h1>
+<div class="s">Efectivo y por mayor — revisión de las 9 planillas de la dueña · 21/07/2026</div></div>
+
+<div class="kpis">
+<div class="kpi"><div class="n">1.078</div><div class="l">productos revisados (9 rubros)</div></div>
+<div class="kpi"><div class="n">40</div><div class="l">con precio especial</div></div>
+<div class="kpi green"><div class="n">-19%</div><div class="l">descuento efectivo promedio</div></div>
+<div class="kpi green"><div class="n">-20%</div><div class="l">descuento por mayor promedio</div></div>
+</div>
+
+<div class="intro">Revisé los 9 excel que pasó la dueña y crucé cada precio especial contra el catálogo del sitio.
+El <b>efectivo ronda el -19%</b> y el <b>por mayor el -20%</b> de descuento — bastante parejo.
+De las 40 filas especiales, <b>16 mapean limpio a un producto del sitio</b> (accionables);
+el resto son precios por bulto (otra unidad) o necesitan revisión manual.</div>
+
+<h2>1 · Descuentos reales por unidad — accionables (16)</h2>
+<div class="sub">Estos sí se pueden cargar como “precio en efectivo / por mayor” en la tarjeta del sitio.</div>
+<table><tr><th>Rubro</th><th>Producto en el sitio</th><th class="num">Precio actual</th><th>Tipo</th><th class="num">Precio especial</th><th class="num">Dif.</th></tr>
+<tr><td class="rub">papelera</td><td>Pañuelos Elegante Pocket x6 (unidad)</td>
+        <td class="num">$1.150</td><td><span class="b b-may">por mayor</span></td>
+        <td class="num sp">$920</td><td class="num d">-20%</td></tr><tr><td class="rub">papelera</td><td>Pañuelos Elegante Pocket x6 (unidad)</td>
+        <td class="num">$1.150</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$839</td><td class="num d">-27%</td></tr><tr><td class="rub">papelera</td><td>Pañuelos Elegante x150</td>
+        <td class="num">$1.229</td><td><span class="b b-may">por mayor</span></td>
+        <td class="num sp">$985</td><td class="num d">-20%</td></tr><tr><td class="rub">papelera</td><td>Pañuelos Elegante x150</td>
+        <td class="num">$1.229</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$910</td><td class="num d">-26%</td></tr><tr><td class="rub">papelera</td><td>Queso Cremoso Silvia</td>
+        <td class="num">$9.340</td><td><span class="b b-ef">efectivo</span></td>
+        <td class="num sp">$8.069</td><td class="num d">-14%</td></tr><tr><td class="rub">papelera</td><td>Rollo de Cocina Elegante 3x50 (unidad)</td>
+        <td class="num">$1.720</td><td><span class="b b-may">por mayor</span></td>
+        <td class="num sp">$1.375</td><td class="num d">-20%</td></tr><tr><td class="rub">papelera</td><td>Rollo de Cocina Elegante 3x50 (unidad)</td>
+        <td class="num">$1.720</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$1.265</td><td class="num d">-26%</td></tr><tr><td class="rub">papelera</td><td>Rollo de Cocina New Dicha (unidad)</td>
+        <td class="num">$1.585</td><td><span class="b b-may">por mayor</span></td>
+        <td class="num sp">$1.269</td><td class="num d">-20%</td></tr><tr><td class="rub">papelera</td><td>Rollo de Cocina New Dicha (unidad)</td>
+        <td class="num">$1.585</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$1.165</td><td class="num d">-26%</td></tr><tr><td class="rub">papelera</td><td>Servilletas Elegante Big x150 (unidad)</td>
+        <td class="num">$2.585</td><td><span class="b b-may">por mayor</span></td>
+        <td class="num sp">$2.069</td><td class="num d">-20%</td></tr><tr><td class="rub">papelera</td><td>Servilletas Elegante Big x150 (unidad)</td>
+        <td class="num">$2.585</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$1.895</td><td class="num d">-27%</td></tr><tr><td class="rub">papelera</td><td>Servilletas Elegante x80 (mayor)</td>
+        <td class="num">$1.139</td><td><span class="b b-ef">efectivo</span><span class="b b-may">mayor</span></td>
+        <td class="num sp">$1.045</td><td class="num d">-8%</td></tr><tr><td class="rub">fiambres</td><td>Paleta Piara</td>
+        <td class="num">$3.580</td><td><span class="b b-ef">efectivo</span></td>
+        <td class="num sp">$3.300</td><td class="num d">-8%</td></tr><tr><td class="rub">quesos</td><td>Muzzarella Dom Tin</td>
+        <td class="num">$7.020</td><td><span class="b b-ef">efectivo</span></td>
+        <td class="num sp">$5.940</td><td class="num d">-15%</td></tr><tr><td class="rub">quesos</td><td>Queso Cremoso Punta del Agua</td>
+        <td class="num">$9.750</td><td><span class="b b-ef">efectivo</span></td>
+        <td class="num sp">$8.250</td><td class="num d">-15%</td></tr><tr><td class="rub">quesos</td><td>Queso Sardo Blanco Monta</td>
+        <td class="num">$11.050</td><td><span class="b b-ef">efectivo</span></td>
+        <td class="num sp">$9.350</td><td class="num d">-15%</td></tr></table>
+
+<h2>2 · El sitio ya está en ese precio (5)</h2>
+<div class="note">En estos, el precio del sitio ya coincide con el efectivo/mayor de la planilla (diferencia ≈ 0%).
+No hay un “precio de lista” más alto que mostrar, salvo que la dueña indique otro. Ej.: Servilletas Elegante x80 (mayor), Papel Higiénico Elegante 6x30 m, Jamón Madrileño, Queso Cremoso Don Santiago.</div>
+
+<h2>3 · Precio por bulto / pack — otra unidad (12)</h2>
+<div class="note">Acá el precio especial es por <b>caja/pack/bulto</b> (varias unidades), no del mismo ítem del sitio
+(por eso da +900%, +400%, etc.). No son “efectivo del mismo producto” — se definen aparte si se quieren vender por bulto.
+Casos claros: Azúcar La Muñeca pack, Cerveza 361 pack, Gaseosa Manaos pack. (Sidra Tunuyán y Ananá sí son −15% reales, quedaron acá por el texto “x caja”.)</div>
+
+<h2>4 · A revisar — coincidencia dudosa (7)</h2>
+<div class="note">El buscador no encontró un match confiable, casi todo en <b>papelera</b> (papel higiénico y rollos tienen
+muchas variantes casi idénticas: 120 m, 80 m, 6x30, 200/300/360 paños) y un par de quesos (Muzzarella Barraza, Cremón).
+Conviene emparejarlos a mano contra el sitio.</div>
+
+<div class="reco"><h2 style="margin-top:0">Recomendación</h2>
+<ul>
+<li><b>Para el piloto lista + efectivo:</b> arrancar con los quesos y fiambres accionables —
+Cremoso Punta del Agua, Cremoso Silvia, Muzzarella Dom Tin, Sardo Blanco, Paleta Piara — efectivo real ≈ −15%.</li>
+<li><b>Papelera:</b> es casi toda “por mayor” (−20%) con SKUs muy parecidos. Que la dueña confirme cuáles mostrar
+para no equivocar variante.</li>
+<li><b>Bulto/pack:</b> decidir si se venden por caja en el sitio; si no, se ignoran para el precio en efectivo.</li>
+<li><b>Faltan rubros:</b> en la carpeta no llegaron <b>embutidos, lácteos, pastas ni panificados</b>. Si tienen efectivo/mayor,
+pasarlos y los sumo. Sin precios especiales: congelados, encurtidos, aderezos y dulces (0 en cada uno).</li>
+</ul></div>
+
+<div class="foot">Detalle completo fila por fila en <b>precios-especiales-consolidado.csv</b> (se abre en Excel) · Santa María Distribuidora</div>
+</div></body></html>

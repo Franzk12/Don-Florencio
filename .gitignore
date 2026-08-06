@@ -31,6 +31,11 @@ _archivo/
 # Hojas de revisión generadas
 revision-fotos-*.html
 
+# Planillas locales (originales de la dueña + procesadas nuestras — local, no versionar)
+planillas/
+excel/
+revisiones/
+
 # Carpetas de trabajo de fotos (caché local, no versionar)
 fotos/
 fotos-para-subir/

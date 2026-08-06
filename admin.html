@@ -186,6 +186,19 @@ body { font-family: 'Playfair Display', serif; background: var(--bg); color: var
 .upload-area strong { color: var(--rojo); font-style: normal; font-family: 'Cinzel', serif; font-size: .75rem; text-transform: uppercase; letter-spacing: .8px; }
 #preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 12px; display: none; object-fit: cover; }
 
+/* ── MENÚ AVANZADO (dropdown) ── */
+.menu-avanzado { position: relative; display: inline-block; }
+.menu-avanzado > summary { list-style: none; cursor: pointer; user-select: none; }
+.menu-avanzado > summary::-webkit-details-marker { display: none; }
+.menu-avanzado > summary::marker { content: ''; }
+.menu-avanzado-items {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14); padding: 8px;
+  display: flex; flex-direction: column; gap: 6px; min-width: 200px;
+}
+.menu-avanzado-items .btn { width: 100%; justify-content: flex-start; }
+
 /* ── OFERTAS CARDS ── */
 .ofertas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
 .oferta-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(169,74,58,.07); }
@@ -706,8 +719,13 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           ↑ Excel
           <input type="file" id="inp-excel" accept=".xlsx,.xls" style="display:none">
         </label>
-        <button class="btn btn-ghost btn-sm" id="btn-publicar-snapshot" title="Publica el catálogo para que la web lo lea de una sola vez (bajísimo consumo)">📢 Publicar catálogo</button>
-        <button class="btn btn-ghost btn-sm" id="btn-backup" title="Descarga una copia de seguridad del catálogo (JSON)">⬇ Backup</button>
+        <details class="menu-avanzado">
+          <summary class="btn btn-ghost btn-sm">⚙ Avanzado ▾</summary>
+          <div class="menu-avanzado-items">
+            <button class="btn btn-ghost btn-sm" id="btn-publicar-snapshot" title="Re-publica el catálogo (normalmente no hace falta: Guardar ya publica). Útil si el snapshot quedó viejo.">📢 Publicar catálogo</button>
+            <button class="btn btn-ghost btn-sm" id="btn-backup" title="Descarga una copia de seguridad del catálogo (JSON)">⬇ Backup</button>
+          </div>
+        </details>
       </div>
     </div>
     <div class="cat-filter-bar" id="admin-cat-filter">
@@ -992,6 +1010,10 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <label for="ep-mayorEfectivo">Precio por mayor en efectivo</label>
           <input type="number" id="ep-mayorEfectivo" placeholder="— (opcional)" min="0">
         </div>
+        <div class="form-field">
+          <label for="ep-precioOferta">🔥 Precio de oferta <span style="font-weight:400;color:var(--muted);">(se muestra en "Ofertas destacadas" si el toggle está activo)</span></label>
+          <input type="number" id="ep-precioOferta" placeholder="— (opcional)" min="0">
+        </div>
         <div class="form-field full">
           <label>Foto</label>
           <div class="upload-area" id="upload-area-ep" style="padding:18px;">
@@ -1031,6 +1053,16 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="ep-stock" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row" style="padding:10px 0;border-bottom:none;margin-bottom:0;">
+            <div>
+              <label>🔥 En oferta</label>
+              <small>Aparece en "Ofertas destacadas" con el precio de oferta (de arriba)</small>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="ep-enOferta">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -1475,7 +1507,7 @@ function imgSearchUrl(nombre) {
 // ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY  = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','precioOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1704,7 +1736,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
   e.target.value = '';
 });
 // ── SNAPSHOT del catálogo (config/catalogo): 1 doc liviano que lee la home ──
-const SNAP_FIELDS = ['nombre','cat','desc','min','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
+const SNAP_FIELDS = ['nombre','cat','desc','min','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','precioOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
 function _snapArray() {
   return productos.map(p => {
     const o = { id: p.id };
@@ -1734,6 +1766,16 @@ document.getElementById('btn-backup').addEventListener('click', () => {
   a.download = 'catalogo-backup-' + new Date().toISOString().slice(0, 10) + '.json';
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
   toast('⬇ Backup descargado (' + productos.length + ' productos)');
+});
+// Menú Avanzado: cerrar al elegir una opción o al clickear afuera
+document.querySelectorAll('.menu-avanzado').forEach(menu => {
+  menu.querySelectorAll('.menu-avanzado-items .btn').forEach(b =>
+    b.addEventListener('click', () => menu.removeAttribute('open')));
+});
+document.addEventListener('click', e => {
+  document.querySelectorAll('.menu-avanzado[open]').forEach(menu => {
+    if (!menu.contains(e.target)) menu.removeAttribute('open');
+  });
 });
 
 document.getElementById('btn-save-precios').addEventListener('click', async () => {
@@ -1907,6 +1949,8 @@ function _openEditModal(i) {
   document.getElementById('ep-efectivo').value      = p.efectivo || '';
   document.getElementById('ep-mayor').value         = p.mayor || '';
   document.getElementById('ep-mayorEfectivo').value = p.mayorEfectivo || '';
+  document.getElementById('ep-precioOferta').value  = p.precioOferta || '';
+  document.getElementById('ep-enOferta').checked = p.enOferta === true;
   document.getElementById('ep-orden').value   = p.orden || 0;
   document.getElementById('ep-stock').checked = p.stock !== false;
   document.getElementById('inp-foto-ep').value = '';
@@ -2058,6 +2102,8 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       efectivo:     +document.getElementById('ep-efectivo').value || 0,
       mayor:        +document.getElementById('ep-mayor').value || 0,
       mayorEfectivo:+document.getElementById('ep-mayorEfectivo').value || 0,
+      precioOferta: +document.getElementById('ep-precioOferta').value || 0,
+      enOferta:     document.getElementById('ep-enOferta').checked,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
       fotoPosX: epPosX, fotoPosY: epPosY, fotoZoom: epZoom,
@@ -2072,6 +2118,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       efectivo:p.efectivo||0, mayor:p.mayor||0, mayorEfectivo:p.mayorEfectivo||0,
       orden:p.orden, stock:p.stock,
       enOferta: p.enOferta||false,
+      precioOferta: p.precioOferta||0,
       fotoPosX: p.fotoPosX, fotoPosY: p.fotoPosY, fotoZoom: p.fotoZoom
     };
     if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }

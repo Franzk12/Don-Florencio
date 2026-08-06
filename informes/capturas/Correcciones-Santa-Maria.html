@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo Online — Correcciones aplicadas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#5A1515;
+    --wine-soft:#7a2a2a;
+    --cream:#F5EDE0;
+    --ink:#241f1d;
+    --muted:#6d6259;
+    --line:#e0d5c6;
+    --serif:"Playfair Display", Georgia, "Times New Roman", serif;
+    --sans:"Source Sans 3", "Helvetica Neue", "Segoe UI", sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:#d9d2c7;
+    line-height:1.5;
+    font-size:10.4pt;
+  }
+
+  /* ---- Hoja A4 ---- */
+  .sheet{
+    width:210mm; min-height:297mm;
+    background:#fff;
+    padding:14mm 16mm 12mm;
+    margin:22px auto;
+    box-shadow:0 8px 30px rgba(0,0,0,.22);
+    position:relative;
+  }
+
+  /* ---- Encabezado ---- */
+  .masthead{ border-bottom:2.5px solid var(--wine); padding-bottom:12px; margin-bottom:16px; }
+  .masthead .eyebrow{ font-size:8.5pt; letter-spacing:3.5px; text-transform:uppercase; color:var(--wine-soft); font-weight:600; margin-bottom:8px; }
+  .masthead h1{ font-family:var(--serif); font-weight:800; color:var(--wine); font-size:25pt; line-height:1.08; margin-bottom:6px; }
+  .masthead .subtitle{ font-family:var(--serif); font-style:italic; font-size:12.5pt; color:var(--ink); }
+  .masthead .date{ font-size:9pt; color:var(--muted); margin-top:8px; letter-spacing:.3px; }
+
+  .intro{ font-size:10.6pt; color:var(--ink); margin-bottom:16px; max-width:96%; }
+
+  /* ---- Corrección ---- */
+  .corr{ break-inside:avoid; page-break-inside:avoid; margin-bottom:14px; }
+  .corr-head{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .corr-num{
+    flex:none; width:26px; height:26px; border-radius:50%;
+    background:var(--wine); color:#fff; font-family:var(--serif); font-weight:700;
+    font-size:12pt; display:flex; align-items:center; justify-content:center;
+  }
+  .corr-eyebrow{ font-size:8pt; letter-spacing:2.5px; text-transform:uppercase; color:var(--wine-soft); font-weight:600; line-height:1; margin-bottom:2px; }
+  .corr-head h3{ font-family:var(--serif); font-weight:700; color:var(--wine); font-size:14pt; line-height:1.1; }
+
+  figure{ break-inside:avoid; page-break-inside:avoid; text-align:center; }
+  figure img{
+    display:block; margin:0 auto;
+    max-width:100%; width:auto; height:auto; max-height:60mm;
+    border:1.5px solid var(--wine);
+    background:#fff;
+  }
+  figcaption{
+    font-size:9pt; color:var(--muted); line-height:1.42;
+    margin-top:7px; padding:0 4mm; text-align:left;
+  }
+  figcaption b{ color:var(--ink); font-weight:600; }
+
+  /* ---- Caja final ---- */
+  .close-box{
+    break-inside:avoid; page-break-inside:avoid;
+    background:var(--cream);
+    border:1.5px solid var(--wine);
+    border-radius:4px;
+    padding:16px 20px 14px;
+    margin-top:6px;
+  }
+  .close-box h2{
+    font-family:var(--serif); font-weight:700; color:var(--wine);
+    font-size:15pt; margin-bottom:12px; padding-bottom:8px;
+    border-bottom:1px solid rgba(90,21,21,.25);
+  }
+  .defs{ list-style:none; counter-reset:d; }
+  .defs > li{
+    counter-increment:d; position:relative; padding:0 0 11px 30px; margin-bottom:9px;
+    border-bottom:1px solid rgba(90,21,21,.15);
+  }
+  .defs > li:last-child{ border-bottom:none; padding-bottom:0; margin-bottom:0; }
+  .defs > li::before{
+    content:counter(d); position:absolute; left:0; top:1px;
+    font-family:var(--serif); font-weight:700; color:var(--wine); font-size:13pt; line-height:1;
+  }
+  .defs .lead{ font-weight:700; color:var(--wine); }
+  .defs .sub{ font-size:9.6pt; color:var(--ink); }
+
+  /* ---- Pie ---- */
+  .foot{
+    margin-top:16px; padding-top:10px; border-top:2px solid var(--wine);
+    font-family:var(--serif); font-size:9pt; color:var(--muted); text-align:center;
+  }
+  .foot b{ color:var(--wine-soft); font-weight:600; }
+
+  /* ---- Impresión ---- */
+  @page{ size:A4; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .sheet{ margin:0; box-shadow:none; width:210mm; min-height:297mm; page-break-after:always; }
+    .sheet:last-child{ page-break-after:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HOJA 1 ===================== -->
+<section class="sheet">
+
+  <header class="masthead">
+    <div class="eyebrow">Informe de correcciones</div>
+    <h1>Catálogo Online — Correcciones aplicadas</h1>
+    <div class="subtitle">Santa María Distribuidora — Los Polvorines</div>
+    <div class="date">15 de julio de 2026</div>
+  </header>
+
+  <p class="intro">Todas las correcciones pedidas por la dirección ya están publicadas en el sitio. Debajo mostramos cada una con su captura tomada del catálogo en vivo.</p>
+
+  <div class="corr">
+    <div class="corr-head">
+      <span class="corr-num">1</span>
+      <div>
+        <div class="corr-eyebrow">Corrección</div>
+        <h3>Portada actualizada</h3>
+      </div>
+    </div>
+    <figure>
+      <img src="1-portada-25-anios.png" alt="Portada del sitio con «Más de 25 años»">
+      <figcaption>La portada ya dice <b>«Más de 25 años»</b>, y los destacados muestran la nueva dirección (Av. Sesquicentenario 2036) y los días de atención (lunes a sábado).</figcaption>
+    </figure>
+  </div>
+
+  <div class="corr">
+    <div class="corr-head">
+      <span class="corr-num">2</span>
+      <div>
+        <div class="corr-eyebrow">Corrección</div>
+        <h3>Dirección y horarios nuevos</h3>
+      </div>
+    </div>
+    <figure>
+      <img src="2-direccion-horarios-mapa.png" alt="Sección de dirección, horarios y mapa">
+      <figcaption><b>Av. Sesquicentenario 2036, Los Polvorines</b> en toda la página. Horarios de lunes a viernes de 7 a 17, sábados de 7 a 15 y feriados de 7 a 13. El mapa apunta al local correcto (verificado).</figcaption>
+    </figure>
+  </div>
+
+</section>
+
+<!-- ===================== HOJA 2 ===================== -->
+<section class="sheet">
+
+  <div class="corr">
+    <div class="corr-head">
+      <span class="corr-num">3</span>
+      <div>
+        <div class="corr-eyebrow">Corrección</div>
+        <h3>Aviso de precios</h3>
+      </div>
+    </div>
+    <figure>
+      <img src="3-catalogo-leyenda-precios.png" alt="Catálogo con la leyenda sobre precios">
+      <figcaption>El catálogo muestra la leyenda <b>«Los precios pueden modificarse sin previo aviso»</b>, tal como se pidió.</figcaption>
+    </figure>
+  </div>
+
+  <div class="corr">
+    <div class="corr-head">
+      <span class="corr-num">4</span>
+      <div>
+        <div class="corr-eyebrow">Corrección</div>
+        <h3>Precios transparentes</h3>
+      </div>
+    </div>
+    <figure>
+      <img src="4-precios-mayorista-sin-impuestos.png" alt="Producto con precio minorista, mayorista y sin impuestos nacionales">
+      <figcaption>Cada producto muestra el precio minorista y el mayorista solo donde está cargado (se quitó el <b>«a consultar»</b> repetido). También figura el <b>«Precio sin impuestos nacionales»</b> que exige la normativa de transparencia.</figcaption>
+    </figure>
+  </div>
+
+  <div class="close-box">
+    <h2>Para cerrar esta etapa — tres definiciones</h2>
+    <ol class="defs">
+      <li>
+        <span class="lead">Fotos que faltan (~100 de 1.106).</span>
+        <span class="sub"> Son casi todas de marcas de distribuidoras locales que no tienen foto en internet (Silvina, Sol Pampeano, Par Nor, Delitap, entre otras). Se pueden conseguir de dos maneras: pidiéndoles el catálogo de imágenes a los preventistas, o sacándoles foto en el local (el sistema las deja con fondo blanco de forma automática). El resto del catálogo ya está al 90% con foto verificada.</span>
+      </li>
+      <li>
+        <span class="lead">Dominio propio.</span>
+        <span class="sub"> Para imprimir el QR y difundir el sitio conviene tener una dirección propia. Las opciones son santamariadist.com (disponible, USD 11,25 al año, coincide con el Instagram @santamaria_dist) o santamariadistribuidora.com.ar (vía NIC.ar). Falta elegir una.</span>
+      </li>
+      <li>
+        <span class="lead">Video de portada.</span>
+        <span class="sub"> La portada tiene un espacio para un video de fondo (del local o de los productos) que se activa desde el panel. Falta definir si se usa y con qué video.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="foot">
+    <b>don-florencio.vercel.app</b> &nbsp;·&nbsp; WhatsApp <b>+54 9 11 5723-8769</b> &nbsp;·&nbsp; IG <b>@santamaria_dist</b>
+  </div>
+
+</section>
+
+</body>
+</html>

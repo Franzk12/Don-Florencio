@@ -173,7 +173,7 @@ nav::after {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center;
   min-height: 100vh;
-  padding: 120px 40px 0;
+  padding: 120px 40px 96px;
   position: relative; z-index: 2;
 }
 /* ── HERO VIDEO BG ── */
@@ -194,15 +194,15 @@ nav::after {
 
 /* ── TICKER ── */
 .ticker-strip {
-  width: calc(100% + 80px);
-  margin-left: -40px;
+  position: absolute; left: 0; right: 0; bottom: 0;
+  width: 100%;
   overflow: hidden;
   background: rgba(0,0,0,.35);
   backdrop-filter: blur(4px);
   border-top: 1px solid rgba(169,74,58,.4);
   padding: 14px 0;
-  margin-top: 48px;
   display: none;
+  z-index: 3;
 }
 .ticker-strip.visible { display: block; }
 .ticker-track {
@@ -446,6 +446,14 @@ nav::after {
 .oferta-precio {
   font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700;
   color: var(--terra);
+}
+.oferta-foto { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.oferta-foto img { width: 100%; height: 100%; object-fit: cover; }
+.oferta-foto-ph { font-size: 3rem; }
+.oferta-precio-wrap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.oferta-precio-old {
+  font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 600;
+  color: var(--gris); text-decoration: line-through;
 }
 
 /* ── CATALOGO ── */
@@ -936,8 +944,7 @@ footer {
 @media (max-width: 768px) {
   nav { padding: 0 20px; }
   .nav-links { display: none; }
-  .hero-fg { padding: 100px 24px 64px; }
-  .ticker-strip { width: calc(100% + 48px); margin-left: -24px; }
+  .hero-fg { padding: 100px 24px 84px; justify-content: flex-start; }
   .section { padding: 56px 20px; }
   .cat-section { padding: 40px 16px; }
   .banda { padding: 48px 20px; }
@@ -1520,7 +1527,7 @@ function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = se
 // ── Carga del catálogo por REST SIN fotos (payload liviano) + fotos lazy bajo demanda ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','precioOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1543,7 +1550,7 @@ function observeFotos(){
       entries.forEach(e => { if(e.isIntersecting){ loadFoto(e.target); fotoObserver.unobserve(e.target); } });
     }, { rootMargin: '300px' });
   }
-  document.querySelectorAll('.prod-foto[data-foto-id]').forEach(el => { if(!el.dataset.fotoLoaded) fotoObserver.observe(el); });
+  document.querySelectorAll('.prod-foto[data-foto-id], .oferta-foto[data-foto-id]').forEach(el => { if(!el.dataset.fotoLoaded) fotoObserver.observe(el); });
 }
 function buildVideoEl(url) {
   const el = document.createElement('video');
@@ -1817,48 +1824,77 @@ async function cargarProductos() {
     productos = out;
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
     renderCatRows();
+    renderOfertas();
   } catch(e) {
     _mostrarErrorCatalogo();
   }
 }
 cargarProductos();
 
-// Firebase — ofertas (realtime onSnapshot)
+// Firebase — OFERTAS
+// El carrusel se arma de: (1) productos del catálogo con enOferta=true + precioOferta
+// (precio de lista tachado + precio de oferta), leídos del snapshot ya cargado (costo cero);
+// (2) ofertas "personalizadas" de la colección 'ofertas' (sin producto vinculado).
+let customOfertas = [];
+function prodOfertaCardHTML(p) {
+  const sin = p.stock === false;
+  const lazy = (!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${esc(p.id)}"` : '';
+  const inner = p.fotoUrl
+    ? `<img src="${esc(p.fotoUrl)}" alt="${esc(p.nombre)}" loading="lazy">`
+    : (p.tieneFoto ? '' : `<span class="oferta-foto-ph">${CAT_ICONS[p.cat]||'🔥'}</span>`);
+  return `
+  <div class="oferta-card${sin ? ' sin-stock' : ''}">
+    <div class="oferta-img">
+      ${sin ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>' : '<div class="oferta-badge">🔥 Oferta</div>'}
+      <div class="oferta-foto"${lazy}>${inner}</div>
+    </div>
+    <div class="oferta-body">
+      <div class="oferta-cat">${esc(cap(p.cat||''))}</div>
+      <div class="oferta-nombre">${esc(p.nombre)}</div>
+      <div class="oferta-precio-wrap">
+        <span class="oferta-precio-old">${fmt(p.min)}</span>
+        <span class="oferta-precio">${fmt(p.precioOferta)}</span>
+      </div>
+    </div>
+  </div>`;
+}
+function customOfertaCardHTML(o) {
+  const sin = o.stock === false;
+  return `
+  <div class="oferta-card${sin ? ' sin-stock' : ''}">
+    <div class="oferta-img">
+      ${sin ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>' : '<div class="oferta-badge">🔥 Oferta</div>'}
+      <div class="oferta-foto">${o.fotoUrl ? `<img src="${esc(o.fotoUrl)}" alt="${esc(o.titulo)}" loading="lazy">` : ''}</div>
+    </div>
+    <div class="oferta-body">
+      <div class="oferta-cat">Oferta de la semana</div>
+      <div class="oferta-nombre">${esc(o.titulo)}</div>
+      ${o.desc ? `<div class="oferta-desc">${esc(o.desc)}</div>` : ''}
+      <div class="oferta-precio">${esc(o.precio)}</div>
+    </div>
+  </div>`;
+}
+function renderOfertas() {
+  const grid = document.getElementById('ofertas-grid');
+  if (!grid) return;
+  const prodOfs = productos.filter(p => p.enOferta === true && Number(p.precioOferta) > 0);
+  const cards = prodOfs.map(prodOfertaCardHTML).concat(customOfertas.map(customOfertaCardHTML));
+  if (!cards.length) {
+    grid.innerHTML = '<div style="padding:40px 20px;color:var(--gris);font-style:italic;text-align:center;">Sin ofertas esta semana. Consultá por WhatsApp.</div>';
+    return;
+  }
+  grid.innerHTML = cards.join('');
+  observeFotos();
+}
 onSnapshot(
   collection(db, 'ofertas'),
   snap => {
-    const grid = document.getElementById('ofertas-grid');
-
-    if (snap.empty) {
-      grid.innerHTML = '<div style="padding:40px 20px;color:var(--gris);font-style:italic;text-align:center;">Sin ofertas esta semana. Consultá por WhatsApp.</div>';
-      return;
-    }
-    const items = [];
-    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-    items.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
-    grid.innerHTML = items.map(o => {
-      const sinStock = o.stock === false;
-      return `
-      <div class="oferta-card${sinStock ? ' sin-stock' : ''}">
-        <div class="oferta-img">
-          ${sinStock
-            ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>'
-            : '<div class="oferta-badge">Oferta</div>'}
-          ${o.fotoUrl ? `<img src="${esc(o.fotoUrl)}" alt="${esc(o.titulo)}" loading="lazy">` : ''}
-        </div>
-        <div class="oferta-body">
-          <div class="oferta-cat">Oferta de la semana</div>
-          <div class="oferta-nombre">${esc(o.titulo)}</div>
-          ${o.desc ? `<div class="oferta-desc">${esc(o.desc)}</div>` : ''}
-          <div class="oferta-precio">${esc(o.precio)}</div>
-        </div>
-      </div>`;
-    }).join('');
+    customOfertas = [];
+    snap.forEach(d => customOfertas.push({ id: d.id, ...d.data() }));
+    customOfertas.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+    renderOfertas();
   },
-  _err => {
-    document.getElementById('ofertas-grid').innerHTML =
-      '<div style="padding:40px 20px;color:var(--gris);font-style:italic;text-align:center;">Consultá las ofertas por WhatsApp.</div>';
-  }
+  _err => { customOfertas = []; renderOfertas(); }
 );
 
 // Firebase — ticker
