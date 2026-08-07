@@ -1,7 +1,7 @@
 /* ============================================================================
    CARGAR PRECIOS — ciclo AGOSTO 2026  —  Santa María
    ----------------------------------------------------------------------------
-   Actualiza el `min` (precio de lista) de 35 productos de Almacén/Quesos que la
+   Actualiza el `min` (precio de lista) de 38 productos de Almacén/Quesos que la
    dueña subió en ALMACEN.xlsx / QUESOS.xlsx (06/08) y que matchearon claro con
    un cambio de precio real. FIAMBRES no cambió ningún precio (solo ofertas).
    Composición: 28 originales + 2 recuperados (Cappuccino/Té Boldo La Virginia)
@@ -59,6 +59,10 @@
     // ── Correcciones de typos de catálogo (confirmados con la lista de la dueña) ──
     { id: 'p_imp_1783122342_0540', nombre: 'Puré de Tomate Del Valle (520 g) [FIX typo $6084→$608]', antes: 6084, min: 608 },
     { id: 'p_1782160098639_9ium', nombre: 'Dulce de Batata La Campagnola [FIX typo $95→$2939]', antes: 95, min: 2939 },
+    // ── Rescatados de "a verificar" (matches claros, 06/08) ──
+    { id: 'p_imp_1783122342_0477', nombre: 'Té de Tilo con Manzanilla y Cedrón La Virginia', antes: 2109, min: 2195 },
+    { id: 'q1597', nombre: 'Muzzarella Dom Tin', antes: 7020, min: 7410 },
+    { id: 'q1353', nombre: 'Cheddar Pouch Tonadita', antes: 28765, min: 29900 },
   ];
   const fmt = n => '$' + Number(n || 0).toLocaleString('es-AR');
   async function fb() {
