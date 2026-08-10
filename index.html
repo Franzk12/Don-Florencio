@@ -1831,25 +1831,33 @@ async function cargarProductos() {
 }
 // Catálogo EN VIVO: se actualiza solo cuando el admin publica (sin recargar la página).
 // onSnapshot da la carga inicial + los cambios; si falla, cae a la carga por REST.
-let _catLoaded = false, _catUpdatedAt = 0;
-try {
-  onSnapshot(doc(db, 'config', 'catalogo'),
-    snap => {
-      if (!snap.exists()) { if (!_catLoaded) cargarProductos(); return; }
-      const data = snap.data();
-      const ua = data.updatedAt || 0;
-      if (_catLoaded && ua === _catUpdatedAt) return;   // sin cambios reales, no re-renderizar
-      let arr = null; try { arr = data.productos ? JSON.parse(data.productos) : null; } catch(_) {}
-      if (!Array.isArray(arr) || !arr.length) { if (!_catLoaded) cargarProductos(); return; }
-      _catLoaded = true; _catUpdatedAt = ua;
-      productos = arr;
-      productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
-      renderCatRows();
-      renderOfertas();
-    },
-    _err => { if (!_catLoaded) cargarProductos(); }
-  );
-} catch(_) { cargarProductos(); }
+// ¿Este dispositivo administra el sitio? (marca que deja el admin al iniciar sesión)
+// Solo el admin recibe actualización EN VIVO. El cliente normal hace 1 sola
+// lectura por visita (no se puede pasar de cuota aunque haya mucha gente).
+const _esAdmin = (() => { try { return !!localStorage.getItem('sm_live'); } catch(_) { return false; } })();
+if (_esAdmin) {
+  let _catLoaded = false, _catUpdatedAt = 0;
+  try {
+    onSnapshot(doc(db, 'config', 'catalogo'),
+      snap => {
+        if (!snap.exists()) { if (!_catLoaded) cargarProductos(); return; }
+        const data = snap.data();
+        const ua = data.updatedAt || 0;
+        if (_catLoaded && ua === _catUpdatedAt) return;   // sin cambios reales, no re-renderizar
+        let arr = null; try { arr = data.productos ? JSON.parse(data.productos) : null; } catch(_) {}
+        if (!Array.isArray(arr) || !arr.length) { if (!_catLoaded) cargarProductos(); return; }
+        _catLoaded = true; _catUpdatedAt = ua;
+        productos = arr;
+        productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
+        renderCatRows();
+        renderOfertas();
+      },
+      _err => { if (!_catLoaded) cargarProductos(); }
+    );
+  } catch(_) { cargarProductos(); }
+} else {
+  cargarProductos();   // cliente: carga única = 1 lectura
+}
 
 // Firebase — OFERTAS
 // El carrusel se arma de: (1) productos del catálogo con enOferta=true + precioOferta

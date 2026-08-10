@@ -1286,6 +1286,7 @@ onAuthStateChanged(auth, user => {
     document.getElementById('admin-screen').style.display = 'block';
     document.getElementById('save-bar').style.display = 'flex';
     document.getElementById('user-email').textContent = user.email;
+    try { localStorage.setItem('sm_live', '1'); } catch(_) {}  // este dispositivo ve el sitio en vivo
     initAdmin();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
