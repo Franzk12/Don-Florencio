@@ -1532,11 +1532,37 @@ function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.str
 const fotoCache = new Map();
 let fotoObserver = null;
 function _setFotoImg(el, dataUrl, id){ const p = productos.find(x => x.id === id); el.innerHTML = `<img src="${esc(dataUrl)}" alt="${esc(p ? p.nombre : '')}" loading="lazy">`; }
+// ── PLAN B de fotos (archivos estáticos en Vercel, sin lecturas de Firestore) ──
+// APAGADO por defecto: el sitio sigue cargando las fotos de Firestore como hoy.
+// Para ACTIVARLO: cambiar false por true (o abrir la web con ?fotos=static para probar).
+// Con Plan B: se prueba /fotos-web/<id>.webp (gratis, CDN); si no existe (foto
+// nueva sin exportar), cae a Firestore igual. Cero cambios en la base de datos.
+const FOTOS_ESTATICAS = (() => {
+  try {
+    if (location.search.includes('fotos=static')) return true;
+    if (location.search.includes('fotos=db'))     return false;
+    return false;   // ← Plan B: poné true acá para activarlo en todo el sitio
+  } catch(_) { return false; }
+})();
+
 async function loadFoto(el){
   const id = el.getAttribute('data-foto-id');
   if(!id || el.dataset.fotoLoaded) return;
   el.dataset.fotoLoaded = '1';
   if(fotoCache.has(id)){ _setFotoImg(el, fotoCache.get(id), id); return; }
+  if (FOTOS_ESTATICAS) {
+    const p = productos.find(x => x.id === id);
+    const img = new Image();
+    img.alt = p ? p.nombre : '';
+    img.loading = 'lazy';
+    img.onerror = () => { _fotoDesdeDb(el, id); };   // no hay estático (foto nueva) → Firestore
+    img.src = '/fotos-web/' + id + '.webp';
+    el.innerHTML = ''; el.appendChild(img);
+    return;
+  }
+  await _fotoDesdeDb(el, id);
+}
+async function _fotoDesdeDb(el, id){
   try {
     const r = await fetch(`${FS_BASE}/productos/${id}?mask.fieldPaths=fotoUrl&key=${APIKEY}`);
     const d = await r.json();
