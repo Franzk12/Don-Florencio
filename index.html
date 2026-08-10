@@ -1878,7 +1878,7 @@ function renderOfertas() {
   const grid = document.getElementById('ofertas-grid');
   if (!grid) return;
   const prodOfs = productos.filter(p => p.enOferta === true && Number(p.precioOferta) > 0);
-  const cards = prodOfs.map(prodOfertaCardHTML).concat(customOfertas.map(customOfertaCardHTML));
+  const cards = prodOfs.map(prodOfertaCardHTML);
   if (!cards.length) {
     grid.innerHTML = '<div style="padding:40px 20px;color:var(--gris);font-style:italic;text-align:center;">Sin ofertas esta semana. Consultá por WhatsApp.</div>';
     return;
@@ -1886,16 +1886,6 @@ function renderOfertas() {
   grid.innerHTML = cards.join('');
   observeFotos();
 }
-onSnapshot(
-  collection(db, 'ofertas'),
-  snap => {
-    customOfertas = [];
-    snap.forEach(d => customOfertas.push({ id: d.id, ...d.data() }));
-    customOfertas.sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
-    renderOfertas();
-  },
-  _err => { customOfertas = []; renderOfertas(); }
-);
 
 // Firebase — ticker
 (async () => {
