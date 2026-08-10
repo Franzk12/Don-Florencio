@@ -2133,6 +2133,12 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
   btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false;
 });
 
+// Al escribir un precio de oferta, se enciende solo el toggle "En oferta"
+// (y se apaga si se borra el precio) — así no hay que acordarse de prenderlo.
+document.getElementById('ep-precioOferta').addEventListener('input', e => {
+  document.getElementById('ep-enOferta').checked = (+e.target.value || 0) > 0;
+});
+
 document.getElementById('btn-ep-cancelar').addEventListener('click', () => {
   document.getElementById('modal-edit-prod').classList.remove('open');
 });
