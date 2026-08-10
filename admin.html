@@ -1011,7 +1011,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
           <input type="number" id="ep-mayorEfectivo" placeholder="— (opcional)" min="0">
         </div>
         <div class="form-field">
-          <label for="ep-precioOferta">🔥 Precio de oferta <span style="font-weight:400;color:var(--muted);">(se muestra en "Ofertas destacadas" si el toggle está activo)</span></label>
+          <label for="ep-precioOferta">🔥 Precio de oferta <span style="font-weight:400;color:var(--muted);">(si ponés un precio, aparece en "Ofertas destacadas" con el de lista tachado. Dejalo vacío = sin oferta.)</span></label>
           <input type="number" id="ep-precioOferta" placeholder="— (opcional)" min="0">
         </div>
         <div class="form-field full">
@@ -1053,16 +1053,6 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="ep-stock" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="toggle-row" style="padding:10px 0;border-bottom:none;margin-bottom:0;">
-            <div>
-              <label>🔥 En oferta</label>
-              <small>Aparece en "Ofertas destacadas" con el precio de oferta (de arriba)</small>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="ep-enOferta">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -1950,7 +1940,6 @@ function _openEditModal(i) {
   document.getElementById('ep-mayor').value         = p.mayor || '';
   document.getElementById('ep-mayorEfectivo').value = p.mayorEfectivo || '';
   document.getElementById('ep-precioOferta').value  = p.precioOferta || '';
-  document.getElementById('ep-enOferta').checked = p.enOferta === true;
   document.getElementById('ep-orden').value   = p.orden || 0;
   document.getElementById('ep-stock').checked = p.stock !== false;
   document.getElementById('inp-foto-ep').value = '';
@@ -2103,7 +2092,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       mayor:        +document.getElementById('ep-mayor').value || 0,
       mayorEfectivo:+document.getElementById('ep-mayorEfectivo').value || 0,
       precioOferta: +document.getElementById('ep-precioOferta').value || 0,
-      enOferta:     document.getElementById('ep-enOferta').checked,
+      enOferta:     (+document.getElementById('ep-precioOferta').value || 0) > 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
       fotoPosX: epPosX, fotoPosY: epPosY, fotoZoom: epZoom,
@@ -2131,12 +2120,6 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     toast('✅ Producto guardado');
   } catch(e) { toast('Error: '+e.message, true); }
   btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false;
-});
-
-// Al escribir un precio de oferta, se enciende solo el toggle "En oferta"
-// (y se apaga si se borra el precio) — así no hay que acordarse de prenderlo.
-document.getElementById('ep-precioOferta').addEventListener('input', e => {
-  document.getElementById('ep-enOferta').checked = (+e.target.value || 0) > 0;
 });
 
 document.getElementById('btn-ep-cancelar').addEventListener('click', () => {
