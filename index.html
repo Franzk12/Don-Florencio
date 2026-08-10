@@ -1459,7 +1459,7 @@ footer {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { initializeFirestore, persistentLocalCache, collection, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, onSnapshot, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey:"AIzaSyD4lNN8u42F-Y9zH81NiIILWD9PHUQrHGA",
@@ -1895,10 +1895,8 @@ if (_esAdmin) {
 }
 
 // Firebase — OFERTAS
-// El carrusel se arma de: (1) productos del catálogo con enOferta=true + precioOferta
-// (precio de lista tachado + precio de oferta), leídos del snapshot ya cargado (costo cero);
-// (2) ofertas "personalizadas" de la colección 'ofertas' (sin producto vinculado).
-let customOfertas = [];
+// El carrusel se arma de los productos del catálogo con enOferta=true + precioOferta
+// (precio de lista tachado + precio de oferta), leídos del snapshot ya cargado (costo cero).
 function prodOfertaCardHTML(p) {
   const sin = p.stock === false;
   const lazy = (!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${esc(p.id)}"` : '';
@@ -1921,22 +1919,6 @@ function prodOfertaCardHTML(p) {
     </div>
   </div>`;
 }
-function customOfertaCardHTML(o) {
-  const sin = o.stock === false;
-  return `
-  <div class="oferta-card${sin ? ' sin-stock' : ''}">
-    <div class="oferta-img">
-      ${sin ? '<div class="sin-stock-overlay"><span class="sin-stock-label">Sin stock</span></div>' : '<div class="oferta-badge">🔥 Oferta</div>'}
-      <div class="oferta-foto">${o.fotoUrl ? `<img src="${esc(o.fotoUrl)}" alt="${esc(o.titulo)}" loading="lazy">` : ''}</div>
-    </div>
-    <div class="oferta-body">
-      <div class="oferta-cat">Oferta de la semana</div>
-      <div class="oferta-nombre">${esc(o.titulo)}</div>
-      ${o.desc ? `<div class="oferta-desc">${esc(o.desc)}</div>` : ''}
-      <div class="oferta-precio">${esc(o.precio)}</div>
-    </div>
-  </div>`;
-}
 function renderOfertas() {
   const grid = document.getElementById('ofertas-grid');
   if (!grid) return;
@@ -1950,13 +1932,27 @@ function renderOfertas() {
   observeFotos();
 }
 
+// Config (ticker/hero/footer) con caché en localStorage: cambian poco, así el
+// cliente no lee Firestore en cada visita. El admin (sm_live) siempre lee fresco.
+async function configCacheado(nombre, ttlMin = 30) {
+  const key = 'sm_cfg_' + nombre;
+  if (!_esAdmin) {
+    try {
+      const c = JSON.parse(localStorage.getItem(key) || 'null');
+      if (c && (Date.now() - c.t) < ttlMin * 60000) return c.d;   // fresco → sin lectura
+    } catch(_) {}
+  }
+  const snap = await getDoc(doc(db, 'config', nombre));
+  const d = snap.exists() ? snap.data() : null;
+  try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), d })); } catch(_) {}
+  return d;
+}
+
 // Firebase — ticker
 (async () => {
   try {
-    const d = await getDoc(doc(db, 'config', 'ticker'));
-    if (!d.exists()) return;
-    const data = d.data();
-    if (!data.activo) return;
+    const data = await configCacheado('ticker');
+    if (!data || !data.activo) return;
     const items = (data.items || []).filter(Boolean);
     if (!items.length) return;
 
@@ -1977,9 +1973,8 @@ function renderOfertas() {
 // Firebase — hero config
 (async () => {
   try {
-    const d = await getDoc(doc(db, 'config', 'hero'));
-    if (!d.exists()) return;
-    const data = d.data();
+    const data = await configCacheado('hero');
+    if (!data) return;
 
     if (data.titulo)      document.getElementById('hero-titulo').textContent    = data.titulo;
     if (data.subtitulo)   document.getElementById('hero-subtitulo').textContent  = data.subtitulo;
@@ -2001,9 +1996,8 @@ function renderOfertas() {
 // Firebase — footer config
 (async () => {
   try {
-    const d = await getDoc(doc(db, 'config', 'footer'));
-    if (d.exists()) {
-      const data = d.data();
+    const data = await configCacheado('footer');
+    if (data) {
       if (data.dir) { const dirHtml = esc(data.dir).replace(/\n/g,'<br>'); document.querySelectorAll('#ft-dir, #ft-dir-mapa').forEach(el => el.innerHTML = dirHtml); }
       if (data.maps && /^https?:\/\//i.test(data.maps)) document.querySelectorAll('.lnk-maps').forEach(el => el.href = data.maps);
       if (data.tel) document.querySelectorAll('#ft-wa, #ft-wa-mapa').forEach(el => el.textContent = data.tel);
