@@ -199,14 +199,22 @@ body { font-family: 'Playfair Display', serif; background: var(--bg); color: var
 }
 .menu-avanzado-items .btn { width: 100%; justify-content: flex-start; }
 
-/* ── PANEL DE OFERTAS (prender/apagar) ── */
-.of-manage-row { display:flex; align-items:center; gap:14px; padding:11px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; margin-bottom:9px; transition:border-color .15s, box-shadow .15s; }
-.of-manage-row.on { border-color:var(--rojo); box-shadow:0 0 0 1px var(--rojo) inset; }
-.of-manage-thumb { width:46px; height:46px; border-radius:8px; overflow:hidden; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:1.35rem; flex-shrink:0; }
-.of-manage-thumb img { width:100%; height:100%; object-fit:cover; }
-.of-manage-info { flex:1; min-width:0; }
-.of-manage-info strong { display:block; font-family:'Cinzel',serif; font-size:.88rem; color:var(--vino); }
-.of-manage-info span { font-size:.8rem; color:var(--muted); }
+/* ── PANEL DE OFERTAS (cards con interruptor) ── */
+.of-cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px; }
+.of-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(90,21,21,.06); transition:opacity .2s, box-shadow .2s, border-color .2s; }
+.of-card.off { opacity:.5; }
+.of-card.on { border-color:var(--rojo); box-shadow:0 5px 18px rgba(169,74,58,.18); }
+.of-card-img { position:relative; height:140px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:2rem; overflow:hidden; }
+.of-card-img img { width:100%; height:100%; object-fit:cover; }
+.of-card-badge { position:absolute; top:10px; left:10px; background:var(--rojo); color:#fff; font-size:.58rem; font-weight:800; letter-spacing:1.5px; padding:3px 9px; border-radius:4px; font-family:'Cinzel',serif; }
+.of-card-body { padding:14px; }
+.of-card-cat { font-family:'Cinzel',serif; font-size:.56rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.of-card-nombre { font-family:'Cinzel',serif; font-size:.9rem; font-weight:700; color:var(--vino); margin-bottom:8px; line-height:1.25; }
+.of-card-precios { display:flex; align-items:baseline; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.of-card-old { text-decoration:line-through; color:var(--muted); font-size:.85rem; }
+.of-card-new { font-family:'Cinzel',serif; font-size:1.2rem; font-weight:800; color:var(--rojo); }
+.of-card-switch { display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:11px; }
+.of-card-switch span { font-size:.72rem; color:var(--muted); font-weight:700; font-style:italic; }
 
 /* ── OFERTAS CARDS ── */
 .ofertas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
@@ -1507,20 +1515,34 @@ function renderOfertasPanel() {
   }
   const activas = lista.filter(p => p.enOferta === true).length;
   cont.innerHTML =
-    `<div style="font-size:.82rem;color:var(--muted);font-style:italic;margin-bottom:14px;">${activas} activa(s) de ${lista.length} · prendé las que quieras mostrar en el carrusel.</div>` +
+    `<div style="font-size:.82rem;color:var(--muted);font-style:italic;margin-bottom:16px;">${activas} activa(s) de ${lista.length} · prendé las que quieras mostrar en el carrusel.</div>` +
+    '<div class="of-cards-grid">' +
     lista.map(p => {
       const on = p.enOferta === true;
       const dif = p.min ? Math.round((p.precioOferta - p.min) / p.min * 100) : 0;
+      const foto = p.fotoUrl ? `<img src="${esc(p.fotoUrl)}">` : (p.tieneFoto ? '' : '🥩');
+      const lazy = (!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${p.id}"` : '';
       return `
-      <div class="of-manage-row${on ? ' on' : ''}">
-        <div class="of-manage-thumb"${(!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${p.id}"` : ''}>${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}">` : '🥩'}</div>
-        <div class="of-manage-info">
-          <strong>${esc(p.nombre)}</strong>
-          <span><span style="text-decoration:line-through;opacity:.6;">$${Number(p.min||0).toLocaleString('es-AR')}</span> → <b style="color:var(--rojo);">$${Number(p.precioOferta).toLocaleString('es-AR')}</b>${dif ? ` (${dif}%)` : ''}</span>
+      <div class="of-card ${on ? 'on' : 'off'}">
+        <div class="of-card-img"${lazy}>
+          ${on ? '<div class="of-card-badge">🔥 Oferta</div>' : ''}
+          ${foto}
         </div>
-        <label class="toggle-switch"><input type="checkbox" ${on ? 'checked' : ''} data-of-toggle="${p.id}"><span class="toggle-slider"></span></label>
+        <div class="of-card-body">
+          <div class="of-card-cat">${CAT_LABELS[p.cat] || p.cat || ''}</div>
+          <div class="of-card-nombre">${esc(p.nombre)}</div>
+          <div class="of-card-precios">
+            <span class="of-card-old">$${Number(p.min||0).toLocaleString('es-AR')}</span>
+            <span class="of-card-new">$${Number(p.precioOferta).toLocaleString('es-AR')}</span>
+            ${dif ? `<span style="font-size:.72rem;color:var(--muted);">(${dif}%)</span>` : ''}
+          </div>
+          <div class="of-card-switch">
+            <span>${on ? 'Se muestra' : 'Oculta'}</span>
+            <label class="toggle-switch"><input type="checkbox" ${on ? 'checked' : ''} data-of-toggle="${p.id}"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
       </div>`;
-    }).join('');
+    }).join('') + '</div>';
   observeFotos();
 }
 document.getElementById('ofertas-panel').addEventListener('change', async e => {
