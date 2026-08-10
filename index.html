@@ -1841,11 +1841,20 @@ async function cargarDesdeColeccion() {
   } while (token);
   return out;
 }
+async function cargarDesdeSnapshotReintentos(intentos) {
+  for (let i = 0; i < intentos; i++) {
+    try { const out = await cargarDesdeSnapshot(); if (out) return out; } catch(_) {}
+    await new Promise(r => setTimeout(r, 700 * (i + 1)));   // reintento con espera
+  }
+  return null;
+}
 async function cargarProductos() {
   try {
-    let out = null;
-    try { out = await cargarDesdeSnapshot(); } catch(_) { out = null; }
-    if (!out) out = await cargarDesdeColeccion();
+    let out = await cargarDesdeSnapshotReintentos(3);
+    // Fallback a la colección (1063 lecturas) SOLO en el dispositivo admin.
+    // El cliente NUNCA lee la colección: si el snapshot fallara, ve un aviso y
+    // reintenta — así, por más gente que entre, no puede reventar la cuota.
+    if (!out && _esAdmin) { try { out = await cargarDesdeColeccion(); } catch(_) {} }
     if (!out || !out.length) { _mostrarErrorCatalogo(); return; }
     productos = out;
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
