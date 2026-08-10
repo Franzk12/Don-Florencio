@@ -972,7 +972,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 </div>
 
 <!-- ── SAVE BAR CATÁLOGO ── -->
-<div class="save-bar" id="save-bar" style="display:flex;">
+<div class="save-bar" id="save-bar" style="display:none;">
   <span id="cambios-txt">Sin cambios pendientes</span>
   <button class="btn btn-vino" id="btn-save-precios">💾 Guardar catálogo</button>
 </div>
@@ -1284,11 +1284,13 @@ onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-screen').style.display = 'block';
+    document.getElementById('save-bar').style.display = 'flex';
     document.getElementById('user-email').textContent = user.email;
     initAdmin();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('admin-screen').style.display = 'none';
+    document.getElementById('save-bar').style.display = 'none';
   }
 });
 
