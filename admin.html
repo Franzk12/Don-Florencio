@@ -199,6 +199,15 @@ body { font-family: 'Playfair Display', serif; background: var(--bg); color: var
 }
 .menu-avanzado-items .btn { width: 100%; justify-content: flex-start; }
 
+/* ── PANEL DE OFERTAS (prender/apagar) ── */
+.of-manage-row { display:flex; align-items:center; gap:14px; padding:11px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; margin-bottom:9px; transition:border-color .15s, box-shadow .15s; }
+.of-manage-row.on { border-color:var(--rojo); box-shadow:0 0 0 1px var(--rojo) inset; }
+.of-manage-thumb { width:46px; height:46px; border-radius:8px; overflow:hidden; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:1.35rem; flex-shrink:0; }
+.of-manage-thumb img { width:100%; height:100%; object-fit:cover; }
+.of-manage-info { flex:1; min-width:0; }
+.of-manage-info strong { display:block; font-family:'Cinzel',serif; font-size:.88rem; color:var(--vino); }
+.of-manage-info span { font-size:.8rem; color:var(--muted); }
+
 /* ── OFERTAS CARDS ── */
 .ofertas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
 .oferta-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(169,74,58,.07); }
@@ -641,7 +650,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
   </div>
 
   <div class="tabs">
-    <button class="tab" data-tab="ofertas" style="display:none;">🔥 Ofertas</button>
+    <button class="tab" data-tab="ofertas">🔥 Ofertas</button>
     <button class="tab active" data-tab="precios">📋 Catálogo</button>
     <button class="tab" data-tab="ticker">📢 Ticker</button>
     <button class="tab" data-tab="hero">🎬 Hero</button>
@@ -651,9 +660,12 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
   <!-- ── TAB OFERTAS ── -->
   <div id="tab-ofertas" class="content" style="display:none;">
     <div class="sec-header">
-      <div><h2>Ofertas semanales</h2><p>Se muestran en la sección destacada del sitio.</p></div>
+      <div><h2>Ofertas destacadas</h2><p>Prendé qué productos aparecen en el carrusel de la web. El <strong>precio de oferta</strong> se pone en el editor del producto (pestaña Catálogo); acá solo elegís cuáles se ven.</p></div>
     </div>
 
+    <div id="ofertas-panel"><div class="empty-box">Cargando...</div></div>
+
+    <div style="display:none;">
     <div class="card">
       <div class="card-title">+ Nueva oferta</div>
 
@@ -707,6 +719,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 
     <div style="font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">Ofertas activas</div>
     <div id="ofertas-container"><div class="empty-box">Cargando...</div></div>
+    </div>
   </div>
 
   <!-- ── TAB CATÁLOGO ── -->
@@ -1281,12 +1294,13 @@ document.querySelectorAll('.tab').forEach(tab => {
       document.getElementById('tab-'+id).style.display = tab.dataset.tab===id ? 'block' : 'none';
     });
     document.getElementById('save-bar').style.display = tab.dataset.tab==='precios' ? 'flex' : 'none';
+    if (tab.dataset.tab === 'ofertas') renderOfertasPanel();
   });
 });
 
 async function initAdmin() {
   await Promise.all([loadOfertas(), loadPrecios(), loadTicker(), loadHero(), loadConfig()]);
-  renderOfProdGrid();
+  renderOfertasPanel();
 }
 
 // ══════════════════════
@@ -1478,6 +1492,53 @@ document.getElementById('ofertas-container').addEventListener('click', async e =
   } else if (btn.dataset.action === 'del-oferta') {
     await delOferta(id);
   }
+});
+
+// ── PANEL DE OFERTAS (nuevo): prender/apagar qué se muestra en el carrusel ──
+// El precio de oferta se pone en el editor del producto; acá solo el interruptor.
+function renderOfertasPanel() {
+  const cont = document.getElementById('ofertas-panel');
+  if (!cont) return;
+  const lista = productos.filter(p => Number(p.precioOferta) > 0)
+                         .sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty-box">Todavía no hay productos con precio de oferta.<br>Poné un <strong>Precio de oferta</strong> en el editor de un producto (pestaña Catálogo) y va a aparecer acá para prenderlo.</div>';
+    return;
+  }
+  const activas = lista.filter(p => p.enOferta === true).length;
+  cont.innerHTML =
+    `<div style="font-size:.82rem;color:var(--muted);font-style:italic;margin-bottom:14px;">${activas} activa(s) de ${lista.length} · prendé las que quieras mostrar en el carrusel.</div>` +
+    lista.map(p => {
+      const on = p.enOferta === true;
+      const dif = p.min ? Math.round((p.precioOferta - p.min) / p.min * 100) : 0;
+      return `
+      <div class="of-manage-row${on ? ' on' : ''}">
+        <div class="of-manage-thumb"${(!p.fotoUrl && p.tieneFoto) ? ` data-foto-id="${p.id}"` : ''}>${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}">` : '🥩'}</div>
+        <div class="of-manage-info">
+          <strong>${esc(p.nombre)}</strong>
+          <span><span style="text-decoration:line-through;opacity:.6;">$${Number(p.min||0).toLocaleString('es-AR')}</span> → <b style="color:var(--rojo);">$${Number(p.precioOferta).toLocaleString('es-AR')}</b>${dif ? ` (${dif}%)` : ''}</span>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" ${on ? 'checked' : ''} data-of-toggle="${p.id}"><span class="toggle-slider"></span></label>
+      </div>`;
+    }).join('');
+  observeFotos();
+}
+document.getElementById('ofertas-panel').addEventListener('change', async e => {
+  const inp = e.target.closest('[data-of-toggle]');
+  if (!inp) return;
+  const id = inp.getAttribute('data-of-toggle');
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  const val = inp.checked;
+  inp.disabled = true;
+  p.enOferta = val;
+  try {
+    await setDoc(doc(db, 'productos', id), { enOferta: val }, { merge: true });
+    await publicarSnapshot(true);
+    toast(val ? '🔥 En el carrusel' : 'Quitada del carrusel');
+  } catch (err) { toast('Error: ' + err.message, true); p.enOferta = !val; }
+  inp.disabled = false;
+  renderOfertasPanel();
 });
 
 // ══════════════════════
@@ -2092,7 +2153,6 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
       mayor:        +document.getElementById('ep-mayor').value || 0,
       mayorEfectivo:+document.getElementById('ep-mayorEfectivo').value || 0,
       precioOferta: +document.getElementById('ep-precioOferta').value || 0,
-      enOferta:     (+document.getElementById('ep-precioOferta').value || 0) > 0,
       orden:   +document.getElementById('ep-orden').value || 0,
       stock:   document.getElementById('ep-stock').checked,
       fotoPosX: epPosX, fotoPosY: epPosY, fotoZoom: epZoom,

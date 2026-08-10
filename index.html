@@ -1877,7 +1877,7 @@ function customOfertaCardHTML(o) {
 function renderOfertas() {
   const grid = document.getElementById('ofertas-grid');
   if (!grid) return;
-  const prodOfs = productos.filter(p => Number(p.precioOferta) > 0);
+  const prodOfs = productos.filter(p => p.enOferta === true && Number(p.precioOferta) > 0);
   const cards = prodOfs.map(prodOfertaCardHTML);
   if (!cards.length) {
     grid.innerHTML = '<div style="padding:40px 20px;color:var(--gris);font-style:italic;text-align:center;">Sin ofertas esta semana. Consultá por WhatsApp.</div>';
