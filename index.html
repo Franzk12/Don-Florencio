@@ -1856,7 +1856,7 @@ async function cargarProductos() {
     // reintenta — así, por más gente que entre, no puede reventar la cuota.
     if (!out && _esAdmin) { try { out = await cargarDesdeColeccion(); } catch(_) {} }
     if (!out || !out.length) { _mostrarErrorCatalogo(); return; }
-    productos = out;
+    productos = out.filter(p => !p.oculto);   // baja lógica: no mostrar los marcados como ocultos
     productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
     renderCatRows();
     renderOfertas();
@@ -1882,7 +1882,7 @@ if (_esAdmin) {
         let arr = null; try { arr = data.productos ? JSON.parse(data.productos) : null; } catch(_) {}
         if (!Array.isArray(arr) || !arr.length) { if (!_catLoaded) cargarProductos(); return; }
         _catLoaded = true; _catUpdatedAt = ua;
-        productos = arr;
+        productos = arr.filter(p => !p.oculto);   // baja lógica: no mostrar los marcados como ocultos
         productos.sort((a,b) => (a.orden || 0) - (b.orden || 0));
         renderCatRows();
         renderOfertas();

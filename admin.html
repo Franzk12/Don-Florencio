@@ -269,6 +269,27 @@ body { font-family: 'Playfair Display', serif; background: var(--bg); color: var
 .stock-badge.sin { background: rgba(120,100,96,.08); color: var(--muted); border-color: var(--border); }
 .stock-badge:hover { opacity: .75; }
 
+/* Visible / Oculto (baja lógica) — mismo estilo que stock-badge */
+.vis-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Cinzel', serif; font-size: .6rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 5px 11px; border-radius: 99px; cursor: pointer; transition: all .2s; border: 1px solid;
+  white-space: nowrap;
+}
+.vis-badge.si { background: rgba(45,122,79,.1); color: var(--success); border-color: rgba(45,122,79,.25); }
+.vis-badge.no { background: rgba(169,74,58,.12); color: var(--terra); border-color: rgba(169,74,58,.3); }
+.vis-badge:hover { opacity: .75; }
+tr.row-oculto { opacity: .5; }
+tr.row-oculto:hover { opacity: .8; }
+.oculto-tag {
+  display: inline-block; font-family: 'Cinzel', serif; font-size: .55rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--terra);
+  background: rgba(169,74,58,.1); border: 1px solid rgba(169,74,58,.3);
+  padding: 2px 7px; border-radius: 999px; margin-left: 7px; vertical-align: middle;
+}
+.cat-pill-ocultos.active { background: var(--terra); border-color: var(--terra); }
+
 /* ── PRODUCTOS TABLE ── */
 .prod-table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(169,74,58,.06); }
 table { width: 100%; border-collapse: collapse; min-width: 780px; }
@@ -765,6 +786,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
       <button class="cat-pill" data-cat="pastas">🍝 Pastas</button>
       <button class="cat-pill" data-cat="aderezos">🧴 Aderezos</button>
       <button class="cat-pill" data-cat="dulces">🍬 Dulces</button>
+      <button class="cat-pill cat-pill-ocultos" data-cat="ocultos">🙈 Ocultos</button>
     </div>
     <div class="admin-search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -779,7 +801,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
               <th>Nombre</th>
               <th>Categoría</th>
               <th style="text-align:right">Minorista</th>
-              <th>Stock</th>
+              <th>Estado</th>
               <th></th>
             </tr>
           </thead>
@@ -1583,7 +1605,7 @@ function imgSearchUrl(nombre) {
 // ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY  = firebaseConfig.apiKey;
-const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','precioOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
+const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','oculto','enOferta','precioOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
 let fotoObserver = null;
@@ -1639,7 +1661,9 @@ async function loadPrecios() {
 
 function renderTabla() {
   const tbody = document.getElementById('precios-tbody');
-  let lista = adminCatFilter === 'todos' ? productos : productos.filter(p => p.cat === adminCatFilter);
+  let lista;
+  if (adminCatFilter === 'ocultos') lista = productos.filter(p => p.oculto === true);
+  else lista = adminCatFilter === 'todos' ? productos : productos.filter(p => p.cat === adminCatFilter);
   if (adminSearch) { const q = adminSearch.toLowerCase(); lista = lista.filter(p => p.nombre.toLowerCase().includes(q)); }
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);font-style:italic;">No hay productos en esta categoría.</td></tr>`;
@@ -1648,15 +1672,16 @@ function renderTabla() {
   tbody.innerHTML = lista.map(p => {
     const i = productos.indexOf(p);
     const conStock = p.stock !== false;
+    const oculto = p.oculto === true;
     return `
-    <tr data-i="${i}" style="cursor:pointer;">
+    <tr data-i="${i}" class="${oculto ? 'row-oculto' : ''}" style="cursor:pointer;">
       <td class="td-foto">
         ${p.tieneFoto
           ? `<div class="prod-thumb-wrap" data-foto-id="${p.id}" data-action="edit-modal" data-idx="${i}"${p.fotoUrl ? ' data-foto-loaded="1"' : ''}>${p.fotoUrl ? `<img src="${esc(p.fotoUrl)}" class="prod-thumb">` : ''}</div>`
           : `<div class="prod-thumb-empty" data-action="edit-modal" data-idx="${i}">📷</div>`}
       </td>
       <td>
-        <div style="font-family:'Cinzel',serif;font-size:.88rem;font-weight:700;color:var(--vino);">${esc(p.nombre)}</div>
+        <div style="font-family:'Cinzel',serif;font-size:.88rem;font-weight:700;color:var(--vino);">${esc(p.nombre)}${oculto ? '<span class="oculto-tag">🙈 Oculto</span>' : ''}</div>
         ${p.desc ? `<div style="font-size:.75rem;color:var(--muted);font-style:italic;margin-top:3px;">${esc(p.desc)}</div>` : ''}
       </td>
       <td>
@@ -1664,9 +1689,14 @@ function renderTabla() {
       </td>
       <td style="font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--terra);text-align:right;">$${Number(p.min||0).toLocaleString('es-AR')}</td>
       <td>
-        <button class="stock-badge ${conStock ? 'con' : 'sin'}" data-action="toggle-stock" data-idx="${i}" title="Click para cambiar stock">
-          ${conStock ? '✓ Con stock' : '✗ Sin stock'}
-        </button>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start;">
+          <button class="stock-badge ${conStock ? 'con' : 'sin'}" data-action="toggle-stock" data-idx="${i}" title="Click para cambiar stock">
+            ${conStock ? '✓ Con stock' : '✗ Sin stock'}
+          </button>
+          <button class="vis-badge ${oculto ? 'no' : 'si'}" data-action="toggle-visible" data-idx="${i}" title="${oculto ? 'Está oculto: no aparece en la web. Click para mostrarlo.' : 'Se muestra en la web. Click para ocultarlo (sin borrarlo).'}">
+            ${oculto ? '🙈 Oculto' : '👁 Se muestra'}
+          </button>
+        </div>
       </td>
       <td style="white-space:nowrap;">
         <button class="btn btn-ghost btn-sm" data-action="edit-modal" data-idx="${i}" title="Editar producto">✏️ Editar</button>
@@ -1687,6 +1717,13 @@ function _toggleStock(i) {
   productos[i].stock = productos[i].stock === false ? true : false;
   cambios = true;
   document.getElementById('cambios-txt').textContent = '⚠️ Cambios sin guardar';
+  renderTabla();
+}
+function _toggleOculto(i) {
+  productos[i].oculto = !(productos[i].oculto === true);
+  cambios = true;
+  document.getElementById('cambios-txt').textContent = '⚠️ Cambios sin guardar';
+  toast(productos[i].oculto ? '🙈 Se ocultará de la web al guardar' : '👁 Volverá a mostrarse al guardar');
   renderTabla();
 }
 document.getElementById('admin-search-inp').addEventListener('input', debounce(e => {
@@ -1725,6 +1762,7 @@ tbodyEl.addEventListener('click', e => {
   const i = parseInt(el.dataset.idx);
   const action = el.dataset.action;
   if (action === 'toggle-stock') _toggleStock(i);
+  else if (action === 'toggle-visible') _toggleOculto(i);
   else if (action === 'del') _delProd(i);
   else if (action === 'edit-modal') _openEditModal(i);
   else if (action === 'dup') {
@@ -1812,7 +1850,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
   e.target.value = '';
 });
 // ── SNAPSHOT del catálogo (config/catalogo): 1 doc liviano que lee la home ──
-const SNAP_FIELDS = ['nombre','cat','desc','min','efectivo','mayor','mayorEfectivo','orden','stock','enOferta','precioOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
+const SNAP_FIELDS = ['nombre','cat','desc','min','efectivo','mayor','mayorEfectivo','orden','stock','oculto','enOferta','precioOferta','fotoZoom','fotoPosX','fotoPosY','tieneFoto'];
 function _snapArray() {
   return productos.map(p => {
     const o = { id: p.id };
@@ -1868,6 +1906,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
           nombre:p.nombre, cat:p.cat, desc:p.desc||'',
           min:p.min, may:p.may||0,
           enOferta:p.enOferta||false, stock: p.stock !== false,
+          oculto: p.oculto === true,
           orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
         }, { merge:true });
       });
@@ -1891,6 +1930,9 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
 let fotaNuevoProdFile = null, npPosX = 50, npPosY = 50;
 
 function _openNuevoProd() {
+  if (productos.length >= 1500) {
+    toast('⚠️ Ya tenés ' + productos.length + ' productos. Por rendimiento conviene no pasar de ~1500: ocultá o eliminá los que no uses.', true);
+  }
   document.getElementById('np-nombre').value  = '';
   document.getElementById('np-desc').value    = '';
   document.getElementById('np-min').value     = '';
