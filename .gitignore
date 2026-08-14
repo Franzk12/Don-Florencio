@@ -25,6 +25,14 @@ Entrega-*.pdf
 informe-entrega.pdf
 informe-entrega.tex
 
+# Documentos privados (económica / pago — NO subir, la carpeta informes/ se deploya)
+informes/propuesta-pago*
+# guion interno de reuniones (no publicar en el sitio)
+informes/guion-*
+
+# Reglas de Firestore: documentación local, no exponer en la web (se editan en la consola)
+/firestore.rules
+
 # Archivo local (planillas viejas, backups pesados, informes entregados)
 _archivo/
 
