@@ -1823,27 +1823,59 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
       else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
       return parseFloat(s) || 0;
     };
-    const nuevos = normRows.map(row => {
-      const nombre = row['nombre'] || row['Nombre'] || row['NOMBRE'] || row['descrip_arti'] || row['DESCRIP_ARTI'] || '';
+    // Índices para emparejar: por Código (id) exacto y por Nombre normalizado.
+    const porId = new Map();
+    const porNombre = new Map();
+    productos.forEach((p, i) => {
+      porId.set(String(p.id), i);
+      const k = normalize(p.nombre);
+      if (!porNombre.has(k)) porNombre.set(k, i);
+    });
+
+    let actualizados = 0;
+    const nuevos = [];
+    normRows.forEach(row => {
+      const nombre = String(row['nombre'] || row['Nombre'] || row['NOMBRE'] || row['descrip_arti'] || row['DESCRIP_ARTI'] || '').trim();
+      const codigo = String(row['codigo'] || row['Código'] || row['Codigo'] || row['id'] || row['ID'] || '').trim();
+      const minRaw = row['minorista'] ?? row['Minorista'] ?? row['precio'] ?? row['min'] ?? row['precio_uni'] ?? row['PRECIO_UNI'] ?? '';
+      const mayRaw = row['mayorista'] ?? row['Mayorista'] ?? row['may'] ?? '';
+      const desc = row['descripcion'] || row['Descripción'] || row['desc'] || row['desc_adicional'] || '';
       const catRaw = normalize(row['categoria'] || row['Categoría'] || row['cat'] || '');
       const cat = catRaw ? (catMap[catRaw] || CATS.find(c => catRaw.includes(c.replace(/s$/,''))) || filenameCat || 'fiambres') : (filenameCat || 'fiambres');
-      const min = parsePrecio(row['minorista'] || row['Minorista'] || row['precio'] || row['min'] || row['precio_uni'] || row['PRECIO_UNI'] || 0);
-      const may = parsePrecio(row['mayorista'] || row['Mayorista'] || row['may'] || 0);
-      const desc = row['descripcion'] || row['Descripción'] || row['desc'] || row['desc_adicional'] || '';
-      const stockVal = row['cant_stock'] !== undefined ? Number(row['cant_stock']) > 0 : true;
-      return { id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min, may, fotoUrl: '', stock: stockVal };
-    }).filter(p => p.nombre);
+      if (!nombre && !codigo) return;
 
-    if (!nuevos.length) { toast('No se encontraron productos válidos', true); return; }
+      // ¿existe? primero por Código, si no por Nombre
+      let i = -1;
+      if (codigo && porId.has(codigo)) i = porId.get(codigo);
+      else if (nombre && porNombre.has(normalize(nombre))) i = porNombre.get(normalize(nombre));
 
-    const conf = confirm(`¿Importar ${nuevos.length} productos desde Excel? Se agregarán al catálogo existente.`);
+      if (i >= 0) {
+        // ACTUALIZAR el existente (solo lo que venga cargado; el resto se conserva)
+        const p = productos[i];
+        if (String(minRaw).trim() !== '') { const m = parsePrecio(minRaw); if (m > 0) p.min = m; }
+        if (String(mayRaw).trim() !== '') { const m = parsePrecio(mayRaw); if (m > 0) { p.may = m; p.mayor = m; } }
+        if (desc) p.desc = desc;
+        actualizados++;
+      } else if (nombre) {
+        // no existe → producto nuevo
+        nuevos.push({ id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min: parsePrecio(minRaw), may: parsePrecio(mayRaw), fotoUrl: '', stock: true });
+      }
+    });
+
+    if (!actualizados && !nuevos.length) { toast('No se encontraron productos válidos', true); return; }
+
+    const conf = confirm(
+      `Se van a ACTUALIZAR ${actualizados} precio(s)` +
+      (nuevos.length ? ` y AGREGAR ${nuevos.length} producto(s) nuevo(s)` : '') +
+      `. ¿Continuar?`
+    );
     if (!conf) return;
 
-    productos.push(...nuevos);
+    if (nuevos.length) productos.push(...nuevos);
     cambios = true;
-    document.getElementById('cambios-txt').textContent = `⚠️ ${nuevos.length} productos importados sin guardar`;
+    document.getElementById('cambios-txt').textContent = `⚠️ ${actualizados} actualizado(s)${nuevos.length ? `, ${nuevos.length} nuevo(s)` : ''} sin guardar`;
     renderTabla();
-    toast(`✅ ${nuevos.length} productos importados. Guardá para confirmar.`);
+    toast(`✅ ${actualizados} precio(s) actualizado(s)${nuevos.length ? `, ${nuevos.length} nuevo(s)` : ''}. Guardá para confirmar.`);
   } catch(err) {
     toast('Error al leer el Excel: ' + err.message, true);
   }
