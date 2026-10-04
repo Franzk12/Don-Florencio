@@ -25,10 +25,15 @@ Entrega-*.pdf
 informe-entrega.pdf
 informe-entrega.tex
 
-# Documentos privados (económica / pago — NO subir, la carpeta informes/ se deploya)
-informes/propuesta-pago*
-# guion interno de reuniones (no publicar en el sitio)
-informes/guion-*
+# Internos: NO publicar en el sitio (nada del sitio los enlaza; quedan locales)
+# informes/entregables/manuales/QR (incluye económica y precios)
+informes/
+# scripts de consola (tooling interno)
+herramientas/
+# notas internas
+docs/
+# config CORS de Firebase Storage (se aplica aparte, no en runtime)
+/cors.json
 
 # Reglas de Firestore: documentación local, no exponer en la web (se editan en la consola)
 /firestore.rules
