@@ -1890,10 +1890,24 @@ function _snapArray() {
     return o;
   });
 }
+// Firestore limita cada documento a 1 MiB. El snapshot es UN documento con todo el
+// catálogo serializado, así que antes de publicar chequeamos el tamaño real (bytes
+// UTF-8) y abortamos con margen, para que NUNCA falle silenciosamente dejando el
+// catálogo sin publicar.
+const SNAP_LIMITE_BYTES = 950000;   // ~0,9 MB (deja margen para count/updatedAt/overhead)
 async function publicarSnapshot(silencioso) {
   try {
     const arr = _snapArray();
-    await setDoc(doc(db, 'config', 'catalogo'), { productos: JSON.stringify(arr), count: arr.length, updatedAt: Date.now() });
+    const productosStr = JSON.stringify(arr);
+    const bytes = new TextEncoder().encode(productosStr).length;
+    if (bytes > SNAP_LIMITE_BYTES) {
+      const kb = Math.round(bytes / 1024);
+      const msg = '⛔ El catálogo pesa ' + kb + ' KB y está cerca del límite de Firestore (1 MB por documento). NO se publicó, para no romper el sitio. Ocultá o eliminá productos que no uses, o avisá al desarrollador para partir el catálogo.';
+      toast(msg, true);                 // crítico: siempre visible, aunque sea "silencioso"
+      console.error(msg, { bytes, productos: arr.length });
+      return false;
+    }
+    await setDoc(doc(db, 'config', 'catalogo'), { productos: productosStr, count: arr.length, updatedAt: Date.now() });
     if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
     return true;
   } catch(e) { if (!silencioso) toast('Error al publicar el catálogo: ' + e.message, true); return false; }
@@ -1928,6 +1942,13 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
   const btn = document.getElementById('btn-save-precios');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
+    // Guard de tamaño ANTES de escribir nada (el snapshot es 1 doc; límite Firestore 1 MiB)
+    const _bytes = new TextEncoder().encode(JSON.stringify(_snapArray())).length;
+    if (_bytes > SNAP_LIMITE_BYTES) {
+      toast('⛔ El catálogo pesa ' + Math.round(_bytes/1024) + ' KB y está cerca del límite de 1 MB. No se guardó. Ocultá o eliminá productos que no uses, o avisá al desarrollador para partir el catálogo.', true);
+      btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
+      return;
+    }
     const CHUNK = 400;   // Firestore permite hasta 500 operaciones por batch
     let guardados = 0;
     for (let i = 0; i < productos.length; i += CHUNK) {
@@ -1946,10 +1967,14 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       guardados += lote.length;
       btn.innerHTML = `<span class="spinner"></span> ${guardados}/${productos.length}`;
     }
-    cambios = false;
-    await publicarSnapshot(true);
-    document.getElementById('cambios-txt').textContent = '✅ Guardado';
-    toast('✅ Catálogo guardado');
+    const _pub = await publicarSnapshot(true);
+    if (_pub) {
+      cambios = false;
+      document.getElementById('cambios-txt').textContent = '✅ Guardado';
+      toast('✅ Catálogo guardado');
+    } else {
+      document.getElementById('cambios-txt').textContent = '⚠️ No se pudo publicar (ver aviso)';
+    }
   } catch(e) { toast('Error: '+e.message, true); }
   btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
 });
