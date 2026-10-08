@@ -1834,6 +1834,7 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
 
     let actualizados = 0;
     const nuevos = [];
+    const updates = [];   // cambios a existentes: se aplican SOLO después de confirmar (no antes)
     normRows.forEach(row => {
       const nombre = String(row['nombre'] || row['Nombre'] || row['NOMBRE'] || row['descrip_arti'] || row['DESCRIP_ARTI'] || '').trim();
       const codigo = String(row['codigo'] || row['Código'] || row['Codigo'] || row['id'] || row['ID'] || '').trim();
@@ -1850,12 +1851,12 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
       else if (nombre && porNombre.has(normalize(nombre))) i = porNombre.get(normalize(nombre));
 
       if (i >= 0) {
-        // ACTUALIZAR el existente (solo lo que venga cargado; el resto se conserva)
-        const p = productos[i];
-        if (String(minRaw).trim() !== '') { const m = parsePrecio(minRaw); if (m > 0) p.min = m; }
-        if (String(mayRaw).trim() !== '') { const m = parsePrecio(mayRaw); if (m > 0) { p.may = m; p.mayor = m; } }
-        if (desc) p.desc = desc;
-        actualizados++;
+        // Preparar los cambios del existente SIN tocar nada todavía (se aplica tras confirmar)
+        const ch = {};
+        if (String(minRaw).trim() !== '') { const m = parsePrecio(minRaw); if (m > 0) ch.min = m; }
+        if (String(mayRaw).trim() !== '') { const m = parsePrecio(mayRaw); if (m > 0) { ch.may = m; ch.mayor = m; } }
+        if (desc) ch.desc = desc;
+        if (Object.keys(ch).length) { updates.push({ i, ch }); actualizados++; }
       } else if (nombre) {
         // no existe → producto nuevo
         nuevos.push({ id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nombre, cat, desc, min: parsePrecio(minRaw), may: parsePrecio(mayRaw), fotoUrl: '', stock: true });
@@ -1871,6 +1872,8 @@ document.getElementById('inp-excel').addEventListener('change', async e => {
     );
     if (!conf) return;
 
+    // Recién acá se aplican los cambios: si se canceló, no se tocó nada en memoria
+    updates.forEach(u => Object.assign(productos[u.i], u.ch));
     if (nuevos.length) productos.push(...nuevos);
     cambios = true;
     document.getElementById('cambios-txt').textContent = `⚠️ ${actualizados} actualizado(s)${nuevos.length ? `, ${nuevos.length} nuevo(s)` : ''} sin guardar`;
@@ -1902,7 +1905,7 @@ async function publicarSnapshot(silencioso) {
     const bytes = new TextEncoder().encode(productosStr).length;
     if (bytes > SNAP_LIMITE_BYTES) {
       const kb = Math.round(bytes / 1024);
-      const msg = '⛔ El catálogo pesa ' + kb + ' KB y está cerca del límite de Firestore (1 MB por documento). NO se publicó, para no romper el sitio. Ocultá o eliminá productos que no uses, o avisá al desarrollador para partir el catálogo.';
+      const msg = '⛔ El catálogo pesa ' + kb + ' KB y está cerca del límite de Firestore (1 MB por documento). NO se publicó, para no romper el sitio. Eliminá productos que no uses (ocultarlos NO reduce el tamaño) o avisá al desarrollador para partir el catálogo.';
       toast(msg, true);                 // crítico: siempre visible, aunque sea "silencioso"
       console.error(msg, { bytes, productos: arr.length });
       return false;
@@ -1945,7 +1948,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
     // Guard de tamaño ANTES de escribir nada (el snapshot es 1 doc; límite Firestore 1 MiB)
     const _bytes = new TextEncoder().encode(JSON.stringify(_snapArray())).length;
     if (_bytes > SNAP_LIMITE_BYTES) {
-      toast('⛔ El catálogo pesa ' + Math.round(_bytes/1024) + ' KB y está cerca del límite de 1 MB. No se guardó. Ocultá o eliminá productos que no uses, o avisá al desarrollador para partir el catálogo.', true);
+      toast('⛔ El catálogo pesa ' + Math.round(_bytes/1024) + ' KB y está cerca del límite de 1 MB. No se guardó. Eliminá productos que no uses (ocultarlos NO reduce el tamaño) o avisá al desarrollador para partir el catálogo.', true);
       btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
       return;
     }
