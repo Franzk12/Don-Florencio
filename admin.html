@@ -1224,7 +1224,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch }
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch, runTransaction }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
@@ -1577,12 +1577,13 @@ document.getElementById('ofertas-panel').addEventListener('change', async e => {
   const p = productos.find(x => x.id === id);
   if (!p) return;
   const val = inp.checked;
+  if (!(await _catalogoAlDia())) { inp.checked = !val; return; }
   inp.disabled = true;
   p.enOferta = val;
   try {
     await setDoc(doc(db, 'productos', id), { enOferta: val }, { merge: true });
-    await publicarSnapshot(true);
-    toast(val ? '🔥 En el carrusel' : 'Quitada del carrusel');
+    _marcarGuardado(id, { enOferta: val });
+    if (await publicarSnapshot(true)) toast(val ? '🔥 En el carrusel' : 'Quitada del carrusel');
   } catch (err) { toast('Error: ' + err.message, true); p.enOferta = !val; }
   inp.disabled = false;
   renderOfertasPanel();
@@ -1605,6 +1606,69 @@ function imgSearchUrl(nombre) {
 // ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY  = firebaseConfig.apiKey;
+
+// ── Control de versión del catálogo ──────────────────────────────────────────
+// El panel trabaja con una copia en memoria. Si mientras está abierto alguien
+// publica el catálogo desde otra pestaña, otro dispositivo o una carga por
+// consola, guardar desde esta copia vieja pisaría esos cambios (pasó el 6/11 y
+// el 7/11). Por eso se anota la versión (updatedAt) al cargar y no se publica
+// si cambió: se pide recargar.
+let _versionCargada = null;
+const MSG_DESACTUALIZADO = '⚠️ El catálogo se modificó desde otro lado (otra pestaña, otro dispositivo o una carga del desarrollador) después de que abriste el panel. Para no pisar esos cambios no se guardó nada. Recargá la página (F5) y volvé a hacer tu cambio.';
+async function _versionPublicada() {
+  const r = await fetch(`${FS_BASE}/config/catalogo?mask.fieldPaths=updatedAt&key=${APIKEY}`, { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  const v = d.fields && d.fields.updatedAt;
+  return v ? Number(v.integerValue ?? v.doubleValue) : 0;
+}
+function _avisoDesactualizado() {
+  if (document.getElementById('aviso-desactualizado')) return;
+  const d = document.createElement('div');
+  d.id = 'aviso-desactualizado';
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b3261e;color:#fff;padding:12px 16px;font:600 14px system-ui,sans-serif;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3)';
+  d.innerHTML = 'El catálogo cambió desde otro lado mientras tenías el panel abierto. Recargá antes de seguir editando para no pisar esos cambios. <button id="btn-recargar-aviso" style="margin-left:10px;padding:5px 14px;border:0;border-radius:6px;font-weight:700;cursor:pointer">Recargar ahora</button>';
+  document.body.appendChild(d);
+  const b = document.getElementById('btn-recargar-aviso');
+  if (b) b.onclick = () => location.reload();
+}
+// Antes de escribir: false (y aviso) si la copia en memoria quedó vieja.
+const MSG_SIN_VERSION = '⚠️ No se pudo verificar la versión del catálogo (¿sin conexión?). Por seguridad no se guardó. Revisá la conexión y recargá la página (F5).';
+async function _catalogoAlDia() {
+  if (_versionCargada === null) { toast(MSG_SIN_VERSION, true); return false; }
+  const antes = _versionCargada;
+  let v;
+  try { v = await _versionPublicada(); }
+  catch (_) { return true; }                       // error de red: la transacción de publicarSnapshot es el control final
+  if (_versionCargada !== antes) return true;      // esta misma pestaña publicó mientras tanto
+  if (v !== _versionCargada) {                     // conflicto: SIEMPRE bloquea, falle o no el aviso
+    try { _avisoDesactualizado(); } catch (_) {}
+    toast(MSG_DESACTUALIZADO, true);
+    return false;
+  }
+  return true;
+}
+async function _chequearAlVolver() {
+  if (document.visibilityState !== 'visible' || _versionCargada === null) return;
+  const antes = _versionCargada;
+  try { const v = await _versionPublicada(); if (_versionCargada === antes && v !== antes) _avisoDesactualizado(); } catch (_) {}
+}
+// Cómo estaba cada producto al cargar: "Guardar catálogo" escribe SOLO los que cambiaron.
+let _base = new Map();
+const _payloadBatch = p => ({
+  nombre:p.nombre, cat:p.cat, desc:p.desc||'',
+  min:p.min, may:p.may||0,
+  enOferta:p.enOferta||false, stock: p.stock !== false,
+  oculto: p.oculto === true,
+  orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
+});
+// ¿Algún campo difiere de lo último guardado? (comparación campo por campo)
+const _cambiado = p => { const b = _base.get(p.id); if (!b) return true; const a = _payloadBatch(p); return Object.keys(a).some(k => a[k] !== b[k]); };
+// Marca como guardados SOLO los campos que realmente se escribieron.
+const _marcarGuardado = (id, campos) => _base.set(id, { ...(_base.get(id) || {}), ...campos });
+const _misVersiones = new Set();   // versiones publicadas por ESTA pestaña
+document.addEventListener('visibilitychange', _chequearAlVolver);
+window.addEventListener('focus', _chequearAlVolver);
 const PROD_FIELDS = ['nombre','cat','desc','min','may','efectivo','mayor','mayorEfectivo','orden','stock','oculto','enOferta','precioOferta','tieneFoto','fotoZoom','fotoPosX','fotoPosY'];
 function _fsVal(f){ if(!f) return undefined; if('stringValue' in f) return f.stringValue; if('integerValue' in f) return +f.integerValue; if('doubleValue' in f) return f.doubleValue; if('booleanValue' in f) return f.booleanValue; return undefined; }
 const fotoCache = new Map();
@@ -1637,6 +1701,7 @@ function observeFotos(){
 }
 async function loadPrecios() {
   productos = [];
+  try { _versionCargada = await _versionPublicada(); } catch (_) { _versionCargada = null; }
   const maskQS = PROD_FIELDS.map(f => 'mask.fieldPaths=' + f).join('&');
   let pageToken = '';
   try {
@@ -1651,7 +1716,8 @@ async function loadPrecios() {
       });
       pageToken = d.nextPageToken || '';
     } while (pageToken);
-  } catch(e) { toast('Error al cargar productos: ' + e.message, true); }
+  } catch(e) { toast('Error al cargar productos: ' + e.message, true); _versionCargada = null; }
+  _base = new Map(productos.map(p => [p.id, _payloadBatch(p)]));
   productos.sort((a,b) => {
     const catDiff = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
     return catDiff !== 0 ? catDiff : (a.orden||0) - (b.orden||0);
@@ -1742,13 +1808,15 @@ async function _delProd(i) {
   if(!confirm('¿Eliminar producto? Se borra definitivamente del catálogo.')) return;
   const p = productos[i];
   if (!p) return;
+  if (!(await _catalogoAlDia())) return;
   try {
     await deleteDoc(doc(db,'productos',p.id));
     productos.splice(i,1);
     fotoCache.delete(p.id);
-    await publicarSnapshot(true);
+    _base.delete(p.id);
+    const _ok = await publicarSnapshot(true);
     renderTabla();
-    toast('🗑 Producto eliminado');
+    if (_ok) toast('🗑 Producto eliminado');
   } catch(e) { toast('Error al eliminar: '+e.message, true); }
 }
 const tbodyEl = document.getElementById('precios-tbody');
@@ -1899,21 +1967,47 @@ function _snapArray() {
 // catálogo sin publicar.
 const SNAP_LIMITE_BYTES = 950000;   // ~0,9 MB (deja margen para count/updatedAt/overhead)
 async function publicarSnapshot(silencioso) {
-  try {
-    const arr = _snapArray();
-    const productosStr = JSON.stringify(arr);
-    const bytes = new TextEncoder().encode(productosStr).length;
-    if (bytes > SNAP_LIMITE_BYTES) {
-      const kb = Math.round(bytes / 1024);
-      const msg = '⛔ El catálogo pesa ' + kb + ' KB y está cerca del límite de Firestore (1 MB por documento). NO se publicó, para no romper el sitio. Eliminá productos que no uses (ocultarlos NO reduce el tamaño) o avisá al desarrollador para partir el catálogo.';
-      toast(msg, true);                 // crítico: siempre visible, aunque sea "silencioso"
-      console.error(msg, { bytes, productos: arr.length });
+  for (let intento = 0; intento < 3; intento++) {
+    const base = _versionCargada;          // versión sobre la que se arma este snapshot
+    if (base === null) { toast(MSG_SIN_VERSION, true); return false; }
+    let actual = null;
+    try {
+      const arr = _snapArray();
+      const productosStr = JSON.stringify(arr);
+      const bytes = new TextEncoder().encode(productosStr).length;
+      if (bytes > SNAP_LIMITE_BYTES) {
+        const kb = Math.round(bytes / 1024);
+        const msg = '⛔ El catálogo pesa ' + kb + ' KB y está cerca del límite de Firestore (1 MB por documento). NO se publicó, para no romper el sitio. Eliminá productos que no uses (ocultarlos NO reduce el tamaño) o avisá al desarrollador para partir el catálogo.';
+        toast(msg, true);                 // crítico: siempre visible, aunque sea "silencioso"
+        console.error(msg, { bytes, productos: arr.length });
+        return false;
+      }
+      const ref = doc(db, 'config', 'catalogo');
+      const nueva = Date.now() + intento;  // distinta en cada intento
+      _misVersiones.add(nueva);
+      await runTransaction(db, async (t) => {
+        const s = await t.get(ref);
+        actual = s.exists() ? (s.data().updatedAt || 0) : 0;
+        if (actual !== base) throw new Error('DESACTUALIZADO');
+        t.set(ref, { productos: productosStr, count: arr.length, updatedAt: nueva });
+      });
+      if (_versionCargada === base || _misVersiones.has(_versionCargada)) _versionCargada = Math.max(_versionCargada || 0, nueva);
+      if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
+      return true;
+    } catch(e) {
+      if (e && e.message === 'DESACTUALIZADO') {
+        // Ganó otra publicación de ESTA pestaña: reintentar con lo que hay ahora en memoria (incluye todo).
+        if (actual !== null && _misVersiones.has(actual)) { _versionCargada = actual; continue; }
+        try { _avisoDesactualizado(); } catch (_) {}
+        toast('⚠️ Tus cambios en los productos se guardaron, pero el catálogo publicado cambió desde otro lado y no se actualizó para no pisarlo. Recargá la página (F5).', true);
+        return false;
+      }
+      if (!silencioso) toast('Error al publicar el catálogo: ' + e.message, true);
       return false;
     }
-    await setDoc(doc(db, 'config', 'catalogo'), { productos: productosStr, count: arr.length, updatedAt: Date.now() });
-    if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
-    return true;
-  } catch(e) { if (!silencioso) toast('Error al publicar el catálogo: ' + e.message, true); return false; }
+  }
+  toast('⚠️ No se pudo publicar el catálogo después de varios intentos. Recargá la página (F5).', true);
+  return false;
 }
 
 document.getElementById('btn-publicar-snapshot').addEventListener('click', async (e) => {
@@ -1952,23 +2046,20 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
       return;
     }
+    // Versión: si el catálogo cambió desde otro lado, NO escribir nada (pisaría esos cambios)
+    if (!(await _catalogoAlDia())) { btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false; return; }
     const CHUNK = 400;   // Firestore permite hasta 500 operaciones por batch
+    // Solo los productos que cambiaron en esta pestaña (no se reescribe todo el catálogo)
+    const aEscribir = productos.filter(_cambiado).map(p => [p.id, _payloadBatch(p)]);   // lo que se manda, fijado ahora
     let guardados = 0;
-    for (let i = 0; i < productos.length; i += CHUNK) {
-      const lote = productos.slice(i, i + CHUNK);
+    for (let i = 0; i < aEscribir.length; i += CHUNK) {
+      const lote = aEscribir.slice(i, i + CHUNK);
       const batch = writeBatch(db);
-      lote.forEach(p => {
-        batch.set(doc(db,'productos',p.id), {
-          nombre:p.nombre, cat:p.cat, desc:p.desc||'',
-          min:p.min, may:p.may||0,
-          enOferta:p.enOferta||false, stock: p.stock !== false,
-          oculto: p.oculto === true,
-          orden: p.orden || 0, fotoZoom: p.fotoZoom || 1,
-        }, { merge:true });
-      });
+      lote.forEach(([id, pl]) => batch.set(doc(db,'productos',id), pl, { merge:true }));
       await batch.commit();
+      lote.forEach(([id, pl]) => _base.set(id, pl));
       guardados += lote.length;
-      btn.innerHTML = `<span class="spinner"></span> ${guardados}/${productos.length}`;
+      btn.innerHTML = `<span class="spinner"></span> ${guardados}/${aEscribir.length}`;
     }
     const _pub = await publicarSnapshot(true);
     if (_pub) {
@@ -2060,6 +2151,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
   const btn = document.getElementById('btn-guardar-nuevo-prod');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
+    if (!(await _catalogoAlDia())) { btn.innerHTML = '💾 Agregar producto'; btn.disabled = false; return; }
     const id = 'p_' + Date.now();
     let fotoUrl = '';
     if (fotaNuevoProdFile) fotoUrl = await compressToDataURL(fotaNuevoProdFile);
@@ -2086,10 +2178,12 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
       const d = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
       return d !== 0 ? d : (a.orden||0) - (b.orden||0);
     });
-    await publicarSnapshot(true);
+    _base.set(id, _payloadBatch(nuevo));
+    const _pubOk = await publicarSnapshot(true);
     renderOfProdGrid();
     renderTabla();
     document.getElementById('modal-nuevo-prod').classList.remove('open');
+    if (!_pubOk) { btn.innerHTML = '💾 Agregar producto'; btn.disabled = false; return; }
     toast('✅ Producto agregado');
   } catch(e) { toast('Error: ' + e.message, true); }
   btn.innerHTML = '💾 Agregar producto'; btn.disabled = false;
@@ -2267,6 +2361,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
   const btn = document.getElementById('btn-ep-guardar');
   btn.innerHTML = '<span class="spinner"></span> Guardando...'; btn.disabled = true;
   try {
+    if (!(await _catalogoAlDia())) { btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false; return; }
     let newFoto = null;
     if (editFotoFile) newFoto = await compressToDataURL(editFotoFile);
 
@@ -2300,9 +2395,13 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }
     if (editFotoBorrada) { payload.fotoUrl = ''; payload.tieneFoto = false; }
     await setDoc(doc(db,'productos',p.id), payload, { merge:true });
+    _marcarGuardado(p.id, { nombre: payload.nombre, cat: payload.cat, desc: payload.desc || '', min: payload.min,
+      stock: payload.stock !== false, enOferta: payload.enOferta || false, orden: payload.orden || 0, fotoZoom: payload.fotoZoom || 1 });
 
-    await publicarSnapshot(true);
+    const _pubOk = await publicarSnapshot(true);
     document.getElementById('modal-edit-prod').classList.remove('open');
+    renderTabla();
+    if (!_pubOk) { btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false; return; }
     renderTabla();
     toast('✅ Producto guardado');
   } catch(e) { toast('Error: '+e.message, true); }
