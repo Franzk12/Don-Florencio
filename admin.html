@@ -1224,7 +1224,7 @@ tbody tr:hover td { background: rgba(169,74,58,.02); }
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch, runTransaction }
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, writeBatch, runTransaction, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
@@ -1462,7 +1462,7 @@ document.getElementById('btn-guardar-oferta').addEventListener('click', async ()
       precio, fotoUrl, createdAt: new Date().toISOString(),
       productId: currentOfferProductId || null, stock: true
     });
-    if (currentOfferProductId) await setDoc(doc(db,'productos',currentOfferProductId), {enOferta:true}, {merge:true});
+    if (currentOfferProductId) await setDoc(doc(db,'productos',currentOfferProductId), {enOferta:true, _w: serverTimestamp()}, {merge:true});
     toast('✅ Oferta guardada'); document.getElementById('btn-limpiar-of').click();
     await loadOfertas();
   } catch(e) { toast('Error: '+e.message, true); }
@@ -1510,7 +1510,7 @@ async function delOferta(id) {
   const docSnap = await getDoc(doc(db,'ofertas',id));
   const data = docSnap.data();
   await deleteDoc(doc(db,'ofertas',id));
-  if (data?.productId) await setDoc(doc(db,'productos',data.productId), {enOferta:false}, {merge:true});
+  if (data?.productId) await setDoc(doc(db,'productos',data.productId), {enOferta:false, _w: serverTimestamp()}, {merge:true});
   toast('Oferta eliminada'); await loadOfertas();
 }
 
@@ -1581,7 +1581,7 @@ document.getElementById('ofertas-panel').addEventListener('change', async e => {
   inp.disabled = true;
   p.enOferta = val;
   try {
-    await setDoc(doc(db, 'productos', id), { enOferta: val }, { merge: true });
+    await setDoc(doc(db, 'productos', id), { enOferta: val, _w: serverTimestamp() }, { merge: true });
     _marcarGuardado(id, { enOferta: val });
     if (await publicarSnapshot(true)) toast(val ? '🔥 En el carrusel' : 'Quitada del carrusel');
   } catch (err) { toast('Error: ' + err.message, true); p.enOferta = !val; }
@@ -1606,6 +1606,11 @@ function imgSearchUrl(nombre) {
 // ── Carga liviana por REST (sin fotoUrl) + lazy-load de miniaturas ──
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 const APIKEY  = firebaseConfig.apiKey;
+
+// ── Firma de escritura (_w) ──────────────────────────────────────────────────
+// Toda escritura a productos y a config/catalogo lleva _w = hora del servidor.
+// Las reglas de Firestore la exigen: el código viejo (pestañas abiertas antes del
+// 7/11/2026) no la manda y se rechaza, así no puede pisar el catálogo.
 
 // ── Control de versión del catálogo ──────────────────────────────────────────
 // El panel trabaja con una copia en memoria. Si mientras está abierto alguien
@@ -1989,7 +1994,7 @@ async function publicarSnapshot(silencioso) {
         const s = await t.get(ref);
         actual = s.exists() ? (s.data().updatedAt || 0) : 0;
         if (actual !== base) throw new Error('DESACTUALIZADO');
-        t.set(ref, { productos: productosStr, count: arr.length, updatedAt: nueva });
+        t.set(ref, { productos: productosStr, count: arr.length, updatedAt: nueva, _w: serverTimestamp() });
       });
       if (_versionCargada === base || _misVersiones.has(_versionCargada)) _versionCargada = Math.max(_versionCargada || 0, nueva);
       if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
@@ -2055,7 +2060,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
     for (let i = 0; i < aEscribir.length; i += CHUNK) {
       const lote = aEscribir.slice(i, i + CHUNK);
       const batch = writeBatch(db);
-      lote.forEach(([id, pl]) => batch.set(doc(db,'productos',id), pl, { merge:true }));
+      lote.forEach(([id, pl]) => batch.set(doc(db,'productos',id), { ...pl, _w: serverTimestamp() }, { merge:true }));
       await batch.commit();
       lote.forEach(([id, pl]) => _base.set(id, pl));
       guardados += lote.length;
@@ -2171,7 +2176,8 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
       min:nuevo.min, may:nuevo.may, fotoUrl:nuevo.fotoUrl,
       tieneFoto: !!nuevo.fotoUrl,
       enOferta:false, stock:nuevo.stock, orden:nuevo.orden,
-      fotoPosX:nuevo.fotoPosX, fotoPosY:nuevo.fotoPosY
+      fotoPosX:nuevo.fotoPosX, fotoPosY:nuevo.fotoPosY,
+      _w: serverTimestamp()
     });
     productos.push(nuevo);
     productos.sort((a,b) => {
@@ -2394,7 +2400,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     };
     if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }
     if (editFotoBorrada) { payload.fotoUrl = ''; payload.tieneFoto = false; }
-    await setDoc(doc(db,'productos',p.id), payload, { merge:true });
+    await setDoc(doc(db,'productos',p.id), { ...payload, _w: serverTimestamp() }, { merge:true });
     _marcarGuardado(p.id, { nombre: payload.nombre, cat: payload.cat, desc: payload.desc || '', min: payload.min,
       stock: payload.stock !== false, enOferta: payload.enOferta || false, orden: payload.orden || 0, fotoZoom: payload.fotoZoom || 1 });
 
