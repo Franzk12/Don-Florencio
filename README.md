@@ -186,6 +186,11 @@ Ejemplos: `cargar-*.js` (altas/precios por categoría), `cargar-aumentos.js`,
 
 - **Brave** bloquea `firestore.googleapis.com` (escudos) y lo disfraza de
   *"insufficient permissions"*. Bajar escudos del sitio o usar Chrome.
+  Ojo: el SDK de Firestore **no rechaza** una escritura que no llega al servidor, la
+  deja encolada y la promesa pendiente **para siempre** → el panel se quedaba
+  "cargando" sin fin y sin mensaje. Ahora todo write del panel corta a los 20 s
+  (`conTimeout` en `admin.html`) y avisa. El timeout **no cancela** la escritura:
+  puede llegar después, por eso el mensaje pide recargar y verificar.
 - Tras un **restore por consola**, **recargar el admin** antes de editar (si no, el
   admin reescribe con su copia en memoria y deshace el restore).
 

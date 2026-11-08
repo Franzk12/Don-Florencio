@@ -1460,7 +1460,8 @@ document.getElementById('btn-guardar-oferta').addEventListener('click', async ()
     await setDoc(doc(db, 'ofertas', 'oferta_'+Date.now()), {
       titulo, desc: document.getElementById('of-desc').value.trim(),
       precio, fotoUrl, createdAt: new Date().toISOString(),
-      productId: currentOfferProductId || null, stock: true
+      productId: currentOfferProductId || null, stock: true,
+      _w: serverTimestamp()
     });
     if (currentOfferProductId) await setDoc(doc(db,'productos',currentOfferProductId), {enOferta:true, _w: serverTimestamp()}, {merge:true});
     toast('✅ Oferta guardada'); document.getElementById('btn-limpiar-of').click();
@@ -1499,7 +1500,7 @@ async function loadOfertas() {
 
 async function toggleOfertaStock(id, currentStock) {
   try {
-    await setDoc(doc(db,'ofertas',id), { stock: !currentStock }, { merge: true });
+    await setDoc(doc(db,'ofertas',id), { stock: !currentStock, _w: serverTimestamp() }, { merge: true });
     toast(!currentStock ? '✅ Con stock' : 'Marcada sin stock');
     await loadOfertas();
   } catch(e) { toast('Error: '+e.message, true); }
@@ -1612,6 +1613,26 @@ const APIKEY  = firebaseConfig.apiKey;
 // Las reglas de Firestore la exigen: el código viejo (pestañas abiertas antes del
 // 7/11/2026) no la manda y se rechaza, así no puede pisar el catálogo.
 
+// ── Timeout de red ───────────────────────────────────────────────────────────
+// El SDK de Firestore NO rechaza una escritura que no llega al servidor: la
+// encola y deja la promesa PENDIENTE para siempre (escudos de Brave bloqueando
+// firestore.googleapis.com, un bloqueador, o sin conexión). Sin esto el panel
+// se quedaba "cargando" sin fin y sin ningún mensaje. Le ponemos un límite.
+const NET_TIMEOUT_MS = 20000;
+class TimeoutRed extends Error {
+  constructor(queEs) { super('TIMEOUT_RED'); this.name = 'TimeoutRed'; this.queEs = queEs; }
+}
+function conTimeout(promesa, queEs, ms = NET_TIMEOUT_MS) {
+  let id;
+  const limite = new Promise((_, rej) => { id = setTimeout(() => rej(new TimeoutRed(queEs)), ms); });
+  return Promise.race([promesa, limite]).finally(() => clearTimeout(id));
+}
+const esTimeout = e => e instanceof TimeoutRed || (e && e.message === 'TIMEOUT_RED');
+// OJO: el timeout NO cancela la escritura; puede llegar más tarde. Por eso el
+// mensaje pide verificar recargando en vez de afirmar que no se guardó.
+const MSG_TIMEOUT_RED = '⛔ No se pudo conectar con la base de datos: la operación quedó colgada. Casi siempre es el escudo de Brave bloqueando firestore.googleapis.com (o un bloqueador de anuncios, o la conexión). Bajá los escudos para este sitio o usá Chrome. Ojo: el cambio puede haberse guardado igual — recargá con F5 y fijate antes de repetirlo.';
+const msgError = e => esTimeout(e) ? MSG_TIMEOUT_RED : ('Error: ' + e.message);
+
 // ── Control de versión del catálogo ──────────────────────────────────────────
 // El panel trabaja con una copia en memoria. Si mientras está abierto alguien
 // publica el catálogo desde otra pestaña, otro dispositivo o una carga por
@@ -1621,7 +1642,11 @@ const APIKEY  = firebaseConfig.apiKey;
 let _versionCargada = null;
 const MSG_DESACTUALIZADO = '⚠️ El catálogo se modificó desde otro lado (otra pestaña, otro dispositivo o una carga del desarrollador) después de que abriste el panel. Para no pisar esos cambios no se guardó nada. Recargá la página (F5) y volvé a hacer tu cambio.';
 async function _versionPublicada() {
-  const r = await fetch(`${FS_BASE}/config/catalogo?mask.fieldPaths=updatedAt&key=${APIKEY}`, { cache: 'no-store' });
+  // Con timeout: si el fetch se cuelga, el botón de guardar quedaría girando
+  // antes siquiera de intentar escribir. Quien llama ya trata el error.
+  const r = await conTimeout(
+    fetch(`${FS_BASE}/config/catalogo?mask.fieldPaths=updatedAt&key=${APIKEY}`, { cache: 'no-store' }),
+    'verificar la versión del catálogo', 10000);
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const d = await r.json();
   const v = d.fields && d.fields.updatedAt;
@@ -1990,12 +2015,12 @@ async function publicarSnapshot(silencioso) {
       const ref = doc(db, 'config', 'catalogo');
       const nueva = Date.now() + intento;  // distinta en cada intento
       _misVersiones.add(nueva);
-      await runTransaction(db, async (t) => {
+      await conTimeout(runTransaction(db, async (t) => {
         const s = await t.get(ref);
         actual = s.exists() ? (s.data().updatedAt || 0) : 0;
         if (actual !== base) throw new Error('DESACTUALIZADO');
         t.set(ref, { productos: productosStr, count: arr.length, updatedAt: nueva, _w: serverTimestamp() });
-      });
+      }), 'publicar el catálogo');
       if (_versionCargada === base || _misVersiones.has(_versionCargada)) _versionCargada = Math.max(_versionCargada || 0, nueva);
       if (!silencioso) toast('✅ Catálogo publicado (' + arr.length + ' productos)');
       return true;
@@ -2007,6 +2032,7 @@ async function publicarSnapshot(silencioso) {
         toast('⚠️ Tus cambios en los productos se guardaron, pero el catálogo publicado cambió desde otro lado y no se actualizó para no pisarlo. Recargá la página (F5).', true);
         return false;
       }
+      if (esTimeout(e)) { toast(MSG_TIMEOUT_RED, true); console.error('Timeout al publicar el catálogo'); return false; }
       if (!silencioso) toast('Error al publicar el catálogo: ' + e.message, true);
       return false;
     }
@@ -2061,7 +2087,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
       const lote = aEscribir.slice(i, i + CHUNK);
       const batch = writeBatch(db);
       lote.forEach(([id, pl]) => batch.set(doc(db,'productos',id), { ...pl, _w: serverTimestamp() }, { merge:true }));
-      await batch.commit();
+      await conTimeout(batch.commit(), 'guardar los productos');
       lote.forEach(([id, pl]) => _base.set(id, pl));
       guardados += lote.length;
       btn.innerHTML = `<span class="spinner"></span> ${guardados}/${aEscribir.length}`;
@@ -2074,7 +2100,7 @@ document.getElementById('btn-save-precios').addEventListener('click', async () =
     } else {
       document.getElementById('cambios-txt').textContent = '⚠️ No se pudo publicar (ver aviso)';
     }
-  } catch(e) { toast('Error: '+e.message, true); }
+  } catch(e) { toast(msgError(e), true); }
   btn.innerHTML = '💾 Guardar catálogo'; btn.disabled = false;
 });
 
@@ -2171,14 +2197,14 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
       fotoUrl, enOferta: false,
       fotoPosX: npPosX, fotoPosY: npPosY
     };
-    await setDoc(doc(db, 'productos', id), {
+    await conTimeout(setDoc(doc(db, 'productos', id), {
       nombre:nuevo.nombre, cat:nuevo.cat, desc:nuevo.desc,
       min:nuevo.min, may:nuevo.may, fotoUrl:nuevo.fotoUrl,
       tieneFoto: !!nuevo.fotoUrl,
       enOferta:false, stock:nuevo.stock, orden:nuevo.orden,
       fotoPosX:nuevo.fotoPosX, fotoPosY:nuevo.fotoPosY,
       _w: serverTimestamp()
-    });
+    }), 'agregar el producto');
     productos.push(nuevo);
     productos.sort((a,b) => {
       const d = CATS.indexOf(a.cat) - CATS.indexOf(b.cat);
@@ -2191,7 +2217,7 @@ document.getElementById('btn-guardar-nuevo-prod').addEventListener('click', asyn
     document.getElementById('modal-nuevo-prod').classList.remove('open');
     if (!_pubOk) { btn.innerHTML = '💾 Agregar producto'; btn.disabled = false; return; }
     toast('✅ Producto agregado');
-  } catch(e) { toast('Error: ' + e.message, true); }
+  } catch(e) { toast(msgError(e), true); }
   btn.innerHTML = '💾 Agregar producto'; btn.disabled = false;
 });
 
@@ -2400,7 +2426,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     };
     if (newFoto !== null) { payload.fotoUrl = newFoto; payload.tieneFoto = !!newFoto; }
     if (editFotoBorrada) { payload.fotoUrl = ''; payload.tieneFoto = false; }
-    await setDoc(doc(db,'productos',p.id), { ...payload, _w: serverTimestamp() }, { merge:true });
+    await conTimeout(setDoc(doc(db,'productos',p.id), { ...payload, _w: serverTimestamp() }, { merge:true }), 'guardar el producto');
     _marcarGuardado(p.id, { nombre: payload.nombre, cat: payload.cat, desc: payload.desc || '', min: payload.min,
       stock: payload.stock !== false, enOferta: payload.enOferta || false, orden: payload.orden || 0, fotoZoom: payload.fotoZoom || 1 });
 
@@ -2410,7 +2436,7 @@ document.getElementById('btn-ep-guardar').addEventListener('click', async () => 
     if (!_pubOk) { btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false; return; }
     renderTabla();
     toast('✅ Producto guardado');
-  } catch(e) { toast('Error: '+e.message, true); }
+  } catch(e) { toast(msgError(e), true); }
   btn.innerHTML = '💾 Guardar cambios'; btn.disabled = false;
 });
 
@@ -2502,7 +2528,8 @@ document.getElementById('btn-save-ticker').addEventListener('click', async () =>
     await setDoc(doc(db,'config','ticker'), {
       activo: document.getElementById('ticker-activo').checked,
       items: tickerItems,
-      velocidad: parseInt(document.getElementById('ticker-speed').value)
+      velocidad: parseInt(document.getElementById('ticker-speed').value),
+      _w: serverTimestamp()
     });
     toast('✅ Ticker guardado');
   } catch(e) { toast('Error: '+e.message, true); }
@@ -2515,7 +2542,8 @@ document.getElementById('ticker-activo').addEventListener('change', async () => 
     await setDoc(doc(db,'config','ticker'), {
       activo: document.getElementById('ticker-activo').checked,
       items: tickerItems,
-      velocidad: parseInt(document.getElementById('ticker-speed').value)
+      velocidad: parseInt(document.getElementById('ticker-speed').value),
+      _w: serverTimestamp()
     }, {merge: true});
     toast(document.getElementById('ticker-activo').checked ? '✅ Ticker activado' : 'Ticker desactivado');
   } catch(e) {}
@@ -2580,6 +2608,7 @@ document.getElementById('btn-save-hero').addEventListener('click', async () => {
       videoActivo:     document.getElementById('hero-video-activo').checked,
       videoUrl:        document.getElementById('hero-cfg-videoUrl').value.trim(),
       overlayOpacidad: parseInt(document.getElementById('hero-overlay-range').value),
+      _w: serverTimestamp(),
     });
     toast('✅ Hero guardado');
   } catch(e) { toast('Error: ' + e.message, true); }
@@ -2661,6 +2690,7 @@ document.getElementById('btn-save-config').addEventListener('click', async () =>
       horarios: document.getElementById('cfg-horarios').value.trim(),
       envios:   document.getElementById('cfg-envios').value.trim(),
       pagos:    document.getElementById('cfg-pagos').value.trim(),
+      _w: serverTimestamp(),
     });
     toast('✅ Configuración guardada');
   } catch(e) { toast('Error: '+e.message, true); }
